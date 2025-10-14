@@ -11,7 +11,7 @@ import React, {
   use,
   useContext,
   useMemo,
-  useOptimistic
+  useState
 } from 'react';
 
 type UpdateType = 'plus' | 'minus' | 'delete';
@@ -27,7 +27,10 @@ type CartAction =
     };
 
 type CartContextType = {
-  cartPromise: Promise<Cart | undefined>;
+  cart: Cart | undefined;
+  updateCartItem: (merchandiseId: string, updateType: UpdateType) => void;
+  addCartItem: (variant: ProductVariant, product: Product) => Promise<void>;
+  contextId: string;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -163,21 +166,29 @@ function cartReducer(state: Cart | undefined, action: CartAction): Cart {
       };
     }
     case 'ADD_ITEM': {
+      console.log('🛒 ADD_ITEM reducer called');
       const { variant, product } = action.payload;
+      console.log('🛒 Adding item:', { variant: variant.title, product: product.title });
+      
       const existingItem = currentCart.lines.find(
         (item) => item.merchandise.id === variant.id
       );
+      console.log('🛒 Existing item found:', existingItem ? 'Yes' : 'No');
+      
       const updatedItem = createOrUpdateCartItem(
         existingItem,
         variant,
         product
       );
+      console.log('🛒 Updated item:', updatedItem);
 
       const updatedLines = existingItem
         ? currentCart.lines.map((item) =>
             item.merchandise.id === variant.id ? updatedItem : item
           )
         : [...currentCart.lines, updatedItem];
+
+      console.log('🛒 Final lines:', updatedLines.length);
 
       return {
         ...currentCart,
@@ -197,8 +208,73 @@ export function CartProvider({
   children: React.ReactNode;
   cartPromise: Promise<Cart | undefined>;
 }) {
+  const initialCart = use(cartPromise);
+  const [localCart, setLocalCart] = useState(initialCart);
+  
+  // Generar un ID único para esta instancia del contexto
+  const contextId = useMemo(() => Math.random().toString(36).substr(2, 9), []);
+  console.log('🛒 CartProvider - Context ID:', contextId);
+  console.log('🛒 CartContext - initialCart:', initialCart);
+  console.log('🛒 CartContext - localCart:', localCart);
+
+  const updateCartItem = (merchandiseId: string, updateType: UpdateType) => {
+    setLocalCart(prevCart => {
+      if (!prevCart) return prevCart;
+      return cartReducer(prevCart, {
+        type: 'UPDATE_ITEM',
+        payload: { merchandiseId, updateType }
+      });
+    });
+  };
+
+  const addCartItem = async (variant: ProductVariant, product: Product) => {
+    console.log('🛒 addCartItem called:', { variant: variant.title, product: product.title });
+    
+    // Actualizar el carrito local
+    setLocalCart(prevCart => {
+      if (!prevCart) return prevCart;
+      return cartReducer(prevCart, {
+        type: 'ADD_ITEM',
+        payload: { variant, product }
+      });
+    });
+    
+    // Sincronizar con Shopify usando la acción del servidor
+    try {
+      const { addItemToCart } = await import('./actions');
+      const result = await addItemToCart(variant.id);
+      if (result.success) {
+        console.log('🛒 Producto sincronizado con Shopify');
+      } else {
+        console.error('🛒 Error sincronizando con Shopify:', result.error);
+      }
+    } catch (error) {
+      console.error('🛒 Error sincronizando con Shopify:', error);
+    }
+    
+    console.log('🛒 addCartItem completed');
+  };
+
+  const contextValue = useMemo(
+    () => {
+      console.log('🛒 useMemo - localCart:', localCart);
+      console.log('🛒 useMemo - localCart.lines:', localCart?.lines?.length);
+      return {
+        cart: localCart,
+        updateCartItem,
+        addCartItem,
+        contextId
+      };
+    },
+    [localCart, contextId]
+  );
+  
+  console.log('🛒 useMemo - contextValue:', contextValue);
+  console.log('🛒 useMemo - contextValue.cart:', contextValue.cart);
+  console.log('🛒 useMemo - contextValue.cart.lines:', contextValue.cart?.lines?.length);
+
   return (
-    <CartContext.Provider value={{ cartPromise }}>
+    <CartContext.Provider value={contextValue}>
       {children}
     </CartContext.Provider>
   );
@@ -210,29 +286,5 @@ export function useCart() {
     throw new Error('useCart must be used within a CartProvider');
   }
 
-  const initialCart = use(context.cartPromise);
-  const [optimisticCart, updateOptimisticCart] = useOptimistic(
-    initialCart,
-    cartReducer
-  );
-
-  const updateCartItem = (merchandiseId: string, updateType: UpdateType) => {
-    updateOptimisticCart({
-      type: 'UPDATE_ITEM',
-      payload: { merchandiseId, updateType }
-    });
-  };
-
-  const addCartItem = (variant: ProductVariant, product: Product) => {
-    updateOptimisticCart({ type: 'ADD_ITEM', payload: { variant, product } });
-  };
-
-  return useMemo(
-    () => ({
-      cart: optimisticCart,
-      updateCartItem,
-      addCartItem
-    }),
-    [optimisticCart]
-  );
+  return context;
 }
