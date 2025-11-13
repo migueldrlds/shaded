@@ -59,7 +59,7 @@ ${returnItems.map((item: any) =>
 Estado: Pendiente de revisión
 Solicitado por: Cliente vía web`;
 
-      const noteResult = await addOrderNote(orderId, returnNote);
+      const noteResult = await addOrderNote(orderId, returnNote) as any;
       
       if (noteResult?.data?.orderUpdate?.userErrors?.length > 0) {
         console.error('Shopify note errors:', noteResult.data.orderUpdate.userErrors);

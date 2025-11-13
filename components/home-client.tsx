@@ -1,5 +1,6 @@
 'use client';
 
+import { useLanguage } from "components/providers/language-provider";
 import SplitText from "components/SplitText";
 import { gsap } from 'gsap';
 import Image from "next/image";
@@ -15,6 +16,7 @@ interface HomeClientProps {
 }
 
 export default function HomeClient({ latestCollection }: HomeClientProps) {
+  const { t } = useLanguage();
   const backgroundVideoRef = useRef<HTMLVideoElement>(null);
   const collectionVideoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -76,6 +78,11 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
 
   // Animación de cards
   useEffect(() => {
+    // Esperar a que todos los refs estén listos
+    if (!containerRef.current || !mainCardRef.current || !secondCardRef.current) {
+      return;
+    }
+
     let tl: gsap.core.Timeline | null = null;
     let containerNaturalHeight = 0;
     let mainCardNaturalHeight = 0;
@@ -85,46 +92,44 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
     let secondCardWrapperMarginTop = 0;
     
     // Calcular alturas naturales ANTES de establecerlas a 0
-    if (containerRef.current && mainCardRef.current && secondCardRef.current) {
-      const container = containerRef.current;
-      const mainCard = mainCardRef.current;
-      const secondCard = secondCardRef.current;
-      
-      // Obtener alturas naturales mientras los elementos están en su estado natural
-      containerNaturalHeight = container.offsetHeight || container.scrollHeight;
-      mainCardNaturalHeight = mainCard.offsetHeight || 448;
-      secondCardNaturalHeight = secondCard.offsetHeight || 256;
-      
-      const secondCardStyle = window.getComputedStyle(secondCard);
-      secondCardPaddingTop = parseFloat(secondCardStyle.paddingTop) || 0;
-      secondCardPaddingBottom = parseFloat(secondCardStyle.paddingBottom) || 0;
-      
-      const secondCardWrapper = secondCardWrapperRef.current;
-      if (secondCardWrapper) {
-        const secondCardWrapperStyle = window.getComputedStyle(secondCardWrapper);
-        secondCardWrapperMarginTop = parseFloat(secondCardWrapperStyle.marginTop) || 0;
-        gsap.set(secondCardWrapper, { marginTop: 0 });
-      }
-      
-      // Establecer alturas iniciales a 0
-      gsap.set(container, {
-        height: 0,
-        overflow: 'hidden',
-        transformOrigin: 'top center'
-      });
-      
-      gsap.set(mainCard, {
-        height: 0,
-        overflow: 'hidden'
-      });
-      
-      gsap.set(secondCard, {
-        height: 0,
-        paddingTop: 0,
-        paddingBottom: 0,
-        overflow: 'hidden'
-      });
+    const container = containerRef.current;
+    const mainCard = mainCardRef.current;
+    const secondCard = secondCardRef.current;
+    
+    // Obtener alturas naturales mientras los elementos están en su estado natural
+    containerNaturalHeight = container.offsetHeight || container.scrollHeight;
+    mainCardNaturalHeight = mainCard.offsetHeight || 448;
+    secondCardNaturalHeight = secondCard.offsetHeight || 256;
+    
+    const secondCardStyle = window.getComputedStyle(secondCard);
+    secondCardPaddingTop = parseFloat(secondCardStyle.paddingTop) || 0;
+    secondCardPaddingBottom = parseFloat(secondCardStyle.paddingBottom) || 0;
+    
+    const secondCardWrapper = secondCardWrapperRef.current;
+    if (secondCardWrapper) {
+      const secondCardWrapperStyle = window.getComputedStyle(secondCardWrapper);
+      secondCardWrapperMarginTop = parseFloat(secondCardWrapperStyle.marginTop) || 0;
+      gsap.set(secondCardWrapper, { marginTop: 0 });
     }
+    
+    // Establecer alturas iniciales a 0
+    gsap.set(container, {
+      height: 0,
+      overflow: 'hidden',
+      transformOrigin: 'top center'
+    });
+    
+    gsap.set(mainCard, {
+      height: 0,
+      overflow: 'hidden'
+    });
+    
+    gsap.set(secondCard, {
+      height: 0,
+      paddingTop: 0,
+      paddingBottom: 0,
+      overflow: 'hidden'
+    });
     
     // Esperar un momento para que el DOM se renderice completamente
     const timeoutId = setTimeout(() => {
@@ -306,7 +311,7 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
                 href={`/productos?coleccion=${latestCollection.handle}`} 
                 className="bg-white/20 backdrop-blur-sm border border-white/70 text-white px-6 py-3 rounded-full text-sm font-light hover:bg-white/30 transition-all duration-200 w-fit"
               >
-                View collection
+                {t('home.viewCollection')}
               </Link>
             </div>
           </div>
@@ -317,9 +322,9 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
               ref={secondCardRef}
               className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] w-full flex flex-col h-[16rem] p-8 relative items-center justify-center"
             >
-              <h1 className="text-3xl font-medium text-white text-center mb-2 max-w-xs">See all of our collections</h1>
+              <h1 className="text-3xl font-medium text-white text-center mb-2 max-w-xs">{t('home.seeAllCollections')}</h1>
               <Link href="/coleccion" className="mt-4 inline-flex items-center transition-all duration-200 hover:opacity-90" aria-label="Explore collections">
-                <span className="rounded-full text-sm font-light px-8 py-2" style={{ backgroundColor: '#d2d5d3', color: '#2E2E2C' }}>Explore</span>
+                <span className="rounded-full text-sm font-light px-8 py-2" style={{ backgroundColor: '#d2d5d3', color: '#2E2E2C' }}>{t('home.explore')}</span>
               </Link>
             </div>
           </div>
@@ -333,13 +338,13 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
           className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl mx-auto"
         >
           <div className="relative overflow-hidden rounded-[60px] lg:rounded-[40px] h-[20rem] md:h-[28rem]">
-            <Image src="/img1.jpg" alt="Get a Discount" fill className="object-cover" />
+            <Image src="/img1.jpg" alt={t('home.getDiscount')} fill className="object-cover" />
             <div className="absolute inset-0 bg-black/40"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-              <h3 className="text-3xl lg:text-5xl font-medium text-white mb-2">Get a Discount</h3>
-              <p className="text-sm lg:text-base text-white/80 mb-4">for all new members</p>
-              <Link href="/coleccion" className="inline-flex items-center transition-all duration-200 hover:opacity-90" aria-label="Sign in">
-                <span className="rounded-full text-sm font-light px-8 py-2" style={{ backgroundColor: '#d2d5d3', color: '#2E2E2C' }}>Sign In</span>
+              <h3 className="text-3xl lg:text-5xl font-medium text-white mb-2">{t('home.getDiscount')}</h3>
+              <p className="text-sm lg:text-base text-white/80 mb-4">{t('home.forAllNewMembers')}</p>
+              <Link href="/coleccion" className="inline-flex items-center transition-all duration-200 hover:opacity-90" aria-label={t('home.signIn')}>
+                <span className="rounded-full text-sm font-light px-8 py-2" style={{ backgroundColor: '#d2d5d3', color: '#2E2E2C' }}>{t('home.signIn')}</span>
                 <span className="rounded-full w-10 h-10 flex items-center justify-center" style={{ backgroundColor: '#d2d5d3', color: '#2E2E2C' }}>
                   <FiArrowUpRight className="h-5 w-5" />
                 </span>
@@ -358,10 +363,10 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
           <div className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] p-8 lg:p-12">
             <div className="text-center">
               <h2 className="text-2xl lg:text-4xl font-medium text-white mb-6" style={{ fontFamily: 'Agressive' }}>
-                SHADED is more than just an Athleisure Brand—IT'S A MOVEMENT.
+                {t('home.movementTitle')}
               </h2>
               <p className="text-sm lg:text-lg text-white/80 leading-relaxed max-w-4xl mx-auto">
-                We totally get it—life is all about movement! Whether you're slaying a workout, managing a busy schedule, or simply enjoying some well-deserved chill time, our collection has got your back. Each piece is designed to help you feel confident and comfortable, no matter where the day takes you!
+                {t('home.movementDescription')}
               </p>
             </div>
           </div>

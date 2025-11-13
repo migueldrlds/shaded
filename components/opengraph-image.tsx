@@ -1,7 +1,7 @@
-import { ImageResponse } from 'next/og';
-import LogoIcon from './icons/logo';
-import { join } from 'path';
 import { readFile } from 'fs/promises';
+import { ImageResponse } from 'next/og';
+import { resolve } from 'path';
+import LogoIcon from './icons/logo';
 
 export type Props = {
   title?: string;
@@ -17,8 +17,16 @@ export default async function OpengraphImage(
     ...props
   };
 
-  const file = await readFile(join(process.cwd(), './fonts/Inter-Bold.ttf'));
-  const font = Uint8Array.from(file).buffer;
+  let font: ArrayBuffer | undefined;
+  
+  try {
+    const fontPath = resolve(process.cwd(), 'fonts', 'Inter-Bold.ttf');
+    const file = await readFile(fontPath);
+    font = Uint8Array.from(file).buffer;
+  } catch (error) {
+    console.error('Error loading font:', error);
+    // Continue without custom font
+  }
 
   return new ImageResponse(
     (
@@ -32,14 +40,16 @@ export default async function OpengraphImage(
     {
       width: 1200,
       height: 630,
-      fonts: [
-        {
-          name: 'Inter',
-          data: font,
-          style: 'normal',
-          weight: 700
-        }
-      ]
+      ...(font && {
+        fonts: [
+          {
+            name: 'Inter',
+            data: font,
+            style: 'normal' as const,
+            weight: 700
+          }
+        ]
+      })
     }
   );
 }

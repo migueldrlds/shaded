@@ -1,9 +1,10 @@
 'use client';
 
-import { useLanguage } from 'components/providers/language-provider';
 import LanguageSelector from 'components/language-selector';
+import { useLanguage } from 'components/providers/language-provider';
 import Image from 'next/image';
 import Link from 'next/link';
+import { FaFacebook, FaInstagram } from 'react-icons/fa';
 
 export default function FooterNew() {
   const { t } = useLanguage();
@@ -95,17 +96,19 @@ export default function FooterNew() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/70 hover:text-white transition-colors text-sm"
+                className="text-white/70 hover:text-white transition-colors"
+                aria-label="Facebook"
               >
-                Facebook
+                <FaFacebook className="w-6 h-6" />
               </a>
               <a
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/70 hover:text-white transition-colors text-sm"
+                className="text-white/70 hover:text-white transition-colors"
+                aria-label="Instagram"
               >
-                Instagram
+                <FaInstagram className="w-6 h-6" />
               </a>
             </div>
           </div>
@@ -115,7 +118,7 @@ export default function FooterNew() {
             <div className="border-t border-white/20 mt-8 pt-8">
               <div className="flex flex-col md:flex-row justify-between items-center">
                 <p className="text-white/60 text-sm">
-                  {t('footer.copyright')}
+                  {t('footer.copyright', { year: new Date().getFullYear() })}
                 </p>
                 <div className="flex flex-col md:flex-row items-center gap-6 mt-4 md:mt-0">
                   <LanguageSelector />

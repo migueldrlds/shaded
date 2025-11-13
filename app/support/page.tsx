@@ -1,6 +1,11 @@
 'use client';
 
+import { useLanguage } from 'components/providers/language-provider';
+import Link from 'next/link';
+
 export default function Support() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen relative" style={{ backgroundColor: '#d2d5d3' }}>
       
@@ -10,10 +15,10 @@ export default function Support() {
           {/* Título de la página */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#2E2E2C', fontFamily: 'Agressive' }}>
-              Customer Support
+              {t('support.title')}
             </h1>
             <p className="text-lg opacity-80" style={{ color: '#2E2E2C' }}>
-              We're here to help you with any questions or concerns
+              {t('support.subtitle')}
             </p>
           </div>
 
@@ -22,50 +27,50 @@ export default function Support() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Información de contacto */}
               <div>
-                <h2 className="text-2xl font-semibold mb-4" style={{ color: '#2E2E2C' }}>Contact Information</h2>
+                <h2 className="text-2xl font-semibold mb-4" style={{ color: '#2E2E2C' }}>{t('support.contactInfo')}</h2>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>Email Support</h3>
+                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>{t('support.emailSupport')}</h3>
                     <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>support@shaded.com</p>
-                    <p className="text-xs opacity-60" style={{ color: '#2E2E2C' }}>Response within 24-48 hours</p>
+                    <p className="text-xs opacity-60" style={{ color: '#2E2E2C' }}>{t('support.emailResponse')}</p>
                   </div>
                   
                   <div>
-                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>Phone Support</h3>
+                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>{t('support.phoneSupport')}</h3>
                     <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>+1 (555) 123-4567</p>
-                    <p className="text-xs opacity-60" style={{ color: '#2E2E2C' }}>Mon-Fri 9AM-6PM EST</p>
+                    <p className="text-xs opacity-60" style={{ color: '#2E2E2C' }}>{t('support.phoneHours')}</p>
                   </div>
                   
                   <div>
-                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>Live Chat</h3>
-                    <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>Available on our website</p>
-                    <p className="text-xs opacity-60" style={{ color: '#2E2E2C' }}>Mon-Fri 9AM-6PM EST</p>
+                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>{t('support.liveChat')}</h3>
+                    <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>{t('support.liveChatText')}</p>
+                    <p className="text-xs opacity-60" style={{ color: '#2E2E2C' }}>{t('support.phoneHours')}</p>
                   </div>
                 </div>
               </div>
 
               {/* Preguntas frecuentes */}
               <div>
-                <h2 className="text-2xl font-semibold mb-4" style={{ color: '#2E2E2C' }}>Frequently Asked Questions</h2>
+                <h2 className="text-2xl font-semibold mb-4" style={{ color: '#2E2E2C' }}>{t('support.faq')}</h2>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>How do I track my order?</h3>
-                    <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>You'll receive a tracking number via email once your order ships.</p>
+                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>{t('support.faqTrackOrder')}</h3>
+                    <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>{t('support.faqTrackOrderAnswer')}</p>
                   </div>
                   
                   <div>
-                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>What is your return policy?</h3>
-                    <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>We offer 30-day returns on all items in original condition.</p>
+                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>{t('support.faqReturnPolicy')}</h3>
+                    <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>{t('support.faqReturnPolicyAnswer')}</p>
                   </div>
                   
                   <div>
-                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>Do you ship internationally?</h3>
-                    <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>Yes, we ship to most countries worldwide.</p>
+                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>{t('support.faqInternationalShipping')}</h3>
+                    <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>{t('support.faqInternationalShippingAnswer')}</p>
                   </div>
                   
                   <div>
-                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>How can I change my order?</h3>
-                    <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>Contact us immediately if your order hasn't shipped yet.</p>
+                    <h3 className="font-semibold mb-2" style={{ color: '#2E2E2C' }}>{t('support.faqChangeOrder')}</h3>
+                    <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>{t('support.faqChangeOrderAnswer')}</p>
                   </div>
                 </div>
               </div>
@@ -73,12 +78,12 @@ export default function Support() {
 
             {/* Botón de contacto */}
             <div className="mt-8 text-center">
-              <a 
+              <Link 
                 href="/contact" 
                 className="inline-block bg-black text-white px-8 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors duration-200"
               >
-                Contact Us
-              </a>
+                {t('support.contactUs')}
+              </Link>
             </div>
           </div>
         </div>

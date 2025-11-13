@@ -51,14 +51,15 @@ const DesktopProductCardAlt: React.FC<DesktopProductCardAltProps> = ({ product }
     // Buscar una imagen que no sea la featured ni la segunda (índice 1)
     // Preferir la tercera imagen (índice 2) o la última
     for (let i = 2; i < product.images.length; i++) {
-      if (product.images[i].url !== featuredImageUrl) {
-        return product.images[i].url;
+      const image = product.images[i];
+      if (image?.url && image.url !== featuredImageUrl) {
+        return image.url;
       }
     }
     
     // Si no encontramos una adecuada, usar la última imagen
     const lastImage = product.images[product.images.length - 1];
-    if (lastImage.url !== featuredImageUrl && product.images.length > 2) {
+    if (lastImage?.url && lastImage.url !== featuredImageUrl && product.images.length > 2) {
       return lastImage.url;
     }
     

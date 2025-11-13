@@ -71,9 +71,18 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
   };
 
   // Touch fallback (iOS Safari older)
-  const handleTouchStart = (e: React.TouchEvent) => startGesture(e.touches[0].clientX, e.touches[0].clientY);
-  const handleTouchMove = (e: React.TouchEvent) => moveGesture(e.touches[0].clientX, e.touches[0].clientY, () => e.preventDefault());
-  const handleTouchEnd = (e: React.TouchEvent) => endGesture(e.changedTouches[0].clientX);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (touch) startGesture(touch.clientX, touch.clientY);
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (touch) moveGesture(touch.clientX, touch.clientY, () => e.preventDefault());
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touch = e.changedTouches[0];
+    if (touch) endGesture(touch.clientX);
+  };
 
   return (
     <form>
