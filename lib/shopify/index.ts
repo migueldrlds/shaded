@@ -6,9 +6,9 @@ import {
 import { isShopifyError } from 'lib/type-guards';
 import { ensureStartsWith } from 'lib/utils';
 import {
-  revalidateTag,
+  unstable_cacheLife as cacheLife,
   unstable_cacheTag as cacheTag,
-  unstable_cacheLife as cacheLife
+  revalidateTag
 } from 'next/cache';
 import { cookies, headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,12 +18,20 @@ import {
   editCartItemsMutation,
   removeFromCartMutation
 } from './mutations/cart';
+import {
+  customerAccessTokenCreateMutation,
+  customerAccessTokenDeleteMutation,
+  customerActivateMutation,
+  customerCreateMutation,
+  customerRecoverMutation
+} from './mutations/customer';
 import { getCartQuery } from './queries/cart';
 import {
   getCollectionProductsQuery,
   getCollectionQuery,
   getCollectionsQuery
 } from './queries/collection';
+import { getCustomerOrdersQuery, getCustomerQuery } from './queries/customer';
 import { getMenuQuery } from './queries/menu';
 import { getPageQuery, getPagesQuery } from './queries/page';
 import {
@@ -35,6 +43,7 @@ import {
   Cart,
   Collection,
   Connection,
+  Customer,
   Image,
   Menu,
   Page,
@@ -47,6 +56,12 @@ import {
   ShopifyCollectionProductsOperation,
   ShopifyCollectionsOperation,
   ShopifyCreateCartOperation,
+  ShopifyCustomerAccessTokenCreateOperation,
+  ShopifyCustomerAccessTokenDeleteOperation,
+  ShopifyCustomerActivateOperation,
+  ShopifyCustomerCreateOperation,
+  ShopifyCustomerOperation,
+  ShopifyCustomerRecoverOperation,
   ShopifyMenuOperation,
   ShopifyPageOperation,
   ShopifyPagesOperation,
@@ -498,4 +513,241 @@ export async function revalidate(req: NextRequest): Promise<NextResponse> {
   }
 
   return NextResponse.json({ status: 200, revalidated: true, now: Date.now() });
+}
+
+// Customer Authentication Functions
+export async function customerLogin(email: string, password: string): Promise<{ accessToken?: string; errors?: string[] }> {
+  try {
+    const res = await shopifyFetch<ShopifyCustomerAccessTokenCreateOperation>({
+      query: customerAccessTokenCreateMutation,
+      variables: {
+        input: {
+          email,
+          password
+        }
+      }
+    });
+
+    const { customerAccessToken, customerUserErrors } = res.body.data.customerAccessTokenCreate;
+
+    if (customerUserErrors.length > 0) {
+      return {
+        errors: customerUserErrors.map(error => error.message)
+      };
+    }
+
+    if (customerAccessToken) {
+      // Store the access token in cookies
+      const cookieStore = await cookies();
+      cookieStore.set('customerAccessToken', customerAccessToken.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 30 // 30 days
+      });
+
+      return {
+        accessToken: customerAccessToken.accessToken
+      };
+    }
+
+    return {
+      errors: ['Login failed']
+    };
+  } catch (error) {
+    console.error('Login error:', error);
+    return {
+      errors: ['An error occurred during login']
+    };
+  }
+}
+
+export async function customerLogout(): Promise<{ success: boolean }> {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('customerAccessToken')?.value;
+
+    if (accessToken) {
+      // Delete the access token from Shopify
+      await shopifyFetch<ShopifyCustomerAccessTokenDeleteOperation>({
+        query: customerAccessTokenDeleteMutation,
+        variables: {
+          customerAccessToken: accessToken
+        }
+      });
+    }
+
+    // Remove the cookie
+    cookieStore.delete('customerAccessToken');
+
+    return { success: true };
+  } catch (error) {
+    console.error('Logout error:', error);
+    return { success: false };
+  }
+}
+
+export async function customerRegister(firstName: string, lastName: string, email: string, password: string): Promise<{ customer?: Customer; errors?: string[] }> {
+  try {
+    const res = await shopifyFetch<ShopifyCustomerCreateOperation>({
+      query: customerCreateMutation,
+      variables: {
+        input: {
+          firstName,
+          lastName,
+          email,
+          password,
+          acceptsMarketing: false
+        }
+      }
+    });
+
+    const { customer, customerUserErrors } = res.body.data.customerCreate;
+
+    if (customerUserErrors.length > 0) {
+      return {
+        errors: customerUserErrors.map(error => error.message)
+      };
+    }
+
+    return { customer };
+  } catch (error) {
+    console.error('Registration error:', error);
+    return {
+      errors: ['An error occurred during registration']
+    };
+  }
+}
+
+export async function getCustomer(): Promise<Customer | null> {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('customerAccessToken')?.value;
+
+    if (!accessToken) {
+      return null;
+    }
+
+    const res = await shopifyFetch<ShopifyCustomerOperation>({
+      query: getCustomerQuery,
+      variables: {
+        customerAccessToken: accessToken
+      }
+    });
+
+    return res.body.data.customer || null;
+  } catch (error) {
+    console.error('Get customer error:', error);
+    return null;
+  }
+}
+
+export async function customerForgotPassword(email: string): Promise<{ success: boolean; errors?: string[] }> {
+  try {
+    const res = await shopifyFetch<ShopifyCustomerRecoverOperation>({
+      query: customerRecoverMutation,
+      variables: {
+        email
+      }
+    });
+
+    const { customerUserErrors } = res.body.data.customerRecover;
+
+    if (customerUserErrors.length > 0) {
+      return {
+        success: false,
+        errors: customerUserErrors.map(error => error.message)
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return {
+      success: false,
+      errors: ['An error occurred while processing your request']
+    };
+  }
+}
+
+export async function getCustomerOrders(first: number = 10): Promise<any[]> {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('customerAccessToken')?.value;
+
+    if (!accessToken) {
+      return [];
+    }
+
+    const res = await shopifyFetch<any>({
+      query: getCustomerOrdersQuery,
+      variables: {
+        customerAccessToken: accessToken,
+        first
+      }
+    });
+
+    const customer = (res.body as any).data?.customer;
+    
+    if (!customer?.orders?.edges) {
+      return [];
+    }
+
+    return customer.orders.edges.map((edge: any) => edge.node);
+  } catch (error) {
+    console.error('Get customer orders error:', error);
+    return [];
+  }
+}
+
+export async function customerActivate(
+  customerId: string, 
+  activationToken: string, 
+  password: string
+): Promise<{ accessToken?: string; customer?: Customer; errors?: string[] }> {
+  try {
+    const res = await shopifyFetch<ShopifyCustomerActivateOperation>({
+      query: customerActivateMutation,
+      variables: {
+        id: customerId,
+        input: {
+          activationToken,
+          password
+        }
+      }
+    });
+
+    const { customer, customerAccessToken, customerUserErrors } = res.body.data.customerActivate;
+
+    if (customerUserErrors.length > 0) {
+      return {
+        errors: customerUserErrors.map(error => error.message)
+      };
+    }
+
+    if (customerAccessToken && customer) {
+      // Store the access token in cookies
+      const cookieStore = await cookies();
+      cookieStore.set('customerAccessToken', customerAccessToken.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 30 // 30 days
+      });
+
+      return {
+        accessToken: customerAccessToken.accessToken,
+        customer
+      };
+    }
+
+    return {
+      errors: ['Activation failed']
+    };
+  } catch (error) {
+    console.error('Customer activation error:', error);
+    return {
+      errors: ['An error occurred during activation']
+    };
+  }
 }

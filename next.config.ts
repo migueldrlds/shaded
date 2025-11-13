@@ -11,6 +11,16 @@ export default {
         protocol: 'https',
         hostname: 'cdn.shopify.com',
         pathname: '/s/files/**'
+      },
+      {
+        protocol: 'https',
+        hostname: '*.shopify.com',
+        pathname: '/s/files/**'
+      },
+      {
+        protocol: 'https',
+        hostname: '*.myshopify.com',
+        pathname: '/s/files/**'
       }
     ]
   }

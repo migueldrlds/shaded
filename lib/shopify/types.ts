@@ -271,3 +271,123 @@ export type ShopifyProductsOperation = {
     sortKey?: string;
   };
 };
+
+export type Customer = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  email: string;
+  phone?: string;
+  acceptsMarketing: boolean;
+  createdAt: string;
+  updatedAt: string;
+  defaultAddress?: CustomerAddress;
+};
+
+export type CustomerAddress = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  company?: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  province: string;
+  country: string;
+  zip: string;
+  phone?: string;
+};
+
+export type CustomerAccessToken = {
+  accessToken: string;
+  expiresAt: string;
+};
+
+export type CustomerUserError = {
+  field?: string[];
+  message: string;
+};
+
+export type ShopifyCustomerAccessTokenCreateOperation = {
+  data: {
+    customerAccessTokenCreate: {
+      customerAccessToken?: CustomerAccessToken;
+      customerUserErrors: CustomerUserError[];
+    };
+  };
+  variables: {
+    input: {
+      email: string;
+      password: string;
+    };
+  };
+};
+
+export type ShopifyCustomerAccessTokenDeleteOperation = {
+  data: {
+    customerAccessTokenDelete: {
+      deletedAccessToken?: string;
+      deletedCustomerAccessTokenId?: string;
+      userErrors: CustomerUserError[];
+    };
+  };
+  variables: {
+    customerAccessToken: string;
+  };
+};
+
+export type ShopifyCustomerCreateOperation = {
+  data: {
+    customerCreate: {
+      customer?: Customer;
+      customerUserErrors: CustomerUserError[];
+    };
+  };
+  variables: {
+    input: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      password: string;
+      acceptsMarketing?: boolean;
+    };
+  };
+};
+
+export type ShopifyCustomerOperation = {
+  data: {
+    customer?: Customer;
+  };
+  variables: {
+    customerAccessToken: string;
+  };
+};
+
+export type ShopifyCustomerRecoverOperation = {
+  data: {
+    customerRecover: {
+      customerUserErrors: CustomerUserError[];
+    };
+  };
+  variables: {
+    email: string;
+  };
+};
+
+export type ShopifyCustomerActivateOperation = {
+  data: {
+    customerActivate: {
+      customer?: Customer;
+      customerAccessToken?: CustomerAccessToken;
+      customerUserErrors: CustomerUserError[];
+    };
+  };
+  variables: {
+    id: string;
+    input: {
+      activationToken: string;
+      password: string;
+    };
+  };
+};

@@ -30,3 +30,277 @@ input,
 button {
   @apply focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-50 dark:focus-visible:ring-neutral-600 dark:focus-visible:ring-offset-neutral-900;
 }
+
+/* SplitText styles - igual que en el portfolio */
+.slide-title {
+  overflow: visible !important;
+  line-height: 1.2;
+}
+
+.slide-title > div {
+  overflow: visible !important;
+}
+
+.line,
+.word,
+.char {
+  overflow: visible !important;
+  vertical-align: top;
+  line-height: 1.2;
+}
+
+.word {
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+  display: inline-block;
+}
+
+/* Product Card Styles */
+.card-wrapper {
+  position: relative;
+}
+
+.product-card-wrapper {
+  position: relative;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card--standard {
+  position: relative;
+}
+
+.card--media {
+  color: inherit;
+}
+
+.card__inner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: white;
+}
+
+.card__inner.ratio {
+  height: 0;
+  padding-bottom: var(--ratio-percent, 100%);
+  position: relative;
+}
+
+.card__media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.media {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.media--transparent {
+  background: transparent;
+}
+
+.media--hover-effect {
+  overflow: hidden;
+  position: relative;
+}
+
+.media--hover-effect a {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.motion-reduce {
+  transition: opacity 0.5s ease;
+}
+
+.card__content {
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  color: #000000;
+  text-align: center;
+}
+
+.card__information {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: center;
+  align-items: center;
+}
+
+.card__heading {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #000000;
+  text-align: center;
+}
+
+.card__heading.h5 {
+  font-size: 1rem;
+  color: #000000;
+  text-align: center;
+}
+
+.card__heading a {
+  color: #000000;
+  text-decoration: none;
+  text-align: center;
+}
+
+.card__title-link {
+  display: inline-block;
+  text-align: center;
+  transition: text-decoration 0.3s ease;
+}
+
+.group:hover .card__title-link {
+  text-decoration: underline;
+}
+
+.full-unstyled-link {
+  text-decoration: none;
+  color: #000000;
+}
+
+.full-unstyled-link:hover {
+  text-decoration: none;
+  color: #000000;
+}
+
+.underline-links-hover a:hover {
+  text-decoration: underline;
+}
+
+.card-information {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: center;
+  align-items: center;
+  width: 100%;
+}
+
+.price {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.price__container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: center;
+  width: 100%;
+}
+
+.price-item--default {
+  display: block;
+}
+
+.price-item--hover {
+  display: none;
+}
+
+.group:hover .price-item--default {
+  display: none;
+}
+
+.group:hover .price-item--hover {
+  display: block;
+}
+
+.price-item {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #000000;
+  text-align: center;
+}
+
+.price-item--regular {
+  color: #000000;
+  text-align: center;
+  font-weight: 700;
+}
+
+.price-item--sale {
+  color: #000000;
+  text-align: center;
+  font-weight: 700;
+}
+
+.price-item--last {
+  display: block;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+}
+
+.visually-hidden--inline {
+  position: static !important;
+  overflow: visible;
+  clip: auto;
+  height: auto;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.card__badge {
+  position: absolute;
+  z-index: 1;
+}
+
+.card__badge.bottom {
+  bottom: 0;
+}
+
+.card__badge.left {
+  left: 0;
+}
+
+.color-scheme-2 {
+  color: #000000;
+  background-color: #ffffff;
+}
+
+.gradient {
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0));
+}

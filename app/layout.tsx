@@ -1,8 +1,10 @@
+import { AuthProvider } from 'components/auth/auth-context';
 import { CartProvider } from 'components/cart/cart-context';
 import { CartModalProvider } from 'components/cart/cart-modal-context';
 import CartModal from 'components/cart/modal';
-import FooterNew from 'components/layout/footer-new';
+import FooterController from 'components/layout/footer-controller';
 import HeaderWrapper from 'components/layout/header-wrapper';
+import { LanguageProvider } from 'components/providers/language-provider';
 import { GeistSans } from 'geist/font/sans';
 import { getCart } from 'lib/shopify';
 import { baseUrl } from 'lib/utils';
@@ -35,6 +37,8 @@ export default async function RootLayout({
   return (
     <html lang="en" className={GeistSans.variable}>
       <body className="bg-transparent text-black selection:bg-teal-300 dark:text-white dark:selection:bg-pink-500 dark:selection:text-white">
+        <LanguageProvider>
+          <AuthProvider>
             <CartProvider cartPromise={cart}>
               <CartModalProvider>
                 <HeaderWrapper />
@@ -42,12 +46,12 @@ export default async function RootLayout({
                   {children}
                   <Toaster closeButton />
                 </main>
-                <div style={{ zIndex: 20 }}>
-                  <FooterNew />
-                </div>
+                <FooterController />
                 <CartModal />
               </CartModalProvider>
             </CartProvider>
+          </AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

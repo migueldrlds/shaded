@@ -4,6 +4,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { GridTileImage } from 'components/grid/tile';
 import { useProduct, useUpdateURL } from 'components/product/product-context';
 import Image from 'next/image';
+import { useRef } from 'react';
 
 export function Gallery({ images }: { images: { src: string; altText: string }[] }) {
   const { state, updateImage } = useProduct();
@@ -16,9 +17,76 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
   const buttonClassName =
     'h-full px-6 transition-all ease-in-out hover:scale-110 hover:text-black dark:hover:text-white flex items-center justify-center';
 
+  // Swipe handling: prefer Pointer Events with touch-action: pan-y; fallback to touch events
+  const startXRef = useRef<number | null>(null);
+  const startYRef = useRef<number | null>(null);
+  const isSwipingRef = useRef(false);
+  const threshold = 50; // px to trigger swipe
+
+  const startGesture = (x: number, y: number) => {
+    startXRef.current = x;
+    startYRef.current = y;
+    isSwipingRef.current = false;
+  };
+
+  const moveGesture = (x: number, y: number, preventDefault?: () => void) => {
+    if (startXRef.current === null || startYRef.current === null) return;
+    const deltaX = x - startXRef.current;
+    const deltaY = y - startYRef.current;
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+      isSwipingRef.current = true;
+      if (preventDefault) preventDefault();
+    }
+  };
+
+  const endGesture = (x: number) => {
+    if (startXRef.current === null) return;
+    const deltaX = x - startXRef.current;
+    if (isSwipingRef.current && Math.abs(deltaX) > threshold) {
+      if (deltaX < 0) {
+        const newState = updateImage(nextImageIndex.toString());
+        updateURL(newState);
+      } else {
+        const newState = updateImage(previousImageIndex.toString());
+        updateURL(newState);
+      }
+    }
+    startXRef.current = null;
+    startYRef.current = null;
+    isSwipingRef.current = false;
+  };
+
+  // Pointer events
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'touch') return;
+    startGesture(e.clientX, e.clientY);
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'touch') return;
+    moveGesture(e.clientX, e.clientY, () => e.preventDefault());
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'touch') return;
+    endGesture(e.clientX);
+  };
+
+  // Touch fallback (iOS Safari older)
+  const handleTouchStart = (e: React.TouchEvent) => startGesture(e.touches[0].clientX, e.touches[0].clientY);
+  const handleTouchMove = (e: React.TouchEvent) => moveGesture(e.touches[0].clientX, e.touches[0].clientY, () => e.preventDefault());
+  const handleTouchEnd = (e: React.TouchEvent) => endGesture(e.changedTouches[0].clientX);
+
   return (
     <form>
-      <div className="relative aspect-square h-full max-h-[550px] w-full overflow-hidden">
+      <div
+        className="relative aspect-square h-full max-h-[550px] w-full overflow-hidden"
+        style={{ touchAction: 'pan-y' }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {images[imageIndex] && (
           <Image
             className="h-full w-full object-contain"

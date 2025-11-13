@@ -2,11 +2,14 @@
 
 import { useCart } from 'components/cart/cart-context';
 import { useCartModal } from 'components/cart/cart-modal-context';
+import { useLanguage } from 'components/providers/language-provider';
+import UserMenu from 'components/user-menu';
+import { gsap } from 'gsap';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { FiMenu, FiShoppingCart, FiUser, FiX } from 'react-icons/fi';
+import { useEffect, useRef, useState } from 'react';
+import { FiMenu, FiShoppingCart, FiX } from 'react-icons/fi';
 
 interface HeaderProps {
   transparent?: boolean;
@@ -21,9 +24,11 @@ export default function Header({ transparent = false, latestCollection }: Header
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
   const { openCart } = useCartModal();
   const { cart } = useCart();
+  const { t } = useLanguage();
 
   useEffect(() => {
     setIsMounted(true);
@@ -53,12 +58,41 @@ export default function Header({ transparent = false, latestCollection }: Header
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY, pathname, transparent, isMounted]);
 
+  useEffect(() => {
+    if (!isMenuOpen || !menuRef.current) return;
+    const menuElement = menuRef.current;
+    const items = menuElement.querySelectorAll('nav a, nav button');
+    gsap.set(menuElement, { opacity: 0, y: -16, height: 0 });
+    gsap.to(menuElement, { opacity: 1, y: 0, height: 'auto', duration: 0.35, ease: 'power3.out' });
+    if (items.length) {
+      gsap.from(items, { opacity: 0, y: -8, duration: 0.3, stagger: 0.05, ease: 'power2.out', delay: 0.05 });
+    }
+  }, [isMenuOpen]);
+
+  const closeMenuWithAnimation = () => {
+    if (menuRef.current) {
+      gsap.to(menuRef.current, {
+        opacity: 0,
+        y: -12,
+        height: 0,
+        duration: 0.2,
+        ease: 'power2.out',
+        onComplete: () => setIsMenuOpen(false)
+      });
+    } else {
+      setIsMenuOpen(false);
+    }
+  };
+
   // Debug: ver qué colección está llegando
   console.log('🔍 Header - latestCollection recibida:', latestCollection);
   
+  // Determinar si debe usar estilo negro (fondo claro)
+  const isDarkHeader = pathname === '/coleccion' || pathname === '/productos' || pathname.startsWith('/productos-alt');
+  
   const navigationItems = [
     { label: latestCollection.title, href: `/productos?coleccion=${latestCollection.handle}` },
-    { label: 'Colección', href: '/coleccion' }
+    { label: t('header.collection'), href: '/coleccion' }
   ];
 
   const headerBase = transparent
@@ -81,8 +115,8 @@ export default function Header({ transparent = false, latestCollection }: Header
         {/* Header principal con estilo frosted glass */}
         <div className="relative">
           <div className="absolute inset-0 backdrop-blur-md rounded-full" style={{ 
-            backgroundColor: (pathname === '/coleccion' || pathname === '/productos') ? 'rgba(210, 213, 211, 0.7)' : 'rgba(255, 255, 255, 0.2)',
-            borderColor: (pathname === '/coleccion' || pathname === '/productos') ? '#2E2E2C' : 'rgba(255, 255, 255, 0.3)', 
+            backgroundColor: isDarkHeader ? 'rgba(210, 213, 211, 0.7)' : 'rgba(255, 255, 255, 0.2)',
+            borderColor: isDarkHeader ? '#2E2E2C' : 'rgba(255, 255, 255, 0.3)', 
             borderWidth: '1px', 
             borderStyle: 'solid' 
           }}></div>
@@ -90,16 +124,16 @@ export default function Header({ transparent = false, latestCollection }: Header
             
              {/* Logo izquierdo */}
              <div className="flex items-center ml-2">
-               <Link href="/" aria-label="Ir al inicio" className="inline-flex items-center">
-                 <Image
-                   src={(pathname === '/coleccion' || pathname === '/productos') ? '/logob.png' : '/logo.png'}
-                   alt="Logo"
-                   width={120}
-                   height={30}
-                   sizes="(max-width: 768px) 100px, 120px"
-                   priority
-                 />
-               </Link>
+              <Link href="/" aria-label="Ir al inicio" className="inline-flex items-center">
+                <Image
+                  src={isDarkHeader ? '/logob.png' : '/logo.png'}
+                  alt="Logo"
+                  width={120}
+                  height={30}
+                  sizes="(max-width: 768px) 100px, 120px"
+                  priority
+                />
+              </Link>
              </div>
 
             {/* Navegación central */}
@@ -107,20 +141,20 @@ export default function Header({ transparent = false, latestCollection }: Header
               <a
                 href="/productos?coleccion=all"
                 className="transition-colors duration-200 font-light"
-                style={{ color: (pathname === '/coleccion' || pathname === '/productos') ? '#2E2E2C' : 'white' }}
-                onMouseEnter={(e) => e.target.style.opacity = '0.7'}
-                onMouseLeave={(e) => e.target.style.opacity = '1'}
+                style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
+                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
               >
-                Shop Now
+                {t('header.shopNow')}
               </a>
               {navigationItems.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
                   className="transition-colors duration-200 font-light"
-                  style={{ color: (pathname === '/coleccion' || pathname === '/productos') ? '#2E2E2C' : 'white' }}
-                  onMouseEnter={(e) => e.target.style.opacity = '0.7'}
-                  onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
+                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
                 >
                   {item.label}
                 </a>
@@ -129,15 +163,13 @@ export default function Header({ transparent = false, latestCollection }: Header
 
              {/* Sección derecha */}
              <div className="flex items-center space-x-3">
-        <Link href="/welcome" className="p-2 rounded-full transition-all duration-200" style={{ color: (pathname === '/coleccion' || pathname === '/productos') ? '#2E2E2C' : 'white' }} onMouseEnter={(e) => e.target.style.opacity = '0.7'} onMouseLeave={(e) => e.target.style.opacity = '1'}>
-          <FiUser className="h-5 w-5" />
-        </Link>
+        <UserMenu iconColor={isDarkHeader ? '#2E2E2C' : 'white'} />
                <button
                  onClick={openCart}
                  className="relative p-2 rounded-full transition-all duration-200 cursor-pointer" 
-                 style={{ color: (pathname === '/coleccion' || pathname === '/productos') ? '#2E2E2C' : 'white' }} 
-                 onMouseEnter={(e) => e.target.style.opacity = '0.7'} 
-                 onMouseLeave={(e) => e.target.style.opacity = '1'}
+                 style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }} 
+                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
                >
                  <FiShoppingCart className="h-5 w-5" />
                  {cart?.totalQuantity && cart.totalQuantity > 0 ? (
@@ -158,10 +190,16 @@ export default function Header({ transparent = false, latestCollection }: Header
               {/* Botón de menú móvil */}
               <button
                 className="md:hidden p-2 rounded-full transition-all duration-200"
-                style={{ color: (pathname === '/coleccion' || pathname === '/productos') ? '#2E2E2C' : 'white' }}
-                onMouseEnter={(e) => e.target.style.opacity = '0.7'}
-                onMouseLeave={(e) => e.target.style.opacity = '1'}
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
+                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
+                onClick={() => {
+                  if (isMenuOpen) {
+                    closeMenuWithAnimation();
+                  } else {
+                    setIsMenuOpen(true);
+                  }
+                }}
               >
                 {isMenuOpen ? <FiX className="h-5 w-5" /> : <FiMenu className="h-5 w-5" />}
               </button>
@@ -171,9 +209,9 @@ export default function Header({ transparent = false, latestCollection }: Header
 
         {/* Menú móvil */}
         {isMenuOpen && (
-          <div className="mt-4 backdrop-blur-md rounded-2xl overflow-hidden" style={{ 
-            backgroundColor: (pathname === '/coleccion' || pathname === '/productos') ? 'rgba(210, 213, 211, 0.3)' : 'rgba(255, 255, 255, 0.2)',
-            borderColor: (pathname === '/coleccion' || pathname === '/productos') ? '#2E2E2C' : 'rgba(255, 255, 255, 0.3)', 
+          <div ref={menuRef} className="mt-4 backdrop-blur-md rounded-2xl overflow-hidden" style={{ 
+            backgroundColor: isDarkHeader ? 'rgba(210, 213, 211, 0.3)' : 'rgba(255, 255, 255, 0.2)',
+            borderColor: isDarkHeader ? '#2E2E2C' : 'rgba(255, 255, 255, 0.3)', 
             borderWidth: '1px', 
             borderStyle: 'solid' 
           }}>
@@ -183,24 +221,24 @@ export default function Header({ transparent = false, latestCollection }: Header
             <a
               href="/productos?coleccion=all"
               className="block px-4 py-2 rounded-lg transition-colors duration-200 font-light"
-              style={{ color: (pathname === '/coleccion' || pathname === '/productos') ? '#2E2E2C' : 'white' }}
-              onMouseEnter={(e) => e.target.style.opacity = '0.7'}
-              onMouseLeave={(e) => e.target.style.opacity = '1'}
-              onClick={() => setIsMenuOpen(false)}
+              style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
+                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
+              onClick={closeMenuWithAnimation}
             >
-              Shop Now
+              {t('header.shopNow')}
             </a>
             <button
               onClick={() => {
                 openCart();
-                setIsMenuOpen(false);
+                closeMenuWithAnimation();
               }}
               className="relative block w-full text-left px-4 py-2 rounded-lg transition-colors duration-200 font-light cursor-pointer"
-              style={{ color: (pathname === '/coleccion' || pathname === '/productos') ? '#2E2E2C' : 'white' }}
-              onMouseEnter={(e) => e.target.style.opacity = '0.7'}
-              onMouseLeave={(e) => e.target.style.opacity = '1'}
+              style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
+                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
             >
-              Carrito
+              {t('header.cart')}
               {cart?.totalQuantity && cart.totalQuantity > 0 ? (
                 <span 
                   className="absolute top-1 right-2 bg-black text-white rounded-full h-4 w-4 flex items-center justify-center font-bold"
@@ -220,10 +258,10 @@ export default function Header({ transparent = false, latestCollection }: Header
                     key={item.label}
                     href={item.href}
                     className="block px-4 py-2 rounded-lg transition-colors duration-200 font-light"
-                    style={{ color: (pathname === '/coleccion' || pathname === '/productos') ? '#2E2E2C' : 'white' }}
-                    onMouseEnter={(e) => e.target.style.opacity = '0.7'}
-                    onMouseLeave={(e) => e.target.style.opacity = '1'}
-                    onClick={() => setIsMenuOpen(false)}
+                    style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
+                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
+                    onClick={closeMenuWithAnimation}
                   >
                     {item.label}
                   </a>

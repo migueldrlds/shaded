@@ -1,41 +1,93 @@
 'use client';
 
+import { useAuth } from 'components/auth/auth-context';
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
 import { FiArrowUpRight, FiEye, FiEyeOff } from "react-icons/fi";
 
 export default function Login() {
+  const [isVisible, setIsVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const { login, customer, isLoading } = useAuth();
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Trigger animation after component mounts
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (customer && !isLoading) {
+      router.push('/');
+    }
+  }, [customer, isLoading, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí iría la lógica de login
-    console.log('Login attempt:', { email, password });
+    setErrors([]);
+    setIsSubmitting(true);
+
+    try {
+      const result = await login(email, password);
+      
+      if (result.success) {
+        // Redirect to home page on successful login
+        router.push('/');
+      } else if (result.needsActivation && result.customerId) {
+        // Redirect to verification page
+        const params = new URLSearchParams({
+          email,
+          customerId: result.customerId,
+          password
+        });
+        router.push(`/verificar-codigo?${params.toString()}`);
+      } else {
+        setErrors(result.errors || ['Login failed']);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrors(['An unexpected error occurred']);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="relative min-h-screen" style={{ backgroundColor: '#d2d5d3' }}>
-      {/* Video de fondo */}
+    <div className="relative h-screen overflow-hidden">
+      {/* Video de fondo (fijo, debajo de todo) */}
       <video
-        className="absolute inset-0 w-full h-full object-cover"
+        className="fixed inset-0 w-full h-full object-cover -z-20"
         src="/shadedbg.mp4"
         autoPlay
         muted
         loop
         playsInline
       />
-      
-      {/* Overlay sutil */}
-      <div className="absolute inset-0 bg-black/20"></div>
+
+      {/* Overlay sutil (fijo, sobre el video) */}
+      <div className="fixed inset-0 bg-black/20 -z-10"></div>
       
       {/* Contenido principal */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen">
+      <div className="relative z-10 flex items-end justify-center min-h-screen">
         {/* Layout móvil: card único */}
-        <div className="bg-white/30 backdrop-blur-2xl rounded-t-[60px] md:hidden border border-white/10 border-b-0 p-8 w-full">
+        <div 
+          className={`bg-white/30 backdrop-blur-2xl rounded-t-[60px] md:hidden border border-white/10 border-b-0 p-8 w-full transition-opacity duration-1000 ease-in-out ${
+            isVisible ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
           {/* Formulario de login móvil */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-medium text-black mb-2" style={{ fontFamily: 'Agressive' }}>
@@ -43,6 +95,17 @@ export default function Login() {
             </h1>
             <p className="text-sm text-black/70">Login to your account</p>
           </div>
+
+          {/* Error messages */}
+          {errors.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div className="text-red-800 text-sm">
+                {errors.map((error, index) => (
+                  <div key={index}>{error}</div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -100,9 +163,10 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full bg-black text-white py-3 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 flex items-center justify-center"
+              disabled={isSubmitting}
+              className="w-full bg-black text-white py-3 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Login
+              {isSubmitting ? 'Logging in...' : 'Login'}
             </button>
           </form>
 
@@ -124,7 +188,11 @@ export default function Login() {
         </div>
 
         {/* Layout desktop: 2 columnas x 2 filas */}
-        <div className="hidden md:grid md:grid-cols-2 md:gap-6 md:w-full md:max-w-4xl md:mx-20 md:my-8">
+        <div 
+          className={`hidden md:grid md:grid-cols-2 md:gap-6 md:w-full md:max-w-4xl md:mx-20 md:my-8 transition-opacity duration-1000 ease-in-out ${
+            isVisible ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
           {/* Columna izquierda */}
           <div className="space-y-6">
             {/* Fila 1: Formulario de login */}
@@ -141,6 +209,17 @@ export default function Login() {
                 </h1>
                 <p className="text-sm text-black/70">Access your account</p>
               </div>
+
+              {/* Error messages */}
+              {errors.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <div className="text-red-800 text-sm">
+                    {errors.map((error, index) => (
+                      <div key={index}>{error}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
@@ -198,9 +277,10 @@ export default function Login() {
 
                 <button
                   type="submit"
-                  className="w-full bg-black text-white py-3 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 flex items-center justify-center"
+                  disabled={isSubmitting}
+                  className="w-full bg-black text-white py-3 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Enter
+                  {isSubmitting ? 'Logging in...' : 'Enter'}
                 </button>
               </form>
 

@@ -1,11 +1,15 @@
 'use client';
 
+import { useLanguage } from 'components/providers/language-provider';
+import LanguageSelector from 'components/language-selector';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function FooterNew() {
+  const { t } = useLanguage();
+
   return (
-    <footer className="mt-20 mb-8" style={{ backgroundColor: '#d2d5d3' }}>
+    <footer className="mt-8 mb-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="relative">
           <div className="absolute inset-0 backdrop-blur-md rounded-2xl" style={{ 
@@ -30,37 +34,37 @@ export default function FooterNew() {
               />
             </div>
             <p className="text-white/80 text-sm leading-relaxed">
-              Join the movement with Shaded! Follow us on Social media for exclusive updates, style inspiration, and special offers. Be part of our community and stay connected with the latest in athleisure!
+              {t('footer.description')}
             </p>
           </div>
 
           {/* Políticas y soporte */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Customer Service</h3>
+            <h3 className="text-white font-semibold mb-4">{t('footer.customerService')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link href="/return-policy" className="text-white/70 hover:text-white transition-colors text-sm">
-                  Return and Exchange Policy
+                  {t('footer.returnPolicy')}
                 </Link>
               </li>
               <li>
                 <Link href="/shipping-policy" className="text-white/70 hover:text-white transition-colors text-sm">
-                  Shipping Policy
+                  {t('footer.shippingPolicy')}
                 </Link>
               </li>
               <li>
                 <Link href="/terms" className="text-white/70 hover:text-white transition-colors text-sm">
-                  Terms and Conditions
+                  {t('footer.terms')}
                 </Link>
               </li>
               <li>
                 <Link href="/support" className="text-white/70 hover:text-white transition-colors text-sm">
-                  Customer Support
+                  {t('footer.customerSupport')}
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-white/70 hover:text-white transition-colors text-sm">
-                  Contact Form
+                  {t('footer.contactForm')}
                 </Link>
               </li>
             </ul>
@@ -68,7 +72,7 @@ export default function FooterNew() {
 
           {/* Colecciones */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Collections</h3>
+            <h3 className="text-white font-semibold mb-4">{t('footer.collections')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link href="/productos?coleccion=serene" className="text-white/70 hover:text-white transition-colors text-sm">
@@ -77,7 +81,7 @@ export default function FooterNew() {
               </li>
               <li>
                 <Link href="/coleccion" className="text-white/70 hover:text-white transition-colors text-sm">
-                  All Collections
+                  {t('footer.allCollections')}
                 </Link>
               </li>
             </ul>
@@ -85,7 +89,7 @@ export default function FooterNew() {
 
           {/* Redes sociales */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Connect with us</h3>
+            <h3 className="text-white font-semibold mb-4">{t('footer.connectWithUs')}</h3>
             <div className="flex space-x-4">
               <a
                 href="https://facebook.com"
@@ -111,15 +115,18 @@ export default function FooterNew() {
             <div className="border-t border-white/20 mt-8 pt-8">
               <div className="flex flex-col md:flex-row justify-between items-center">
                 <p className="text-white/60 text-sm">
-                  © 2024 Shaded. All rights reserved.
+                  {t('footer.copyright')}
                 </p>
-                <div className="flex space-x-6 mt-4 md:mt-0">
-                  <Link href="/privacy" className="text-white/60 hover:text-white transition-colors text-sm">
-                    Privacy Policy
-                  </Link>
-                  <Link href="/cookies" className="text-white/60 hover:text-white transition-colors text-sm">
-                    Cookie Policy
-                  </Link>
+                <div className="flex flex-col md:flex-row items-center gap-6 mt-4 md:mt-0">
+                  <LanguageSelector />
+                  <div className="flex space-x-6">
+                    <Link href="/privacy" className="text-white/60 hover:text-white transition-colors text-sm">
+                      {t('footer.privacyPolicy')}
+                    </Link>
+                    <Link href="/cookies" className="text-white/60 hover:text-white transition-colors text-sm">
+                      {t('footer.cookiePolicy')}
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

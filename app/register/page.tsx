@@ -1,71 +1,141 @@
 'use client';
 
+import { useAuth } from 'components/auth/auth-context';
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
 import { FiArrowUpRight, FiEye, FiEyeOff } from "react-icons/fi";
 
 export default function Register() {
+  const [isVisible, setIsVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    agreeToTerms: false
-  });
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errors, setErrors] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const { register, customer, isLoading } = useAuth();
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Trigger animation after component mounts
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (customer && !isLoading) {
+      router.push('/');
+    }
+  }, [customer, isLoading, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí iría la lógica de registro
-    console.log('Registration attempt:', formData);
-  };
+    setErrors([]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    // Validations
+    if (password !== confirmPassword) {
+      setErrors(['Passwords do not match']);
+      return;
+    }
+
+    if (password.length < 8) {
+      setErrors(['Password must be at least 8 characters long']);
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const result = await register(firstName, lastName, email, password);
+      
+      if (result.success) {
+        if (result.needsActivation && result.customerId) {
+          // Redirect to verification page if activation is needed
+          const params = new URLSearchParams({
+            email,
+            customerId: result.customerId,
+            password
+          });
+          router.push(`/verificar-codigo?${params.toString()}`);
+        } else {
+          // Redirect to login page with success message
+          router.push('/login?registered=true');
+        }
+      } else {
+        setErrors(result.errors || ['Registration failed']);
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setErrors(['An unexpected error occurred']);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="relative min-h-screen" style={{ backgroundColor: '#d2d5d3' }}>
-      {/* Video de fondo */}
+    <div className="relative h-screen overflow-hidden">
+      {/* Video de fondo (fijo, debajo de todo) */}
       <video
-        className="absolute inset-0 w-full h-full object-cover"
+        className="fixed inset-0 w-full h-full object-cover -z-20"
         src="/shadedbg.mp4"
         autoPlay
         muted
         loop
         playsInline
       />
-      
-      {/* Overlay sutil */}
-      <div className="absolute inset-0 bg-black/20"></div>
+
+      {/* Overlay sutil (fijo, sobre el video) */}
+      <div className="fixed inset-0 bg-black/20 -z-10"></div>
       
       {/* Contenido principal */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen">
-        {/* Layout móvil: card único */}
-        <div className="bg-white/30 backdrop-blur-2xl rounded-t-[60px] md:hidden border border-white/10 border-b-0 p-8 w-full">
-          {/* Formulario de registro móvil */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen py-12">
+        <div 
+          className={`bg-white/30 backdrop-blur-2xl rounded-[40px] border border-white/10 p-8 w-full max-w-md mx-4 transition-opacity duration-1000 ease-in-out ${
+            isVisible ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          {/* Header */}
           <div className="text-center mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <Image src="/logob.png" alt="Shaded Logo" width={120} height={30} priority />
+              <Link href="/login" className="text-sm text-black/70 hover:text-black transition-colors duration-200">
+                Login
+              </Link>
+            </div>
             <h1 className="text-3xl font-medium text-black mb-2" style={{ fontFamily: 'Agressive' }}>
-              Create Account
+              CREATE ACCOUNT
             </h1>
             <p className="text-sm text-black/70">Join the Shaded community</p>
           </div>
+
+          {/* Error messages */}
+          {errors.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div className="text-red-800 text-sm">
+                {errors.map((error, index) => (
+                  <div key={index}>{error}</div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <input
                   type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
+                  id="firstName"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                   className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
                   placeholder="First name"
                   required
@@ -74,9 +144,9 @@ export default function Register() {
               <div>
                 <input
                   type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
+                  id="lastName"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                   className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
                   placeholder="Last name"
                   required
@@ -87,9 +157,9 @@ export default function Register() {
             <div>
               <input
                 type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
                 placeholder="Enter your email"
                 required
@@ -100,9 +170,9 @@ export default function Register() {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 pr-12 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
                   placeholder="Create password"
                   required
@@ -118,55 +188,23 @@ export default function Register() {
             </div>
 
             <div>
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 pr-12 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
-                  placeholder="Confirm password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-0 top-1/2 transform -translate-y-1/2 text-black/60 hover:text-black transition-colors duration-200"
-                >
-                  {showConfirmPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-start">
-              <button
-                type="button"
-                aria-pressed={formData.agreeToTerms}
-                aria-label="Agree to terms"
-                onClick={() => setFormData(prev => ({ ...prev, agreeToTerms: !prev.agreeToTerms }))}
-                className={`w-12 h-6 rounded-full relative transition-colors duration-200 focus:outline-none mt-1 ${formData.agreeToTerms ? 'bg-black' : 'bg-black/20'}`}
-              >
-                <span
-                  className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-200 ${formData.agreeToTerms ? 'translate-x-6' : ''}`}
-                />
-              </button>
-              <span className="ml-3 text-sm text-black/70">
-                I agree to the{' '}
-                <Link href="/terms" className="text-black hover:underline">
-                  Terms and Conditions
-                </Link>
-                {' '}and{' '}
-                <Link href="/privacy" className="text-black hover:underline">
-                  Privacy Policy
-                </Link>
-              </span>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
+                placeholder="Confirm password"
+                required
+              />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-black text-white py-3 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 flex items-center justify-center"
+              disabled={isSubmitting}
+              className="w-full bg-black text-white py-3 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create Account
+              {isSubmitting ? 'Creating Account...' : 'Create Account'}
             </button>
           </form>
 
@@ -174,7 +212,7 @@ export default function Register() {
             <p className="text-sm text-black/70">
               Already have an account?{' '}
               <Link href="/login" className="text-black hover:underline">
-                Sign In
+                Login
               </Link>
             </p>
           </div>
@@ -186,175 +224,7 @@ export default function Register() {
             </Link>
           </div>
         </div>
-
-        {/* Layout desktop: 2 columnas */}
-        <div className="hidden md:grid md:grid-cols-2 md:gap-6 md:w-full md:max-w-4xl md:mx-20 md:my-8">
-          {/* Columna izquierda: Formulario */}
-          <div className="bg-white/30 backdrop-blur-2xl rounded-[40px] border border-white/10 p-8">
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <Image src="/logob.png" alt="Shaded Logo" width={120} height={30} priority />
-                <Link href="/login" className="text-sm text-black/70 hover:text-black transition-colors duration-200">
-                  Sign In
-                </Link>
-              </div>
-              <h1 className="text-3xl font-medium text-black mb-2" style={{ fontFamily: 'Agressive' }}>
-                CREATE ACCOUNT
-              </h1>
-              <p className="text-sm text-black/70">Join the Shaded movement</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
-                    placeholder="First name"
-                    required
-                  />
-                </div>
-                <div>
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
-                    placeholder="Last name"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
-
-              <div>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 pr-12 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
-                    placeholder="Create password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 top-1/2 transform -translate-y-1/2 text-black/60 hover:text-black transition-colors duration-200"
-                  >
-                    {showPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <div className="relative">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 pr-12 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
-                    placeholder="Confirm password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-0 top-1/2 transform -translate-y-1/2 text-black/60 hover:text-black transition-colors duration-200"
-                  >
-                    {showConfirmPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-start">
-                <button
-                  type="button"
-                  aria-pressed={formData.agreeToTerms}
-                  aria-label="Agree to terms"
-                  onClick={() => setFormData(prev => ({ ...prev, agreeToTerms: !prev.agreeToTerms }))}
-                  className={`w-12 h-6 rounded-full relative transition-colors duration-200 focus:outline-none mt-1 ${formData.agreeToTerms ? 'bg-black' : 'bg-black/20'}`}
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-200 ${formData.agreeToTerms ? 'translate-x-6' : ''}`}
-                  />
-                </button>
-                <span className="ml-3 text-sm text-black/70">
-                  I agree to the{' '}
-                  <Link href="/terms" className="text-black hover:underline">
-                    Terms and Conditions
-                  </Link>
-                </span>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-black text-white py-3 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 flex items-center justify-center"
-              >
-                Create Account
-              </button>
-            </form>
-          </div>
-
-          {/* Columna derecha: Card promocional */}
-          <div className="relative bg-white/30 backdrop-blur-2xl rounded-[40px] border border-white/10 pl-4 pr-8 py-4 flex flex-col justify-start overflow-hidden">
-            {/* Imagen de fondo */}
-            <div className="absolute inset-0 z-0">
-              <Image
-                src="/img1.jpg"
-                alt="Background"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-black/40"></div>
-            </div>
-            <div className="relative z-10 h-full">
-              <div className="bg-white/20 backdrop-blur-xl rounded-l-[30px] rounded-r-2xl border border-white/20 px-6 py-4 h-full max-w-[200px] w-full text-left flex flex-col">
-                <h2 className="text-1xl font-medium text-white mb-4" style={{ fontFamily: 'Agressive' }}>
-                  Welcome to Shaded
-                </h2>
-                <p className="text-1xl text-white/70 mb-6">
-                  Join our community and get exclusive access to new releases, special offers, and insider updates.
-                </p>
-                <div className="space-y-2">
-                  <div className="text-sm text-white/80">Early access to new drops</div>
-                  <div className="text-sm text-white/80">Exclusive member discounts</div>
-                  <div className="text-sm text-white/80">Free shipping on all orders</div>
-                </div>
-                
-                {/* Logo en la parte inferior */}
-                <div className="mt-auto pb-4 flex justify-center">
-                  <Image
-                    src="/logo.png"
-                    alt="Shaded Logo"
-                    width={120}
-                    height={30}
-                    className="opacity-80"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
 }
-

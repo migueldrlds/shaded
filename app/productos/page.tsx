@@ -1,5 +1,7 @@
 import { getCollectionProducts, getProducts } from 'lib/shopify';
 import Image from 'next/image';
+import DesktopProductCard from '../../components/DesktopProductCard';
+import MobileProductCard from '../../components/MobileProductCard';
 
 interface ProductosPageProps {
   searchParams: Promise<{ coleccion?: string }>;
@@ -27,10 +29,10 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
     return (
       <div className="min-h-screen relative flex items-center justify-center" style={{ backgroundColor: '#d2d5d3' }}>
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4" style={{ color: '#2E2E2C', fontFamily: 'Agressive' }}>
+          <h1 className="text-4xl font-bold mb-4" style={{ color: '#FFFFFF', fontFamily: 'Agressive' }}>
             {coleccion !== 'all' ? `No hay productos en ${coleccion.toUpperCase()}` : 'No hay productos disponibles'}
           </h1>
-          <p className="text-lg font-light" style={{ color: '#2E2E2C', opacity: 0.7 }}>
+          <p className="text-lg font-light" style={{ color: '#FFFFFF', opacity: 0.8 }}>
             Próximamente tendremos productos disponibles
           </p>
         </div>
@@ -38,10 +40,8 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
     );
   }
 
-  // Tomar los primeros 2 productos disponibles
-  const productosFiltrados = allProducts.slice(0, 2);
-  const producto01 = productosFiltrados[0];
-  const producto02 = productosFiltrados[1];
+  // Tomar todos los productos disponibles
+  const productosFiltrados = allProducts;
 
   // Función para formatear el precio
   const formatPrice = (price: any) => {
@@ -144,445 +144,171 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
   };
 
   return (
-    <div className="min-h-screen relative" style={{ backgroundColor: '#d2d5d3' }}>
-      {/* Video de fondo */}
+    <div className="min-h-screen relative">
+      {/* Video de fondo (fijo, debajo de todo) */}
       <video
-        className="absolute inset-0 w-full h-full object-cover"
+        className="fixed inset-0 w-full h-full object-cover -z-20"
         src="/videoloop2.mp4"
         autoPlay
         muted
         loop
         playsInline
       />
-      
-      {/* Overlay sutil */}
-      <div className="absolute inset-0 bg-black/20"></div>
+
+      {/* Overlay sutil (fijo, sobre el video) */}
+      <div className="fixed inset-0 bg-black/20 -z-10"></div>
       
       {/* Contenido principal */}
-      <div className="relative z-10 pt-24 px-4 pb-8">
+      <div className="relative z-10 pt-24 px-4 pb-4">
         <div className="max-w-7xl mx-auto">
           {/* Título de la página */}
           {coleccion !== 'all' && (
             <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#2E2E2C', fontFamily: 'Agressive' }}>
+              <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#FFFFFF', fontFamily: 'Agressive' }}>
                 {coleccion.toUpperCase()} COLLECTION
               </h1>
-              <p className="text-lg font-light" style={{ color: '#2E2E2C', opacity: 0.7 }}>
+              <p className="text-lg font-light" style={{ color: '#FFFFFF', opacity: 0.8 }}>
                 Descubre los productos de esta colección
               </p>
             </div>
           )}
 
-          {/* Card contenedor de productos - Carrusel */}
-          <div className="max-w-7xl mx-auto flex justify-center">
-            <div className="bg-white/50 backdrop-blur-xl rounded-3xl pl-5 pr-0 pt-8 pb-0 relative h-[35rem] md:h-[45rem] w-full max-w-7xl mt-12">
-              {/* Logo en la esquina izquierda */}
-              <div className="absolute top-4 left-4 z-10 mt-4 ml-4">
-                <Image
-                  src="/logo.png"
-                  alt="Logo"
-                  width={120}
-                  height={120}
-                  className="object-contain"
-                />
-              </div>
 
-              {/* Encabezado alineado al top, a la altura horizontal del card derecho */}
-              {/* Número grande (fijo) */}
-              <div className="absolute z-10 mt-2" style={{ top: '1rem', left: 'calc(20% + 2rem)' }}>
-                <span className="select-none leading-none" style={{ fontFamily: 'Agressive', fontWeight: 700, fontSize: '3.5rem', lineHeight: 1, color: '#000000' }}>01</span>
-              </div>
-
-              {/* Bloque de detalles (fijo, independiente del número) */}
-              <div className="absolute z-10 mt-3" style={{ top: '1rem', left: 'calc(25% + 10rem)' }}>
-                <h2 className="text-[11px] font-light" style={{ color: '#000000', fontFamily: 'Agressive' }}>{producto01?.title}</h2>
-                <p className="text-[11px] font-light" style={{ color: '#000000', opacity: 1, fontFamily: 'Agressive' }}>by shaded</p>
-                <div className="mt-3 text-[11px] leading-tight" style={{ color: '#000000', fontFamily: 'NCS' }}>
-                  <div className="grid grid-cols-3 gap-4">
-                    {/* Primera columna - primeros 7 elementos */}
-                    <div className="space-y-2">
-                      {getProductDetails(producto01).slice(0, 7).map((item: string, idx: number) => {
-                        // Si es un título (mayúsculas), renderizar como título
-                        if (item === item.toUpperCase() && item.includes(' ')) {
-                          return (
-                            <div key={idx} className="font-normal mt-2 first:mt-0" style={{ fontFamily: 'NCS' }}>
-                              {item}
-                            </div>
-                          );
-                        }
-                        // Si empieza con punto, renderizar como lista con viñeta
-                        if (item.startsWith('.')) {
-                          return (
-                            <div key={idx} className="flex items-start">
-                              <span className="mr-2 mt-1">•</span>
-                              <span>{item.substring(1)}</span>
-                            </div>
-                          );
-                        }
-                        // Si no empieza con punto, renderizar normal
-                        return (
-                          <div key={idx} className="flex items-start">
-                            <span className="mr-2 mt-1">•</span>
-                            <span>{item}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    
-                    {/* Segunda columna - elementos 8-14 */}
-                    <div className="space-y-2">
-                      {getProductDetails(producto01).slice(7, 14).map((item: string, idx: number) => {
-                        // Si es un título (mayúsculas), renderizar como título
-                        if (item === item.toUpperCase() && item.includes(' ')) {
-                          return (
-                            <div key={idx + 7} className="font-normal mt-2 first:mt-0" style={{ fontFamily: 'NCS' }}>
-                              {item}
-                            </div>
-                          );
-                        }
-                        // Si empieza con punto, renderizar como lista con viñeta
-                        if (item.startsWith('.')) {
-                          return (
-                            <div key={idx + 7} className="flex items-start">
-                              <span className="mr-2 mt-1">•</span>
-                              <span>{item.substring(1)}</span>
-                            </div>
-                          );
-                        }
-                        // Si no empieza con punto, renderizar normal
-                        return (
-                          <div key={idx + 7} className="flex items-start">
-                            <span className="mr-2 mt-1">•</span>
-                            <span>{item}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    
-                    {/* Tercera columna - elementos 15+ */}
-                    <div className="space-y-2">
-                      {getProductDetails(producto01).slice(14).map((item: string, idx: number) => {
-                        // Si es un título (mayúsculas), renderizar como título
-                        if (item === item.toUpperCase() && item.includes(' ')) {
-                          return (
-                            <div key={idx + 14} className="font-normal mt-2 first:mt-0" style={{ fontFamily: 'NCS' }}>
-                              {item}
-                            </div>
-                          );
-                        }
-                        // Si empieza con punto, renderizar como lista con viñeta
-                        if (item.startsWith('.')) {
-                          return (
-                            <div key={idx + 14} className="flex items-start">
-                              <span className="mr-2 mt-1">•</span>
-                              <span>{item.substring(1)}</span>
-                            </div>
-                          );
-                        }
-                        // Si no empieza con punto, renderizar normal
-                        return (
-                          <div key={idx + 14} className="flex items-start">
-                            <span className="mr-2 mt-1">•</span>
-                            <span>{item}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contenedor de dos cards */}
-              <div className="flex justify-between items-start h-full pr-0">
-                {/* Card izquierdo */}
-                {producto01 ? (
-                  <div className="relative w-1/5" style={{ top: '240px' }}>
-                    <a
-                      href={`/product/${producto01.handle}`}
-                      className="bg-white rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative h-[14rem] md:h-[20rem] w-full block cursor-pointer"
-                    >
-                      {/* Imagen del producto */}
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={producto01.featuredImage?.url || '/img1.jpg'}
-                          alt={producto01.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <Image
-                          src={producto01.featuredImage?.url || '/img1.jpg'}
-                          alt={producto01.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100 absolute inset-0"
-                        />
-                      </div>
-                    </a>
-
-                    {/* Tallas debajo del card del carrusel (producto 01) */}
-                    <div className="mt-3">
-                      <div className="flex flex-wrap gap-2 items-center">
-                        {producto01.variants?.slice(0, 5).map((variant, i) => (
-                          <span
-                            key={i}
-                            className={`${variant.availableForSale ? 'bg-black/10 text-black' : 'bg-black/5 text-black/40 line-through'} text-xs font-semibold px-2 py-2 rounded-full`}
-                          >
-                            {variant.title}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-
-                {/* Card derecho */}
-                {producto01 ? (
-                  <div className="relative w-[79%] mb-0 self-end">
-                    <a href={`/product/${producto01.handle}`} className="bg-white rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative h-[35rem] md:h-[28rem] w-full block cursor-pointer">
-                      {/* Imagen del producto derecho */}
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={producto01?.featuredImage?.url || '/img1.jpg'}
-                          alt={producto01?.title || 'Producto derecho'}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-
-                      {/* Información del producto derecho */}
-                      <div className="absolute top-6 left-6 right-2 hidden md:block">
-                        <div className="flex flex-col justify-center">
-                          <h3 className="text-sm font-medium text-white" style={{ fontFamily: 'Agressive' }}>
-                            {producto01?.title}
-                          </h3>
-                        </div>
-                      </div>
-
-                      {/* Información del producto derecho (móvil) */}
-                      <div className="absolute top-6 left-6 right-2 flex flex-col justify-center md:hidden">
-                        <h3 className="text-sm font-medium text-white" style={{ fontFamily: 'Agressive' }}>
-                          {producto01?.title}
-                        </h3>
-                      </div>
-
-                      {/* Precio flotante centrado con botón circular pegado */}
-                      <div className="absolute right-130 top-1/2 -translate-y-1/2">
-                        <div className="flex items-center">
-                          <div className="bg-black/50 text-white rounded-full px-4 py-2 backdrop-blur-sm flex items-center gap-10">
-                            <span className="text-xs" style={{ fontFamily: 'Agressive' }}>{producto01?.title}</span>
-                            <span className="text-sm font-semibold">{formatPrice(producto01?.priceRange?.maxVariantPrice)}</span>
-                          </div>
-                          <button className="ml-0 rounded-full bg-black/50 text-white backdrop-blur-sm flex items-center justify-center px-2.5 py-2.5">
-                            <div className="w-3 h-3 rounded-full bg-white"></div>
-                          </button>
-                        </div>
-                      </div>
-                    </a>
-                  </div>
-                ) : null}
-              </div>
-            </div>
+          {/* Versión móvil - Cards de productos dinámicos */}
+          <div className="max-w-7xl mx-auto flex flex-col items-center md:hidden mt-8 space-y-8">
+            {productosFiltrados.map((producto, index) => (
+              <MobileProductCard key={producto.id || index} product={producto} />
+            ))}
           </div>
-          
 
-          {/* Segundo frosted card - Producto 02 (solo si existe) */}
-          {producto02 && (
-            <div className="max-w-7xl mx-auto flex justify-center">
-              <div className="bg-white/50 backdrop-blur-xl rounded-3xl pl-5 pr-0 pt-8 pb-0 relative h-[35rem] md:h-[45rem] w-full max-w-7xl mt-12">
-                {/* Logo en la esquina izquierda */}
-                <div className="absolute top-4 left-4 z-10 mt-4 ml-4">
-                  <Image
-                    src="/logo.png"
-                    alt="Logo"
-                    width={120}
-                    height={120}
-                    className="object-contain"
-                  />
-                </div>
+          {/* Versión desktop - Cards de productos dinámicos */}
+          <div className="max-w-7xl mx-auto flex flex-col items-center hidden md:block mt-8 space-y-12">
+            {productosFiltrados.map((producto, index) => (
+              <div key={producto.id || index} className="max-w-7xl mx-auto flex justify-center">
+                <div className="bg-white/50 backdrop-blur-xl rounded-3xl pl-5 pr-0 pt-8 pb-0 relative h-[35rem] md:h-[45rem] w-full max-w-7xl">
+                  {/* Logo en la esquina izquierda */}
+                  <div className="absolute top-4 left-4 z-10 mt-4 ml-4">
+                    <Image
+                      src="/logo.png"
+                      alt="Logo"
+                      width={120}
+                      height={120}
+                      className="object-contain"
+                    />
+                  </div>
 
-                {/* Número grande (02) */}
-                <div className="absolute z-10 mt-2" style={{ top: '1rem', left: 'calc(20% + 2rem)' }}>
-                  <span className="select-none leading-none" style={{ fontFamily: 'Agressive', fontWeight: 700, fontSize: '3.5rem', lineHeight: 1, color: '#000000' }}>
-                    02
-                  </span>
-                </div>
+                  {/* Número grande */}
+                  <div className="absolute z-10 mt-2" style={{ top: '1rem', left: 'calc(20% + 2rem)' }}>
+                    <span className="select-none leading-none" style={{ fontFamily: 'Agressive', fontWeight: 700, fontSize: '3.5rem', lineHeight: 1, color: '#000000' }}>
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                  </div>
 
-                {/* Bloque de detalles fijo para producto 02 */}
-                <div className="absolute z-10 mt-3" style={{ top: '1rem', left: 'calc(25% + 10rem)' }}>
-                  <h2 className="text-[11px] font-light" style={{ color: '#000000', fontFamily: 'Agressive' }}>{producto02?.title}</h2>
-                  <p className="text-[11px] font-light" style={{ color: '#000000', opacity: 1, fontFamily: 'Agressive' }}>by shaded</p>
-                  <div className="mt-3 text-[11px] leading-tight" style={{ color: '#000000', fontFamily: 'NCS' }}>
-                    <div className="grid grid-cols-3 gap-4">
-                      {/* Primera columna - primeros 7 elementos */}
-                      <div className="space-y-2">
-                        {getProductDetails(producto02).slice(0, 7).map((item: string, idx: number) => {
-                          // Si es un título (mayúsculas), renderizar como título
-                          if (item === item.toUpperCase() && item.includes(' ')) {
-                            return (
-                              <div key={idx} className="font-normal mt-2 first:mt-0" style={{ fontFamily: 'NCS' }}>
-                                {item}
-                              </div>
-                            );
-                          }
-                          // Si empieza con punto, renderizar como lista con viñeta
-                          if (item.startsWith('.')) {
+                  {/* Bloque de detalles */}
+                  <div className="absolute z-10 mt-3" style={{ top: '1rem', left: 'calc(25% + 10rem)' }}>
+                    <h2 className="text-[11px] font-light" style={{ color: '#000000', fontFamily: 'Agressive' }}>{producto?.title}</h2>
+                    <p className="text-[11px] font-light" style={{ color: '#000000', opacity: 1, fontFamily: 'Agressive' }}>by shaded</p>
+                    <div className="mt-3 text-[11px] leading-tight" style={{ color: '#000000', fontFamily: 'Agressive' }}>
+                      <div className="grid grid-cols-3 gap-4">
+                        {/* Primera columna - primeros 7 elementos */}
+                        <div className="space-y-2">
+                          {getProductDetails(producto).slice(0, 7).map((item: string, idx: number) => {
+                            // Si es un título (mayúsculas), renderizar como título
+                            if (item === item.toUpperCase() && item.includes(' ')) {
+                              return (
+                                <div key={idx} className="font-normal mt-2 first:mt-0" style={{ fontFamily: 'Agressive' }}>
+                                  {item}
+                                </div>
+                              );
+                            }
+                            // Si empieza con punto, renderizar como lista con viñeta
+                            if (item.startsWith('.')) {
+                              return (
+                                <div key={idx} className="flex items-start">
+                                  <span className="mr-2 mt-1">•</span>
+                                  <span>{item.substring(1)}</span>
+                                </div>
+                              );
+                            }
+                            // Si no empieza con punto, renderizar normal
                             return (
                               <div key={idx} className="flex items-start">
                                 <span className="mr-2 mt-1">•</span>
-                                <span>{item.substring(1)}</span>
+                                <span>{item}</span>
                               </div>
                             );
-                          }
-                          // Si no empieza con punto, renderizar normal
-                          return (
-                            <div key={idx} className="flex items-start">
-                              <span className="mr-2 mt-1">•</span>
-                              <span>{item}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      
-                      {/* Segunda columna - elementos 8-14 */}
-                      <div className="space-y-2">
-                        {getProductDetails(producto02).slice(7, 14).map((item: string, idx: number) => {
-                          // Si es un título (mayúsculas), renderizar como título
-                          if (item === item.toUpperCase() && item.includes(' ')) {
-                            return (
-                              <div key={idx + 7} className="font-normal mt-2 first:mt-0" style={{ fontFamily: 'NCS' }}>
-                                {item}
-                              </div>
-                            );
-                          }
-                          // Si empieza con punto, renderizar como lista con viñeta
-                          if (item.startsWith('.')) {
+                          })}
+                        </div>
+                        
+                        {/* Segunda columna - elementos 8-14 */}
+                        <div className="space-y-2">
+                          {getProductDetails(producto).slice(7, 14).map((item: string, idx: number) => {
+                            // Si es un título (mayúsculas), renderizar como título
+                            if (item === item.toUpperCase() && item.includes(' ')) {
+                              return (
+                                <div key={idx + 7} className="font-normal mt-2 first:mt-0" style={{ fontFamily: 'Agressive' }}>
+                                  {item}
+                                </div>
+                              );
+                            }
+                            // Si empieza con punto, renderizar como lista con viñeta
+                            if (item.startsWith('.')) {
+                              return (
+                                <div key={idx + 7} className="flex items-start">
+                                  <span className="mr-2 mt-1">•</span>
+                                  <span>{item.substring(1)}</span>
+                                </div>
+                              );
+                            }
+                            // Si no empieza con punto, renderizar normal
                             return (
                               <div key={idx + 7} className="flex items-start">
                                 <span className="mr-2 mt-1">•</span>
-                                <span>{item.substring(1)}</span>
+                                <span>{item}</span>
                               </div>
                             );
-                          }
-                          // Si no empieza con punto, renderizar normal
-                          return (
-                            <div key={idx + 7} className="flex items-start">
-                              <span className="mr-2 mt-1">•</span>
-                              <span>{item}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      
-                      {/* Tercera columna - elementos 15+ */}
-                      <div className="space-y-2">
-                        {getProductDetails(producto02).slice(14).map((item: string, idx: number) => {
-                          // Si es un título (mayúsculas), renderizar como título
-                          if (item === item.toUpperCase() && item.includes(' ')) {
-                            return (
-                              <div key={idx + 14} className="font-normal mt-2 first:mt-0" style={{ fontFamily: 'NCS' }}>
-                                {item}
-                              </div>
-                            );
-                          }
-                          // Si empieza con punto, renderizar como lista con viñeta
-                          if (item.startsWith('.')) {
+                          })}
+                        </div>
+                        
+                        {/* Tercera columna - elementos 15+ */}
+                        <div className="space-y-2">
+                          {getProductDetails(producto).slice(14).map((item: string, idx: number) => {
+                            // Si es un título (mayúsculas), renderizar como título
+                            if (item === item.toUpperCase() && item.includes(' ')) {
+                              return (
+                                <div key={idx + 14} className="font-normal mt-2 first:mt-0" style={{ fontFamily: 'Agressive' }}>
+                                  {item}
+                                </div>
+                              );
+                            }
+                            // Si empieza con punto, renderizar como lista con viñeta
+                            if (item.startsWith('.')) {
+                              return (
+                                <div key={idx + 14} className="flex items-start">
+                                  <span className="mr-2 mt-1">•</span>
+                                  <span>{item.substring(1)}</span>
+                                </div>
+                              );
+                            }
+                            // Si no empieza con punto, renderizar normal
                             return (
                               <div key={idx + 14} className="flex items-start">
                                 <span className="mr-2 mt-1">•</span>
-                                <span>{item.substring(1)}</span>
+                                <span>{item}</span>
                               </div>
                             );
-                          }
-                          // Si no empieza con punto, renderizar normal
-                          return (
-                            <div key={idx + 14} className="flex items-start">
-                              <span className="mr-2 mt-1">•</span>
-                              <span>{item}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Contenido interno dos cards */}
-                <div className="flex justify-between items-start h-full pr-0">
-                  {/* Card izquierdo (producto02) */}
-                  <div className="relative w-1/5" style={{ top: '240px' }}>
-                    <a
-                      href={`/product/${producto02.handle}`}
-                      className="bg-white rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative h-[14rem] md:h-[20rem] w-full block cursor-pointer"
-                    >
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={producto02.featuredImage?.url || '/img1.jpg'}
-                          alt={producto02.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-
-                      {/* Info breve izquierda */}
-                      <div className="absolute bottom-2 left-2 right-2 flex flex-col justify-center md:hidden">
-                        <h3 className="text-lg font-medium text-white">{producto02.title}</h3>
-                      </div>
-                    </a>
-
-                    {/* Tallas debajo del card del carrusel (producto 02) */}
-                    <div className="mt-3">
-                      <div className="flex flex-wrap gap-2 items-center">
-                        {producto02.variants?.slice(0, 4).map((variant, i) => (
-                          <span
-                            key={i}
-                            className={`${variant.availableForSale ? 'bg-black/10 text-black' : 'bg-black/5 text-black/40 line-through'} text-xs font-semibold px-2 py-2 rounded-full`}
-                          >
-                            {variant.title}
-                          </span>
-                        ))}
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Card derecho del producto 02 */}
-                  <div className="relative w-[79%] mb-0 self-end">
-                    <a href={`/product/${producto02.handle}`} className="bg-white rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative h-[35rem] md:h-[28rem] w-full block cursor-pointer">
-                      {/* Imagen del producto derecho */}
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={producto02?.featuredImage?.url || '/img1.jpg'}
-                          alt={producto02?.title || 'Producto derecho 02'}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-
-                      {/* Título overlay opcional */}
-                      <div className="absolute top-6 left-6 right-2 hidden md:block">
-                        <div className="flex flex-col justify-center">
-                          <h3 className="text-sm font-medium text-white" style={{ fontFamily: 'Agressive' }}>
-                            {producto02?.title}
-                          </h3>
-                        </div>
-                      </div>
-
-                      {/* Precio + botón anclado a la derecha */}
-                      <div className="absolute right-130 top-1/2 -translate-y-1/2">
-                        <div className="flex items-center">
-                          <div className="bg-black/50 text-white rounded-full px-4 py-2 backdrop-blur-sm flex items-center gap-10">
-                            <span className="text-xs" style={{ fontFamily: 'Agressive' }}>{producto02?.title}</span>
-                            <span className="text-sm font-semibold">{formatPrice(producto02?.priceRange?.maxVariantPrice)}</span>
-                          </div>
-                          <button className="ml-0 rounded-full bg-black/50 text-white backdrop-blur-sm flex items-center justify-center px-2.5 py-2.5">
-                            <div className="w-3 h-3 rounded-full bg-white"></div>
-                          </button>
-                        </div>
-                      </div>
-                    </a>
-                  </div>
+                  {/* Componente de card de escritorio */}
+                  <DesktopProductCard product={producto} />
                 </div>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
       </div>
     </div>
