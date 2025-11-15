@@ -166,6 +166,63 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     }
   }, [producto]);
 
+  // Pre-cargar todas las imágenes del producto al montar el componente (solo en escritorio)
+  useEffect(() => {
+    if (!producto?.images || producto.images.length === 0 || typeof window === 'undefined') return;
+    
+    // Verificar si estamos en escritorio
+    const isDesktop = window.innerWidth >= 768;
+    if (!isDesktop) return;
+
+    // Pre-cargar todas las imágenes del producto
+    producto.images.forEach((imagen) => {
+      if (imagen?.url) {
+        // Verificar si ya existe un preload para esta imagen
+        const existingLink = document.querySelector(`link[rel="preload"][as="image"][href="${imagen.url}"]`);
+        if (!existingLink) {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'image';
+          link.href = imagen.url;
+          document.head.appendChild(link);
+        }
+      }
+    });
+  }, [producto?.images]);
+
+  // Pre-cargar imágenes adyacentes cuando cambia la imagen actual
+  useEffect(() => {
+    if (!producto?.images || producto.images.length === 0 || typeof window === 'undefined') return;
+
+    // Pre-cargar imagen siguiente
+    const nextIndex = currentImageIndex + 1 >= producto.images.length ? 0 : currentImageIndex + 1;
+    const nextImageUrl = producto.images[nextIndex]?.url;
+    if (nextImageUrl) {
+      const existingLink = document.querySelector(`link[rel="preload"][as="image"][href="${nextImageUrl}"]`);
+      if (!existingLink) {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = nextImageUrl;
+        document.head.appendChild(link);
+      }
+    }
+
+    // Pre-cargar imagen anterior
+    const prevIndex = currentImageIndex - 1 < 0 ? producto.images.length - 1 : currentImageIndex - 1;
+    const prevImageUrl = producto.images[prevIndex]?.url;
+    if (prevImageUrl && prevImageUrl !== nextImageUrl) {
+      const existingLink = document.querySelector(`link[rel="preload"][as="image"][href="${prevImageUrl}"]`);
+      if (!existingLink) {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = prevImageUrl;
+        document.head.appendChild(link);
+      }
+    }
+  }, [currentImageIndex, producto?.images]);
+
   // Navegación con teclado
   useEffect(() => {
     if (!producto?.images) return;
@@ -653,6 +710,8 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                   className="object-cover"
                   style={{ objectFit: 'cover' }}
                   sizes="50vw"
+                  priority
+                  loading="eager"
                 />
                 {/* Indicadores */}
                 <div 
