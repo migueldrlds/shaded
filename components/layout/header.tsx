@@ -137,16 +137,29 @@ export default function Header({ transparent = false, latestCollection }: Header
             
              {/* Logo izquierdo */}
              <div className="flex items-center ml-2">
-              <LinkWithTransition href="/" aria-label="Ir al inicio" className="inline-flex items-center">
-                <Image
-                  src={isDarkHeader ? '/logob.png' : '/logo.png'}
-                  alt="Logo"
-                  width={120}
-                  height={30}
-                  sizes="(max-width: 768px) 100px, 120px"
-                  priority
-                />
-              </LinkWithTransition>
+              {pathname === '/' ? (
+                <div className="inline-flex items-center cursor-default">
+                  <Image
+                    src={isDarkHeader ? '/logob.png' : '/logo.png'}
+                    alt="Logo"
+                    width={120}
+                    height={30}
+                    sizes="(max-width: 768px) 100px, 120px"
+                    priority
+                  />
+                </div>
+              ) : (
+                <LinkWithTransition href="/" aria-label="Ir al inicio" className="inline-flex items-center">
+                  <Image
+                    src={isDarkHeader ? '/logob.png' : '/logo.png'}
+                    alt="Logo"
+                    width={120}
+                    height={30}
+                    sizes="(max-width: 768px) 100px, 120px"
+                    priority
+                  />
+                </LinkWithTransition>
+              )}
              </div>
 
             {/* Navegación central */}
@@ -160,18 +173,29 @@ export default function Header({ transparent = false, latestCollection }: Header
               >
                 {t('header.shopNow')}
               </LinkWithTransition>
-              {navigationItems.map((item) => (
-                <LinkWithTransition
-                  key={item.label}
-                  href={item.href}
-                  className="transition-colors duration-200 font-light"
-                  style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
-                  onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
-                  onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
-                >
-                  {item.label}
-                </LinkWithTransition>
-              ))}
+              {navigationItems.map((item) => {
+                const isActive = pathname === item.href || (item.href === '/coleccion' && pathname.startsWith('/coleccion'));
+                return isActive ? (
+                  <span
+                    key={item.label}
+                    className="transition-colors duration-200 font-light cursor-default"
+                    style={{ color: isDarkHeader ? '#2E2E2C' : 'white', opacity: 0.7 }}
+                  >
+                    {item.label}
+                  </span>
+                ) : (
+                  <LinkWithTransition
+                    key={item.label}
+                    href={item.href}
+                    className="transition-colors duration-200 font-light"
+                    style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
+                    onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                    onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
+                  >
+                    {item.label}
+                  </LinkWithTransition>
+                );
+              })}
             </nav>
 
              {/* Sección derecha */}
@@ -266,19 +290,30 @@ export default function Header({ transparent = false, latestCollection }: Header
                 </span>
               ) : null}
             </button>
-                {navigationItems.map((item) => (
-                  <LinkWithTransition
-                    key={item.label}
-                    href={item.href}
-                    className="block px-4 py-2 rounded-lg transition-colors duration-200 font-light"
-                    style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
-                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
-                onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
-                    onClick={closeMenuWithAnimation}
-                  >
-                    {item.label}
-                  </LinkWithTransition>
-                ))}
+                {navigationItems.map((item) => {
+                  const isActive = pathname === item.href || (item.href === '/coleccion' && pathname.startsWith('/coleccion'));
+                  return isActive ? (
+                    <span
+                      key={item.label}
+                      className="block px-4 py-2 rounded-lg transition-colors duration-200 font-light cursor-default"
+                      style={{ color: isDarkHeader ? '#2E2E2C' : 'white', opacity: 0.7 }}
+                    >
+                      {item.label}
+                    </span>
+                  ) : (
+                    <LinkWithTransition
+                      key={item.label}
+                      href={item.href}
+                      className="block px-4 py-2 rounded-lg transition-colors duration-200 font-light"
+                      style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
+                      onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                      onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
+                      onClick={closeMenuWithAnimation}
+                    >
+                      {item.label}
+                    </LinkWithTransition>
+                  );
+                })}
               </nav>
             </div>
           </div>
