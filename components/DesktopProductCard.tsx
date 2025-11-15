@@ -131,7 +131,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product }) => {
           {/* Información del producto derecho */}
           <div className="absolute top-6 left-6 right-2 hidden md:block">
             <div className="flex flex-col justify-center">
-              <h3 className="text-sm font-medium text-white" style={{ fontFamily: 'Agressive' }}>
+              <h3 className="text-sm font-medium text-white">
                 {product?.title}
               </h3>
             </div>
@@ -141,7 +141,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product }) => {
           <div className="absolute right-130 top-1/2 -translate-y-1/2">
             <div className="flex items-center">
               <div className="bg-black/50 text-white rounded-full px-4 py-2 backdrop-blur-sm flex items-center gap-10">
-                <span className="text-xs" style={{ fontFamily: 'Agressive' }}>{product?.title}</span>
+                <span className="text-xs">{product?.title}</span>
                 <span className="text-sm font-semibold">{formatPrice(product?.priceRange?.maxVariantPrice)}</span>
               </div>
               <button className="ml-0 rounded-full bg-black/50 text-white backdrop-blur-sm flex items-center justify-center px-2.5 py-2.5">

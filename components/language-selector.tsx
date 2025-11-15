@@ -4,7 +4,11 @@ import { useLanguage } from 'components/providers/language-provider';
 import { gsap } from 'gsap';
 import { useEffect, useRef, useState } from 'react';
 
-export default function LanguageSelector() {
+interface LanguageSelectorProps {
+  isDarkMode?: boolean;
+}
+
+export default function LanguageSelector({ isDarkMode = false }: LanguageSelectorProps) {
   const { language, setLanguage, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -159,28 +163,38 @@ export default function LanguageSelector() {
     };
   }, [isOpen]);
 
+  // Colores según el modo
+  const labelColor = isDarkMode ? 'text-black/60' : 'text-white/60';
+  const buttonBg = isDarkMode ? 'bg-black/10' : 'bg-white/10';
+  const buttonBorder = isDarkMode ? 'border-black/30' : 'border-white/30';
+  const buttonText = isDarkMode ? 'text-black' : 'text-white';
+  const buttonHoverBg = isDarkMode ? 'hover:bg-black/20' : 'hover:bg-white/20';
+  const buttonHoverBorder = isDarkMode ? 'hover:border-black/40' : 'hover:border-white/40';
+  const buttonFocusRing = isDarkMode ? 'focus:ring-black/50' : 'focus:ring-white/50';
+  const buttonFocusBorder = isDarkMode ? 'focus:border-black/50' : 'focus:border-white/50';
+
   return (
     <div className="relative" ref={containerRef}>
       <div className="flex items-center gap-2">
-        <label className="text-white/60 text-sm">
+        <label className={`${labelColor} text-sm`}>
           {t('footer.language')}:
         </label>
         <div className="relative">
           <button
             ref={buttonRef}
             onClick={handleToggle}
-            className="relative flex items-center justify-between gap-2 bg-white/10 backdrop-blur-sm border border-white/30 rounded-md px-3 py-1.5 text-white text-sm min-w-[120px] cursor-pointer transition-all duration-200 hover:bg-white/20 hover:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50"
+            className={`relative flex items-center justify-between gap-2 ${buttonBg} backdrop-blur-sm border ${buttonBorder} rounded-md px-3 py-1.5 ${buttonText} text-sm min-w-[120px] cursor-pointer transition-all duration-200 ${buttonHoverBg} ${buttonHoverBorder} focus:outline-none focus:ring-2 ${buttonFocusRing} ${buttonFocusBorder}`}
             onMouseEnter={(e) => {
               gsap.to(e.currentTarget, {
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                borderColor: 'rgba(255, 255, 255, 0.4)',
+                backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)',
+                borderColor: isDarkMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)',
                 duration: 0.2
               });
             }}
             onMouseLeave={(e) => {
               gsap.to(e.currentTarget, {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                borderColor: 'rgba(255, 255, 255, 0.3)',
+                backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+                borderColor: isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)',
                 duration: 0.2
               });
             }}
@@ -207,7 +221,7 @@ export default function LanguageSelector() {
 
           <div
             ref={dropdownRef}
-            className="absolute bottom-full left-0 mb-1 bg-white/10 backdrop-blur-md border border-white/30 rounded-md overflow-hidden shadow-lg z-50 min-w-[120px]"
+            className={`absolute bottom-full left-0 mb-1 ${buttonBg} backdrop-blur-md border ${buttonBorder} rounded-md overflow-hidden shadow-lg z-50 min-w-[120px]`}
             style={{
               transformOrigin: 'bottom center',
               height: 0,
@@ -220,21 +234,24 @@ export default function LanguageSelector() {
                 <button
                   key={lang.value}
                   onClick={() => handleSelect(lang.value)}
-                  className="w-full text-left px-3 py-2 text-white text-sm transition-colors duration-200 hover:bg-white/20 focus:outline-none focus:bg-white/20"
+                  className={`w-full text-left px-3 py-2 ${buttonText} text-sm transition-colors duration-200 ${isDarkMode ? 'hover:bg-black/20 focus:bg-black/20' : 'hover:bg-white/20 focus:bg-white/20'}`}
                   onMouseEnter={(e) => {
                     gsap.to(e.currentTarget, {
-                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)',
                       duration: 0.2
                     });
                   }}
                   onMouseLeave={(e) => {
+                    const activeBg = isDarkMode ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)';
                     gsap.to(e.currentTarget, {
-                      backgroundColor: lang.value === language ? 'rgba(255, 255, 255, 0.15)' : 'transparent',
+                      backgroundColor: lang.value === language ? activeBg : 'transparent',
                       duration: 0.2
                     });
                   }}
                   style={{
-                    backgroundColor: lang.value === language ? 'rgba(255, 255, 255, 0.15)' : 'transparent'
+                    backgroundColor: lang.value === language 
+                      ? (isDarkMode ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)') 
+                      : 'transparent'
                   }}
                 >
                   {lang.label}

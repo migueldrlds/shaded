@@ -184,7 +184,7 @@ export default function VerificarCodigo() {
               </div>
             </div>
             
-            <h1 className="text-3xl font-medium text-black mb-2" style={{ fontFamily: 'Agressive' }}>
+            <h1 className="text-3xl font-medium text-black mb-2">
               Ingresa el código
             </h1>
             <p className="text-sm text-black/70 mb-2">

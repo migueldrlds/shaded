@@ -31,7 +31,7 @@ export default function ColeccionClient({ menuItems }: ColeccionClientProps) {
           <div className="max-w-7xl mx-auto">
             {/* Título de la página */}
             <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#2E2E2C', fontFamily: 'Agressive' }}>
+              <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#2E2E2C' }}>
                 {t('collections.title')}
               </h1>
               <p className="text-lg font-light" style={{ color: '#2E2E2C', opacity: 0.7 }}>

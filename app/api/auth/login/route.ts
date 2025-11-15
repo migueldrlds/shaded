@@ -1,31 +1,76 @@
-import { customerLogin } from 'lib/shopify';
+import {
+    buildAuthorizationUrl,
+    generateCodeChallenge,
+    generateCodeVerifier,
+    generateNonce,
+    generateState
+} from 'lib/shopify/customer-account-api';
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const { email } = await req.json();
 
-    if (!email || !password) {
+    if (!email) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Email is required' },
         { status: 400 }
       );
     }
 
-    const result = await customerLogin(email, password);
+    // Generate PKCE values
+    const codeVerifier = generateCodeVerifier();
+    const codeChallenge = generateCodeChallenge(codeVerifier);
+    const state = generateState();
+    const nonce = generateNonce();
 
-    if (result.errors) {
-      return NextResponse.json(
-        { errors: result.errors },
-        { status: 401 }
-      );
-    }
+    // Store PKCE values and state in cookies for later verification
+    const cookieStore = await cookies();
+    cookieStore.set('oauth_code_verifier', codeVerifier, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 600 // 10 minutes
+    });
+    cookieStore.set('oauth_state', state, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 600 // 10 minutes
+    });
+    cookieStore.set('oauth_nonce', nonce, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 600 // 10 minutes
+    });
+    cookieStore.set('oauth_email', email, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 600 // 10 minutes
+    });
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
+    // Build authorization URL
+    const redirectUri = `${req.nextUrl.origin}/api/auth/callback`;
+    const authorizationUrl = await buildAuthorizationUrl({
+      redirectUri,
+      state,
+      nonce,
+      codeChallenge,
+      locale: 'es'
+    });
+
+    return NextResponse.json({
+      success: true,
+      authorizationUrl,
+      message: 'Por favor, revisa tu correo electrónico para el código de verificación'
+    });
+  } catch (error: any) {
     console.error('Login API error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }

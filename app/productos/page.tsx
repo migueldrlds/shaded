@@ -29,7 +29,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
     return (
       <div className="min-h-screen relative flex items-center justify-center" style={{ backgroundColor: '#d2d5d3' }}>
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4" style={{ color: '#FFFFFF', fontFamily: 'Agressive' }}>
+          <h1 className="text-4xl font-bold mb-4" style={{ color: '#FFFFFF' }}>
             {coleccion !== 'all' ? `No hay productos en ${coleccion.toUpperCase()}` : 'No hay productos disponibles'}
           </h1>
           <p className="text-lg font-light" style={{ color: '#FFFFFF', opacity: 0.8 }}>
@@ -164,7 +164,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
           {/* Título de la página */}
           {coleccion !== 'all' && (
             <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#FFFFFF', fontFamily: 'Agressive' }}>
+              <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#FFFFFF' }}>
                 {coleccion.toUpperCase()} COLLECTION
               </h1>
               <p className="text-lg font-light" style={{ color: '#FFFFFF', opacity: 0.8 }}>
@@ -199,16 +199,16 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
 
                   {/* Número grande */}
                   <div className="absolute z-10 mt-2" style={{ top: '1rem', left: 'calc(20% + 2rem)' }}>
-                    <span className="select-none leading-none" style={{ fontFamily: 'Agressive', fontWeight: 700, fontSize: '3.5rem', lineHeight: 1, color: '#000000' }}>
+                    <span className="select-none leading-none" style={{ fontWeight: 700, fontSize: '3.5rem', lineHeight: 1, color: '#000000' }}>
                       {String(index + 1).padStart(2, '0')}
                     </span>
                   </div>
 
                   {/* Bloque de detalles */}
                   <div className="absolute z-10 mt-3" style={{ top: '1rem', left: 'calc(25% + 10rem)' }}>
-                    <h2 className="text-[11px] font-light" style={{ color: '#000000', fontFamily: 'Agressive' }}>{producto?.title}</h2>
-                    <p className="text-[11px] font-light" style={{ color: '#000000', opacity: 1, fontFamily: 'Agressive' }}>by shaded</p>
-                    <div className="mt-3 text-[11px] leading-tight" style={{ color: '#000000', fontFamily: 'Agressive' }}>
+                    <h2 className="text-[11px] font-light" style={{ color: '#000000' }}>{producto?.title}</h2>
+                    <p className="text-[11px] font-light" style={{ color: '#000000', opacity: 1 }}>by shaded</p>
+                    <div className="mt-3 text-[11px] leading-tight" style={{ color: '#000000' }}>
                       <div className="grid grid-cols-3 gap-4">
                         {/* Primera columna - primeros 7 elementos */}
                         <div className="space-y-2">
@@ -216,7 +216,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
                             // Si es un título (mayúsculas), renderizar como título
                             if (item === item.toUpperCase() && item.includes(' ')) {
                               return (
-                                <div key={idx} className="font-normal mt-2 first:mt-0" style={{ fontFamily: 'Agressive' }}>
+                                <div key={idx} className="font-normal mt-2 first:mt-0">
                                   {item}
                                 </div>
                               );
@@ -246,7 +246,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
                             // Si es un título (mayúsculas), renderizar como título
                             if (item === item.toUpperCase() && item.includes(' ')) {
                               return (
-                                <div key={idx + 7} className="font-normal mt-2 first:mt-0" style={{ fontFamily: 'Agressive' }}>
+                                <div key={idx + 7} className="font-normal mt-2 first:mt-0">
                                   {item}
                                 </div>
                               );
@@ -276,7 +276,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
                             // Si es un título (mayúsculas), renderizar como título
                             if (item === item.toUpperCase() && item.includes(' ')) {
                               return (
-                                <div key={idx + 14} className="font-normal mt-2 first:mt-0" style={{ fontFamily: 'Agressive' }}>
+                                <div key={idx + 14} className="font-normal mt-2 first:mt-0">
                                   {item}
                                 </div>
                               );

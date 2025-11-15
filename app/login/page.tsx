@@ -1,31 +1,195 @@
 'use client';
 
 import { useAuth } from 'components/auth/auth-context';
+import { gsap } from 'gsap';
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from "react";
-import { FiArrowUpRight, FiEye, FiEyeOff } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import { FiArrowUpRight } from "react-icons/fi";
 
 export default function Login() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { login, customer, isLoading } = useAuth();
   const router = useRouter();
 
+  // Refs para animaciones GSAP
+  const mobileCardRef = useRef<HTMLDivElement>(null);
+  const mobileTitleRef = useRef<HTMLDivElement>(null);
+  const mobileFormRef = useRef<HTMLFormElement>(null);
+  const mobileLinkRef = useRef<HTMLDivElement>(null);
+  
+  const desktopGridRef = useRef<HTMLDivElement>(null);
+  const desktopFormCardRef = useRef<HTMLDivElement>(null);
+  const desktopNewCollectionCardRef = useRef<HTMLDivElement>(null);
+  const desktopJoinCardRef = useRef<HTMLDivElement>(null);
+
+  // Animaciones GSAP
   useEffect(() => {
-    // Trigger animation after component mounts
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 100);
-    
-    return () => clearTimeout(timer);
+    let ctx = gsap.context(() => {
+      // Detectar si es móvil o desktop
+      const isMobile = window.innerWidth < 768;
+      
+      if (isMobile && mobileCardRef.current) {
+        // Animación móvil - expandir altura de abajo a arriba
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        const mobileCard = mobileCardRef.current;
+        
+        // Obtener altura natural del card
+        const cardNaturalHeight = mobileCard.offsetHeight || mobileCard.scrollHeight;
+        
+        // Establecer altura inicial a 0 y posición desde más abajo
+        gsap.set(mobileCard, {
+          height: 0,
+          y: 500,
+          overflow: 'hidden',
+          opacity: 0,
+          transformOrigin: 'bottom center'
+        });
+        
+        // Expandir altura del card de abajo hacia arriba mientras sube
+        tl.to(mobileCard, {
+          height: cardNaturalHeight,
+          y: 0,
+          opacity: 1,
+          duration: 0.9,
+          ease: 'power3.out',
+          onComplete: () => {
+            // Cuando termina, cambiar a altura auto
+            if (mobileCard) {
+              gsap.set(mobileCard, {
+                height: 'auto',
+                overflow: 'visible'
+              });
+            }
+          }
+        });
+        
+        // Animar título, formulario y link TODOS A LA VEZ (después del card)
+        if (mobileTitleRef.current) {
+          gsap.set(mobileTitleRef.current.children, { opacity: 0, y: 20 });
+          tl.to(mobileTitleRef.current.children, {
+            opacity: 1,
+            y: 0,
+            stagger: 0.15,
+            duration: 0.6
+          }, '-=0.5'); // Comienza un poco antes de que termine el card
+        }
+        
+        if (mobileFormRef.current) {
+          const formChildren = Array.from(mobileFormRef.current.children);
+          gsap.set(formChildren, { opacity: 0, y: 15 });
+          tl.to(formChildren, {
+            opacity: 1,
+            y: 0,
+            stagger: 0.08,
+            duration: 0.5
+          }, '-=0.5'); // Comienza al mismo tiempo
+        }
+        
+        if (mobileLinkRef.current) {
+          gsap.set(mobileLinkRef.current, { opacity: 0, y: 10 });
+          tl.to(mobileLinkRef.current, {
+            opacity: 1,
+            y: 0,
+            duration: 0.4
+          }, '-=0.4'); // Comienza un poco antes
+        }
+      } else if (!isMobile && desktopGridRef.current) {
+        // Animación desktop - todos los cards a la vez
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        
+        // Todos los cards se animan simultáneamente (mismo tiempo base)
+        const startTime = 0;
+        
+        // Card del formulario - desde la izquierda
+        if (desktopFormCardRef.current) {
+          gsap.set(desktopFormCardRef.current, { opacity: 0, x: -80, scale: 0.95 });
+          tl.to(desktopFormCardRef.current, {
+            opacity: 1,
+            x: 0,
+            scale: 1,
+            duration: 0.8,
+            ease: 'power3.out'
+          }, startTime);
+          
+          // Animar elementos internos del formulario con stagger
+          const formElements = desktopFormCardRef.current.querySelectorAll('input, button, a, p, h1, h2, div');
+          gsap.set(formElements, { opacity: 0, y: 10 });
+          tl.to(formElements, {
+            opacity: 1,
+            y: 0,
+            stagger: 0.05,
+            duration: 0.4
+          }, startTime + 0.3); // Empieza un poco después del card
+        }
+        
+        // Card New Collection - desde abajo (mismo tiempo)
+        if (desktopNewCollectionCardRef.current) {
+          gsap.set(desktopNewCollectionCardRef.current, { opacity: 0, y: 50, scale: 0.95 });
+          tl.to(desktopNewCollectionCardRef.current, {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.7,
+            ease: 'power3.out'
+          }, startTime); // Mismo tiempo de inicio
+        
+          // Animar contenido del card con stagger
+          const collectionElements = desktopNewCollectionCardRef.current.querySelectorAll('h2, p, a');
+          gsap.set(collectionElements, { opacity: 0, y: 15 });
+          tl.to(collectionElements, {
+            opacity: 1,
+            y: 0,
+            stagger: 0.1,
+            duration: 0.5
+          }, startTime + 0.3);
+        }
+        
+        // Card Join - desde la derecha (mismo tiempo)
+        if (desktopJoinCardRef.current) {
+          // Animar la imagen de fondo (mismo tiempo)
+          const backgroundImage = desktopJoinCardRef.current.querySelector('img');
+          if (backgroundImage) {
+            gsap.set(backgroundImage, { opacity: 0, scale: 1.2 });
+            tl.to(backgroundImage, {
+              opacity: 1,
+              scale: 1,
+              duration: 1.0,
+              ease: 'power2.out'
+            }, startTime); // Mismo tiempo de inicio
+          }
+          
+          // Animar el card completo (mismo tiempo)
+          gsap.set(desktopJoinCardRef.current, { opacity: 0, x: 80, scale: 0.95 });
+          tl.to(desktopJoinCardRef.current, {
+            opacity: 1,
+            x: 0,
+            scale: 1,
+            duration: 0.9,
+            ease: 'power3.out'
+          }, startTime); // Mismo tiempo de inicio
+          
+          // Animar contenido interno con stagger
+          const joinContent = desktopJoinCardRef.current.querySelector('.relative.z-10');
+          if (joinContent) {
+            const joinElements = joinContent.querySelectorAll('h2, p, div');
+            gsap.set(joinElements, { opacity: 0, y: 20 });
+            tl.to(joinElements, {
+              opacity: 1,
+              y: 0,
+              stagger: 0.08,
+              duration: 0.5
+            }, startTime + 0.3); // Empieza un poco después del card
+          }
+        }
+      }
+    });
+
+    return () => ctx.revert();
   }, []);
 
   // Redirect if already logged in
@@ -35,32 +199,46 @@ export default function Login() {
     }
   }, [customer, isLoading, router]);
 
+  // Check for OAuth callback errors
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const error = searchParams.get('error');
+    if (error) {
+      setErrors([`Error de autenticación: ${decodeURIComponent(error)}`]);
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors([]);
     setIsSubmitting(true);
 
     try {
-      const result = await login(email, password);
-      
-      if (result.success) {
-        // Redirect to home page on successful login
-        router.push('/');
-      } else if (result.needsActivation && result.customerId) {
-        // Redirect to verification page
-        const params = new URLSearchParams({
-          email,
-          customerId: result.customerId,
-          password
-        });
-        router.push(`/verificar-codigo?${params.toString()}`);
+      // Use Customer Account API with OAuth 2.0
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success && data.authorizationUrl) {
+        // Redirect to Shopify OAuth authorization page
+        // Shopify will handle email verification and code sending
+        // User will enter the verification code on Shopify's page
+        window.location.href = data.authorizationUrl;
       } else {
-        setErrors(result.errors || ['Login failed']);
+        setErrors(data.errors || [data.error || 'Error al iniciar sesión']);
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error('Login error:', error);
       setErrors(['An unexpected error occurred']);
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -84,13 +262,12 @@ export default function Login() {
       <div className="relative z-10 flex items-end justify-center min-h-screen">
         {/* Layout móvil: card único */}
         <div 
-          className={`bg-white/30 backdrop-blur-2xl rounded-t-[60px] md:hidden border border-white/10 border-b-0 p-8 w-full transition-opacity duration-1000 ease-in-out ${
-            isVisible ? 'opacity-100' : 'opacity-0'
-          }`}
+          ref={mobileCardRef}
+          className="bg-white/30 backdrop-blur-2xl rounded-t-[60px] md:hidden border border-white/10 border-b-0 p-8 w-full"
         >
           {/* Formulario de login móvil */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-medium text-black mb-2" style={{ fontFamily: 'Agressive' }}>
+          <div ref={mobileTitleRef} className="text-center mb-8">
+            <h1 className="text-3xl font-medium text-black mb-2">
               Welcome Back
             </h1>
             <p className="text-sm text-black/70">Login to your account</p>
@@ -107,7 +284,7 @@ export default function Login() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form ref={mobileFormRef} onSubmit={handleSubmit} className="space-y-6">
             <div>
               <input
                 type="email"
@@ -120,45 +297,10 @@ export default function Login() {
               />
             </div>
 
-            <div>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 pr-12 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
-                  placeholder="Enter your password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-0 top-1/2 transform -translate-y-1/2 text-black/60 hover:text-black transition-colors duration-200"
-                >
-                  {showPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <button
-                  type="button"
-                  aria-pressed={rememberMe}
-                  aria-label="Remember me"
-                  onClick={() => setRememberMe(!rememberMe)}
-                  className={`w-12 h-6 rounded-full relative transition-colors duration-200 focus:outline-none ${rememberMe ? 'bg-black' : 'bg-black/20'}`}
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-200 ${rememberMe ? 'translate-x-6' : ''}`}
-                  />
-                </button>
-                <span className="ml-3 text-sm text-black/70">Remember me</span>
-              </div>
-              <Link href="/forgot-password" className="text-sm text-black/70 hover:text-black transition-colors duration-200">
-                Forgot password?
-              </Link>
+            <div className="text-center mb-4">
+              <p className="text-xs text-black/60">
+                Recibirás un código de verificación en tu correo electrónico
+              </p>
             </div>
 
             <button
@@ -170,16 +312,8 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="text-center mt-6">
-            <p className="text-sm text-black/70">
-              Don't have an account?{' '}
-              <Link href="/register" className="text-black hover:underline">
-                Register
-              </Link>
-            </p>
-          </div>
 
-          <div className="text-center mt-4">
+          <div ref={mobileLinkRef} className="text-center mt-4">
             <Link href="/" className="inline-flex items-center text-sm text-black/70 hover:text-black transition-colors duration-200">
               <FiArrowUpRight className="h-4 w-4 mr-1 rotate-180" />
               Back to home
@@ -189,22 +323,19 @@ export default function Login() {
 
         {/* Layout desktop: 2 columnas x 2 filas */}
         <div 
-          className={`hidden md:grid md:grid-cols-2 md:gap-6 md:w-full md:max-w-4xl md:mx-20 md:my-8 transition-opacity duration-1000 ease-in-out ${
-            isVisible ? 'opacity-100' : 'opacity-0'
-          }`}
+          ref={desktopGridRef}
+          className="hidden md:grid md:grid-cols-2 md:gap-6 md:w-full md:max-w-4xl md:mx-20 md:my-8"
         >
           {/* Columna izquierda */}
           <div className="space-y-6">
             {/* Fila 1: Formulario de login */}
-            <div className="bg-white/30 backdrop-blur-2xl rounded-[40px] border border-white/10 p-8">
+            <div ref={desktopFormCardRef} className="bg-white/30 backdrop-blur-2xl rounded-[40px] border border-white/10 p-8">
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-6">
                   <Image src="/logob.png" alt="Shaded Logo" width={120} height={30} priority />
-                  <Link href="/register" className="text-sm text-black/70 hover:text-black transition-colors duration-200">
-                    Register
-                  </Link>
+                  <div></div>
                 </div>
-                <h1 className="text-3xl font-medium text-black mb-2" style={{ fontFamily: 'Agressive' }}>
+                <h1 className="text-3xl font-medium text-black mb-2">
                   LOG IN
                 </h1>
                 <p className="text-sm text-black/70">Access your account</p>
@@ -234,45 +365,10 @@ export default function Login() {
                   />
                 </div>
 
-                <div>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="password-desktop"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-transparent border-0 border-b-[0.5px] border-black/30 px-0 py-2 pr-12 text-black placeholder-black/40 focus:outline-none focus:ring-0 focus:border-black/70 transition-all duration-200"
-                      placeholder="Enter your password"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-0 top-1/2 transform -translate-y-1/2 text-black/60 hover:text-black transition-colors duration-200"
-                    >
-                      {showPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <button
-                      type="button"
-                      aria-pressed={rememberMe}
-                      aria-label="Remember me"
-                      onClick={() => setRememberMe(!rememberMe)}
-                      className={`w-12 h-6 rounded-full relative transition-colors duration-200 focus:outline-none ${rememberMe ? 'bg-black' : 'bg-black/20'}`}
-                    >
-                      <span
-                        className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-200 ${rememberMe ? 'translate-x-6' : ''}`}
-                      />
-                    </button>
-                    <span className="ml-3 text-sm text-black/70">Remember me</span>
-                  </div>
-                  <Link href="/forgot-password" className="text-sm text-black/70 hover:text-black transition-colors duration-200">
-                    Forgot password?
-                  </Link>
+                <div className="text-center mb-4">
+                  <p className="text-xs text-black/60">
+                    Recibirás un código de verificación en tu correo electrónico
+                  </p>
                 </div>
 
                 <button
@@ -287,9 +383,9 @@ export default function Login() {
             </div>
 
             {/* Fila 2: Card New Collection */}
-            <div className="bg-black/80 backdrop-blur-2xl rounded-[40px] border border-black/40 p-8">
+            <div ref={desktopNewCollectionCardRef} className="bg-black/80 backdrop-blur-2xl rounded-[40px] border border-black/40 p-8">
               <div>
-                <h2 className="text-2xl font-medium text-white mb-4" style={{ fontFamily: 'Agressive' }}>
+                <h2 className="text-2xl font-medium text-white mb-4">
                   New Collection
                 </h2>
                 <p className="text-sm text-white/70 mb-6">
@@ -305,7 +401,7 @@ export default function Login() {
           </div>
 
           {/* Columna derecha: Card que ocupa ambas filas */}
-          <div className="relative bg-white/30 backdrop-blur-2xl rounded-[40px] border border-white/10 pl-4 pr-8 py-4 flex flex-col justify-start overflow-hidden">
+          <div ref={desktopJoinCardRef} className="relative bg-white/30 backdrop-blur-2xl rounded-[40px] border border-white/10 pl-4 pr-8 py-4 flex flex-col justify-start overflow-hidden">
             {/* Imagen de fondo */}
             <div className="absolute inset-0 z-0">
               <Image
@@ -318,7 +414,7 @@ export default function Login() {
             </div>
             <div className="relative z-10 h-full">
               <div className="bg-white/20 backdrop-blur-xl rounded-l-[30px] rounded-r-2xl border border-white/20 px-6 py-4 h-full max-w-[200px] w-full text-left flex flex-col">
-                <h2 className="text-1xl font-medium text-white mb-4" style={{ fontFamily: 'Agressive' }}>
+                <h2 className="text-1xl font-medium text-white mb-4">
                   Join the Movement
                 </h2>
                 <p className="text-1xl text-white/70 mb-6">

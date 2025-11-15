@@ -87,8 +87,21 @@ export default function Header({ transparent = false, latestCollection }: Header
   // Debug: ver qué colección está llegando
   console.log('🔍 Header - latestCollection recibida:', latestCollection);
   
+  // Detectar si estamos en móvil
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
   // Determinar si debe usar estilo negro (fondo claro)
-  const isDarkHeader = pathname === '/coleccion' || pathname === '/productos' || pathname.startsWith('/productos-alt');
+  // En móvil, siempre usar modo oscuro en páginas de producto
+  const isDarkHeader = pathname === '/coleccion' || pathname === '/productos' || pathname.startsWith('/productos-alt') || (isMobile && pathname.startsWith('/product/'));
   
   const navigationItems = [
     { label: latestCollection.title, href: `/productos?coleccion=${latestCollection.handle}` },

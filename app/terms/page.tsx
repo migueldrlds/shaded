@@ -13,7 +13,7 @@ export default function Terms() {
         <div className="max-w-4xl mx-auto">
           {/* Título de la página */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#2E2E2C', fontFamily: 'Agressive' }}>
+            <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#2E2E2C' }}>
               {t('terms.title')}
             </h1>
             <p className="text-lg opacity-80" style={{ color: '#2E2E2C' }}>

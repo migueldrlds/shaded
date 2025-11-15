@@ -39,9 +39,12 @@ export default function FooterController() {
     return null;
   }
 
+  // Detectar si estamos en la página de colecciones para usar estilos oscuros
+  const isColeccionPage = pathname === '/coleccion';
+
   return (
     <div style={{ zIndex: 20 }}>
-      <FooterNew />
+      <FooterNew isDarkMode={isColeccionPage} />
     </div>
   );
 }

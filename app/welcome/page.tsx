@@ -45,7 +45,7 @@ export default function Welcome() {
         >
           {/* Logo o título principal */}
           <div className="text-center mb-6">
-            <h1 className="text-1xl font-medium text-white mb-4" style={{ fontFamily: 'Agressive' }}>
+            <h1 className="text-1xl font-medium text-white mb-4">
               Welcome to Shaded
             </h1>
             <p className="text-sm text-white/60 leading-relaxed">

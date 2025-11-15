@@ -34,7 +34,7 @@ export default function Contact() {
         <div className="max-w-2xl mx-auto">
           {/* Título de la página */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#2E2E2C', fontFamily: 'Agressive' }}>
+            <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#2E2E2C' }}>
               {t('contact.title')}
             </h1>
             <p className="text-lg opacity-80 mb-2" style={{ color: '#2E2E2C' }}>

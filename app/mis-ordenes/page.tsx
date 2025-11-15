@@ -134,7 +134,7 @@ export default function MisOrdenes() {
             >
               <FiArrowLeft className="h-6 w-6" style={{ color: '#2E2E2C' }} />
             </Link>
-            <h1 className="text-4xl font-bold uppercase" style={{ color: '#2E2E2C', fontFamily: 'Agressive' }}>
+            <h1 className="text-4xl font-bold uppercase" style={{ color: '#2E2E2C' }}>
               Mis Órdenes
             </h1>
           </div>

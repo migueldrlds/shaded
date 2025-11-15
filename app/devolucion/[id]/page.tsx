@@ -306,7 +306,7 @@ export default function SolicitudDevolucion({ params }: { params: Promise<{ id: 
               <FiArrowLeft className="h-6 w-6" style={{ color: '#2E2E2C' }} />
             </Link>
             <div>
-              <h1 className="text-4xl font-bold uppercase" style={{ color: '#2E2E2C', fontFamily: 'Agressive' }}>
+              <h1 className="text-4xl font-bold uppercase" style={{ color: '#2E2E2C' }}>
                 Solicitar devolución
               </h1>
               <p className="text-sm opacity-80 mt-1" style={{ color: '#2E2E2C' }}>

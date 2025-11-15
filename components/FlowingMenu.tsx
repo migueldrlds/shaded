@@ -253,7 +253,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
             <div
               ref={textRef}
               className="text-white uppercase text-2xl md:text-3xl lg:text-4xl font-bold text-center px-4"
-              style={{ fontFamily: 'Agressive', willChange: 'transform, opacity' }}
+              style={{ willChange: 'transform, opacity' }}
             >
               {text}
             </div>
@@ -262,7 +262,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
           {/* Texto inicial (visible cuando no hay hover) */}
           <div className="absolute bottom-4 left-4 right-4 z-10" ref={initialTextRef}>
             <div className="text-white uppercase text-lg md:text-xl font-semibold"
-                 style={{ fontFamily: 'Agressive' }}>
+                 >
         {text}
             </div>
           </div>
@@ -399,7 +399,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
             <div
               ref={textRef}
               className="text-white uppercase text-3xl font-bold text-center px-4"
-              style={{ fontFamily: 'Agressive', willChange: 'transform, opacity' }}
+              style={{ willChange: 'transform, opacity' }}
             >
               {text}
             </div>
@@ -408,7 +408,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
           {/* Texto inicial (visible cuando no está expandido) */}
           <div className="absolute bottom-4 left-4 right-4 z-10" ref={initialTextRef}>
             <div className="text-white uppercase text-xl font-semibold"
-                 style={{ fontFamily: 'Agressive' }}>
+                 >
               {text}
             </div>
           </div>

@@ -362,7 +362,7 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
         >
           <div className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] p-8 lg:p-12">
             <div className="text-center">
-              <h2 className="text-2xl lg:text-4xl font-medium text-white mb-6" style={{ fontFamily: 'Agressive' }}>
+              <h2 className="text-2xl lg:text-4xl font-medium text-white mb-6">
                 {t('home.movementTitle')}
               </h2>
               <p className="text-sm lg:text-lg text-white/80 leading-relaxed max-w-4xl mx-auto">

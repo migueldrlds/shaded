@@ -1,25 +1,29 @@
 'use client';
 
 import { useCart } from 'components/cart/cart-context';
+import NewsletterForm from 'components/newsletter-form';
 import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { Product } from 'lib/shopify/types';
 import Image from "next/image";
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { FiArrowLeft, FiChevronDown, FiChevronUp, FiShoppingCart, FiX } from 'react-icons/fi';
+import { FiArrowLeft, FiChevronDown, FiMinus, FiPlus, FiShare2, FiShoppingCart, FiX } from 'react-icons/fi';
 
 interface ProductClientProps {
   producto: Product;
+  recommendedProducts?: Product[];
+  otherProducts?: Product[];
 }
 
-export default function ProductClient({ producto }: ProductClientProps) {
+export default function ProductClient({ producto, recommendedProducts = [], otherProducts = [] }: ProductClientProps) {
   const router = useRouter();
   const { addCartItem } = useCart();
   // Estados para la galería de imágenes
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isPanelVisible, setIsPanelVisible] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
@@ -30,27 +34,20 @@ export default function ProductClient({ producto }: ProductClientProps) {
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
+  const [quantity, setQuantity] = useState(1);
   const [showFullDetails, setShowFullDetails] = useState(false);
   
   // Estados para dropdowns personalizados
   const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState(false);
   const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
-  
-  // Refs para gestos táctiles
-  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   
   // Refs para dropdowns animados
   const sizeDropdownRef = useRef<HTMLDivElement>(null);
   const colorDropdownRef = useRef<HTMLDivElement>(null);
-  
-  // Ref para la sección de descripción que se revela con scroll
-  const descriptionSectionRef = useRef<HTMLDivElement>(null);
-  // Ref para el panel principal (trigger estable)
-  const mainPanelRef = useRef<HTMLDivElement>(null);
-  
-  // Estado para la altura del header
-  const [headerHeight, setHeaderHeight] = useState(80); // Valor por defecto
+  const descriptionAccordionRef = useRef<HTMLDivElement>(null);
+  const descriptionDesktopRef = useRef<HTMLDivElement>(null);
 
   // Extraer colores únicos de las variantes
   const getAvailableColors = () => {
@@ -189,44 +186,6 @@ export default function ProductClient({ producto }: ProductClientProps) {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [producto?.images]);
 
-  // Detectar altura del header dinámicamente
-  useEffect(() => {
-    const detectHeaderHeight = () => {
-      const header = document.querySelector('header') || document.querySelector('[role="banner"]');
-      if (header) {
-        const rect = header.getBoundingClientRect();
-        setHeaderHeight(rect.height + 12); // +16px para un poco de separación
-      } else {
-        // Fallback: buscar elementos comunes de header
-        const navElements = document.querySelectorAll('nav, .navbar, .header, .top-bar');
-        if (navElements.length > 0) {
-          const firstElement = navElements[0];
-          if (firstElement) {
-            const rect = firstElement.getBoundingClientRect();
-            setHeaderHeight(rect.height + 16);
-          }
-        }
-      }
-    };
-
-    // Detectar al cargar
-    detectHeaderHeight();
-
-    // Detectar en resize (por si el header cambia de tamaño)
-    const handleResize = () => {
-      detectHeaderHeight();
-    };
-
-    window.addEventListener('resize', handleResize);
-    
-    // También detectar después de un pequeño delay para asegurar que el DOM esté listo
-    const timeoutId = setTimeout(detectHeaderHeight, 100);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(timeoutId);
-    };
-  }, []);
 
   // Animaciones GSAP para dropdown de tallas
   useEffect(() => {
@@ -282,6 +241,38 @@ export default function ProductClient({ producto }: ProductClientProps) {
     }
   }, [isColorDropdownOpen]);
 
+  // Animaciones GSAP para acordeón de descripción
+  useEffect(() => {
+    const accordionRef = descriptionDesktopRef.current || descriptionAccordionRef.current;
+    if (!accordionRef) return;
+
+    if (isDescriptionOpen) {
+      // Abrir acordeón
+      gsap.set(accordionRef, { height: 0, opacity: 0, overflow: 'hidden' });
+      const height = accordionRef.scrollHeight;
+      gsap.to(accordionRef, {
+        height: height,
+        opacity: 1,
+        duration: 0.3,
+        ease: 'power2.out',
+        onComplete: () => {
+          gsap.set(accordionRef, { height: 'auto', overflow: 'visible' });
+        }
+      });
+    } else {
+      // Cerrar acordeón
+      const height = accordionRef.scrollHeight;
+      gsap.set(accordionRef, { height: height, overflow: 'hidden' });
+      gsap.to(accordionRef, {
+        height: 0,
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power4.out'
+      });
+    }
+  }, [isDescriptionOpen]);
+
+
   // Ocultar completamente el scrollbar nativo
   useEffect(() => {
     const style = document.createElement('style');
@@ -335,44 +326,6 @@ export default function ProductClient({ producto }: ProductClientProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Animación de ScrollTrigger para revelar la descripción en móvil
-  useEffect(() => {
-    // Solo ejecutar en pantallas móviles (menos de 768px)
-    const isMobile = window.innerWidth < 768;
-    if (!isMobile) return;
-
-    // Registrar ScrollTrigger
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Usamos el ref del panel principal como el scope del contexto
-    let ctx = gsap.context(() => {
-      // Asegurarnos que ambos refs existan
-      if (descriptionSectionRef.current && mainPanelRef.current) {
-        
-        gsap.set(descriptionSectionRef.current, { 
-          height: 0, 
-          opacity: 0, 
-          overflow: 'hidden' 
-        });
-
-        gsap.to(descriptionSectionRef.current, {
-          height: "auto",
-          opacity: 1,
-          duration: 0.8,
-          ease: 'power2.out',
-          scrollTrigger: {
-            // --- CAMBIO CLAVE AQUÍ ---
-            trigger: mainPanelRef.current, // Usamos el panel como trigger estable
-            start: "bottom 95%", // Inicia cuando el fondo del panel esté al 95% de la altura de la pantalla
-            toggleActions: "play reverse play reverse",
-          }
-        });
-      }
-    }, mainPanelRef); // El scope es el panel principal
-
-    // Función de limpieza para cuando el componente se desmonte
-    return () => ctx.revert();
-  }, []);
 
   // Funciones para cerrar dropdowns con animación
   const closeSizeDropdown = () => {
@@ -419,6 +372,37 @@ export default function ProductClient({ producto }: ProductClientProps) {
     };
   }, [isFullscreen]);
 
+  const handleShare = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const shareData = {
+      title: producto?.title || 'Product',
+      text: producto?.description || '',
+      url: url
+    };
+
+    try {
+      // Intentar usar la Web Share API si está disponible
+      if (navigator.share && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: copiar al portapapeles
+        await navigator.clipboard.writeText(url);
+        alert('Link copiado al portapapeles!');
+      }
+    } catch (error: any) {
+      // Si el usuario cancela, no hacer nada
+      if (error.name !== 'AbortError') {
+        // Si falla, intentar copiar al portapapeles como fallback
+        try {
+          await navigator.clipboard.writeText(url);
+          alert('Link copiado al portapapeles!');
+        } catch (clipboardError) {
+          console.error('Error compartiendo:', clipboardError);
+        }
+      }
+    }
+  };
+
   const handleAddToCart = async () => {
     if (!producto?.variants || producto.variants.length === 0) {
       console.log('❌ No hay variantes disponibles');
@@ -452,79 +436,13 @@ export default function ProductClient({ producto }: ProductClientProps) {
 
     // Agregar al carrito
     try {
-      await addCartItem(selectedVariant, producto);
+      // Agregar la cantidad seleccionada al carrito de una vez
+      await addCartItem(selectedVariant, producto, quantity);
     } catch (error) {
       console.error('❌ Error agregando producto al carrito:', error);
     }
   };
 
-  // --- NUEVA LÓGICA DE GESTOS TÁCTILES ---
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (isFullscreen || !e.touches || e.touches.length === 0) return;
-    
-    const touch = e.touches[0];
-    if (!touch) return;
-    
-    touchStartRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-      time: Date.now()
-    };
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (isFullscreen || !touchStartRef.current || !e.touches || e.touches.length === 0) return;
-    
-    const touch = e.touches[0];
-    if (!touch) return;
-    
-    const deltaX = touch.clientX - touchStartRef.current.x;
-    const deltaY = touch.clientY - touchStartRef.current.y;
-    
-    // Solo prevenir scroll si el movimiento es predominantemente horizontal
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
-      e.preventDefault();
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (isFullscreen || !touchStartRef.current || !e.changedTouches || e.changedTouches.length === 0) return;
-    
-    const touch = e.changedTouches[0];
-    if (!touch) return;
-    
-    const deltaX = touch.clientX - touchStartRef.current.x;
-    const deltaY = touch.clientY - touchStartRef.current.y;
-    const deltaTime = Date.now() - touchStartRef.current.time;
-    
-    const swipeThreshold = 50; // Mínimo píxeles para considerar swipe
-    const tapThreshold = 10;   // Máximo píxeles para considerar tap
-    const timeThreshold = 300; // Máximo tiempo para considerar tap
-    
-    // Determinar si es swipe o tap
-    const isHorizontalSwipe = Math.abs(deltaX) > swipeThreshold && Math.abs(deltaX) > Math.abs(deltaY);
-    const isTap = Math.abs(deltaX) < tapThreshold && Math.abs(deltaY) < tapThreshold && deltaTime < timeThreshold;
-    
-    if (isHorizontalSwipe) {
-      // Swipe horizontal - cambiar imagen
-      if (deltaX < 0) {
-        // Swipe izquierda - siguiente imagen
-        setCurrentImageIndex(prev => 
-          prev === (producto?.images?.length || 1) - 1 ? 0 : prev + 1
-        );
-      } else {
-        // Swipe derecha - imagen anterior
-        setCurrentImageIndex(prev => 
-          prev === 0 ? (producto?.images?.length || 1) - 1 : prev - 1
-        );
-      }
-    } else if (isTap) {
-      // Tap - entrar a fullscreen
-      setIsFullscreen(true);
-    }
-    
-    touchStartRef.current = null;
-  };
 
   // Funciones para gestos nativos (Pinch & Zoom en fullscreen)
   const handleFullscreenTouchStart = (e: React.TouchEvent) => {
@@ -590,7 +508,7 @@ export default function ProductClient({ producto }: ProductClientProps) {
     <div 
       className="min-h-screen relative"
     >
-      {/* Video de fondo para escritorio */}
+      {/* Video de fondo - Solo en escritorio */}
       <div className="hidden md:block fixed inset-0" style={{ zIndex: -1 }}>
         <video
           autoPlay
@@ -604,28 +522,86 @@ export default function ProductClient({ producto }: ProductClientProps) {
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
 
-      {/* Galería de imágenes móvil */}
-      <div 
-        ref={containerRef}
-        className="md:hidden fixed inset-0 select-none overflow-hidden"
-        style={{ 
-          zIndex: 0,
-          touchAction: isFullscreen ? 'none' : 'pan-y' 
-        }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        {/* Imagen principal con animación */}
-        <div className="relative w-full h-full overflow-hidden">
+      {/* Fondo blanco para móvil */}
+      <div className="md:hidden fixed inset-0 bg-white" style={{ zIndex: -1 }}></div>
+
+      {/* Galería de imágenes móvil con swipe */}
+      {!isFullscreen && producto?.images && producto.images.length > 0 && (
+        <div 
+          className="md:hidden fixed top-0 left-0 right-0 w-full select-none overflow-hidden"
+          style={{ zIndex: 0, touchAction: 'pan-y', height: 'calc(100vh - 180px)', bottom: '180px' }}
+          onTouchStart={(e) => {
+            if (e.touches.length === 1) {
+              const touch = e.touches[0];
+              if (touch) {
+                setTouchStart({ x: touch.clientX, y: touch.clientY });
+              }
+            }
+          }}
+          onTouchMove={(e) => {
+            if (touchStart && e.touches.length === 1 && !isTransitioning) {
+              const touch = e.touches[0];
+              if (touch) {
+                const deltaX = touch.clientX - touchStart.x;
+                const deltaY = touch.clientY - touchStart.y;
+                
+                // Solo prevenir scroll si el movimiento es predominantemente horizontal
+                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+                  e.preventDefault();
+                }
+              }
+            }
+          }}
+          onTouchEnd={(e) => {
+            if (touchStart && e.changedTouches.length === 1 && !isTransitioning) {
+              const touch = e.changedTouches[0];
+              if (touch) {
+                const deltaX = touch.clientX - touchStart.x;
+                const deltaY = touch.clientY - touchStart.y;
+                const swipeThreshold = 50;
+              
+              // Determinar si es swipe horizontal
+              if (Math.abs(deltaX) > swipeThreshold && Math.abs(deltaX) > Math.abs(deltaY)) {
+                setIsTransitioning(true);
+                
+                if (deltaX < 0) {
+                  // Swipe izquierda - siguiente imagen
+                  setCurrentImageIndex((prev) => {
+                    const nextIndex = prev + 1;
+                    // Si es infinito, cuando llega al final vuelve a 0 sin animación visible
+                    return nextIndex >= (producto?.images?.length || 0) ? 0 : nextIndex;
+                  });
+                } else {
+                  // Swipe derecha - imagen anterior
+                  setCurrentImageIndex((prev) => {
+                    const prevIndex = prev - 1;
+                    // Si es infinito, cuando llega al inicio va al final sin animación visible
+                    return prevIndex < 0 ? (producto?.images?.length || 0) - 1 : prevIndex;
+                  });
+                }
+                
+                // Reset de transición después de un breve delay
+                setTimeout(() => setIsTransitioning(false), 300);
+                }
+              }
+              
+              setTouchStart(null);
+            }
+          }}
+        >
+          {/* Contenedor de imágenes con transición infinita */}
           <div 
-            className="flex h-full transition-transform duration-500 ease-in-out"
+            className="flex h-full transition-transform duration-300 ease-out"
             style={{
-              transform: `translateX(-${currentImageIndex * 100}%)`
+              transform: `translateX(-${currentImageIndex * 100}vw)`
             }}
           >
-            {producto?.images?.map((imagen, index) => (
-              <div key={index} className="w-full h-full flex-shrink-0 relative">
+            {producto.images.map((imagen, index) => (
+              <div 
+                key={index} 
+                className="h-full flex-shrink-0 relative"
+                style={{ width: '100vw', minWidth: '100vw' }}
+              >
                 <Image
                   src={imagen.url}
                   alt={imagen.altText || producto?.title || 'Product image'}
@@ -633,80 +609,63 @@ export default function ProductClient({ producto }: ProductClientProps) {
                   className="object-cover"
                   priority={index === 0}
                   sizes="100vw"
+                  onClick={() => setIsFullscreen(true)}
                 />
               </div>
             ))}
           </div>
           
-          {/* Overlay con gradiente */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+          {/* Indicadores de fotos - Abajo del header */}
+          {producto.images.length > 1 && (
+            <div className="absolute top-24 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+              {producto.images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`transition-all duration-500 ease-in-out transform ${
+                    index === currentImageIndex 
+                      ? 'w-8 h-2 bg-white scale-100' 
+                      : 'w-2 h-2 bg-white/60 hover:bg-white/80 scale-100 hover:scale-110'
+                  } rounded-full`}
+                  aria-label={`Ver imagen ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
-        
-        {/* Indicadores de navegación - Solo cuando el panel esté oculto */}
-        {producto?.images && producto.images.length > 1 && !isPanelVisible && (
-          <div className="absolute top-1/2 left-0 right-0 flex justify-between px-4 pointer-events-none">
-            <button
-              onClick={() => setCurrentImageIndex(prev => 
-                prev === 0 ? producto.images.length - 1 : prev - 1
-              )}
-              className="pointer-events-auto bg-black/30 backdrop-blur-sm text-white p-3 rounded-full hover:bg-black/50 transition-all duration-200"
-              aria-label="Imagen anterior"
-            >
-              <FiArrowLeft className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => setCurrentImageIndex(prev => 
-                prev === producto.images.length - 1 ? 0 : prev + 1
-              )}
-              className="pointer-events-auto bg-black/30 backdrop-blur-sm text-white p-3 rounded-full hover:bg-black/50 transition-all duration-200"
-              aria-label="Siguiente imagen"
-            >
-              <FiArrowLeft className="h-5 w-5 rotate-180" />
-            </button>
-          </div>
-        )}
-        
-        {/* Indicadores de puntos */}
-        {producto?.images && producto.images.length > 1 && (
-          <div 
-            className="absolute left-1/2 transform -translate-x-1/2 flex space-x-2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-2"
-            style={{ top: `${headerHeight}px` }}
-          >
-            {producto.images.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentImageIndex(index)}
-                className={`transition-all duration-500 ease-in-out transform ${
-                  index === currentImageIndex 
-                    ? 'w-8 h-2 bg-white scale-100' 
-                    : 'w-2 h-2 bg-white/60 hover:bg-white/80 scale-100 hover:scale-110'
-                } rounded-full`}
-                aria-label={`Ver imagen ${index + 1}`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      )}
 
-      {/* Card de escritorio */}
-      <div className="hidden md:flex relative z-10 items-center justify-center p-8 pt-40 min-h-screen">
-        <div className="w-full max-w-6xl h-[calc(100vh-8rem)] bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-          <div className="flex h-full">
+
+      {/* Card de producto - Solo en escritorio */}
+      <div className="hidden md:flex relative z-10 items-center justify-center p-8 pt-40 min-h-screen px-4">
+        <div className="w-full max-w-7xl mx-auto bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+          <div className="flex">
             {/* Columna izquierda - Imagen */}
-            <div className="w-1/2 relative">
-              <div className="h-full relative">
+            <div className="w-1/2 relative overflow-hidden flex-shrink-0">
+              <div 
+                className="relative w-full aspect-square min-h-[600px] cursor-pointer"
+                onClick={() => setIsFullscreen(true)}
+              >
                 <Image
                   src={producto?.images?.[currentImageIndex]?.url || '/img1.jpg'}
                   alt={producto?.images?.[currentImageIndex]?.altText || producto?.title || 'Product image'}
                   fill
                   className="object-cover"
+                  style={{ objectFit: 'cover' }}
+                  sizes="50vw"
                 />
                 {/* Indicadores */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-3 bg-black/30 backdrop-blur-md rounded-full px-6 py-3 border border-white/20">
+                <div 
+                  className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-3 bg-black/30 backdrop-blur-md rounded-full px-6 py-3 border border-white/20 z-20"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {producto?.images?.map((_, index) => (
                     <button
                       key={index}
-                      onClick={() => setCurrentImageIndex(index)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentImageIndex(index);
+                      }}
                       className={`relative transition-all duration-500 ${
                         index === currentImageIndex 
                           ? 'w-8 h-2' 
@@ -723,18 +682,24 @@ export default function ProductClient({ producto }: ProductClientProps) {
                 </div>
                 {/* Botones navegación */}
                 <button
-                  onClick={() => setCurrentImageIndex(prev => 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentImageIndex(prev => 
                     prev === 0 ? (producto?.images?.length || 1) - 1 : prev - 1
-                  )}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition-all duration-200"
+                    );
+                  }}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition-all duration-200 z-20"
                 >
                   <FiArrowLeft className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={() => setCurrentImageIndex(prev => 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentImageIndex(prev => 
                     prev === (producto?.images?.length || 1) - 1 ? 0 : prev + 1
-                  )}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition-all duration-200"
+                    );
+                  }}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-2 rounded-full hover:bg-white/30 transition-all duration-200 z-20"
                 >
                   <FiArrowLeft className="h-4 w-4 rotate-180" />
                 </button>
@@ -742,22 +707,25 @@ export default function ProductClient({ producto }: ProductClientProps) {
             </div>
 
             {/* Columna derecha - Controles */}
-            <div className="w-1/2 p-8 flex flex-col">
-              <div className="mb-6">
+            <div className="w-1/2 p-8 flex flex-col justify-between relative z-20 flex-shrink-0">
+              <div>
+                <div className="mb-6">
                 <div className="max-w-xs mx-auto">
                   <h1 className="text-3xl font-bold text-white mb-2 leading-tight text-left">{producto?.title}</h1>
-                  <div className="flex items-baseline space-x-3 mb-3">
+                    <div className="flex items-baseline space-x-3 mb-2">
                     <span className="text-2xl font-bold text-white">{formatPrice(producto?.priceRange?.maxVariantPrice)}</span>
                   </div>
-                  <p className="text-white/85 text-base leading-relaxed text-left">
-                    {producto?.description || 'Descripción del producto no disponible.'}
+                    <p className="text-white/60 text-[10px] leading-relaxed text-left mb-6">
+                      <Link href="/shipping-policy" className="underline hover:text-white/80 transition-colors">
+                        Shipping
+                      </Link> calculated at checkout.
                   </p>
                 </div>
               </div>
 
-              <div className="flex-1 space-y-6 flex flex-col items-center">
+                <div className="space-y-6 flex flex-col items-center">
                 {/* Selectores de color */}
-                <div className="max-w-xs w-full">
+                  <div className="max-w-xs w-full">
                   <label className="block text-white/90 text-sm font-semibold mb-4 uppercase tracking-wider text-left">COLOR</label>
                   <div className="flex relative justify-start">
                     {getAvailableColors().map((colorInfo, index) => (
@@ -785,7 +753,7 @@ export default function ProductClient({ producto }: ProductClientProps) {
                 </div>
 
                 {/* Selector de talla */}
-                <div className="max-w-xs w-full">
+                  <div className="max-w-xs w-full">
                   <label className="block text-white/90 text-sm font-semibold mb-4 uppercase tracking-wider text-left">SIZE</label>
                   <div className="flex space-x-2 justify-start">
                     {getAvailableSizes().map((tallaInfo, index) => (
@@ -802,12 +770,35 @@ export default function ProductClient({ producto }: ProductClientProps) {
                         {tallaInfo.talla}
                       </button>
                     ))}
+                    </div>
+                  </div>
+
+                  {/* Selector de cantidad */}
+                  <div className="max-w-xs w-full">
+                    <label className="block text-white/90 text-sm font-semibold mb-4 uppercase tracking-wider text-left">Quantity</label>
+                    <div className="flex items-center justify-start gap-4">
+                      <button
+                        onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                        className="w-10 h-10 rounded-full border-2 border-white/30 text-white/90 hover:border-white/50 hover:text-white transition-all duration-200 flex items-center justify-center"
+                        type="button"
+                      >
+                        <FiMinus className="h-4 w-4" />
+                      </button>
+                      <span className="text-white text-lg font-medium min-w-[2rem] text-center">{quantity}</span>
+                      <button
+                        onClick={() => setQuantity(prev => prev + 1)}
+                        className="w-10 h-10 rounded-full border-2 border-white/30 text-white/90 hover:border-white/50 hover:text-white transition-all duration-200 flex items-center justify-center"
+                        type="button"
+                      >
+                        <FiPlus className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Botón agregar al carrito */}
-              <div className="mt-6 flex justify-center">
+              <div className="flex justify-center mt-8">
                 <div className="max-w-xs w-full">
                   <button
                     onClick={handleAddToCart}
@@ -817,171 +808,183 @@ export default function ProductClient({ producto }: ProductClientProps) {
                     <span>Add to Cart</span>
                     <FiShoppingCart className="h-5 w-5" />
                   </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Botón de regreso - Móvil */}
-      {!isFullscreen && (
-        <div 
-          className="md:hidden absolute left-4 z-20"
-          style={{ top: `${headerHeight}px` }}
-        >
+              {/* Acordeón de descripción - Escritorio */}
+              <div className="flex justify-center mt-6">
+                <div className="max-w-xs w-full">
           <button 
-            onClick={() => router.back()}
-            className="bg-black/30 backdrop-blur-sm text-white p-3 rounded-full hover:bg-black/50 transition-all duration-200"
-            aria-label="Volver atrás"
+                    onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
+                    className="w-full flex items-center justify-between py-3 border-t border-b border-white/20 text-white/90 hover:text-white transition-colors"
           >
-            <FiArrowLeft className="h-5 w-5" />
+                    <span className="text-sm font-medium uppercase tracking-wider">Product Details</span>
+                    <FiChevronDown 
+                      className={`h-4 w-4 transition-transform duration-300 ${isDescriptionOpen ? 'rotate-180' : ''}`}
+                    />
           </button>
+                  <div 
+                    ref={descriptionDesktopRef}
+                    className="overflow-hidden"
+                    style={{ height: 0, opacity: 0 }}
+                  >
+                    <p className="text-white/85 text-base leading-relaxed text-left pt-4">
+                      {producto?.description || 'Descripción del producto no disponible.'}
+                    </p>
+        </div>
+                  
+                  {/* Botón Share */}
+              <button
+                    onClick={handleShare}
+                    className="w-full flex items-center justify-between py-4 mt-2 text-white/90 hover:text-white transition-colors"
+                    aria-label="Compartir producto"
+                  >
+                    <div className="flex items-center gap-2">
+                      <FiShare2 className="h-4 w-4" />
+                      <span className="text-sm font-medium uppercase tracking-wider">Share</span>
+                    </div>
+              </button>
+          </div>
+              </div>
+            </div>
+          </div>
+                </div>
+              </div>
+
+
+
+      {/* Card móvil con nombre del producto */}
+      {!isFullscreen && (
+        <div className="md:hidden fixed left-0 right-0 w-full z-20" style={{ bottom: '180px' }}>
+          <div className="bg-white rounded-t-[50px] shadow-2xl border-t border-black/10 p-6">
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <h1 className="text-lg font-bold text-black text-left flex-1">
+                {producto?.title}
+              </h1>
+                  <button
+                onClick={handleShare}
+                className="flex-shrink-0 p-2 hover:bg-black/5 rounded-full transition-all duration-200"
+                aria-label="Compartir producto"
+              >
+                <FiShare2 className="h-5 w-5 text-black" />
+                  </button>
+            </div>
+            <button
+              onClick={() => setIsDetailsModalOpen(true)}
+              className="w-full text-left text-sm font-medium text-black/70 hover:text-black transition-colors uppercase tracking-wider"
+            >
+              PRODUCT DETAILS
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Panel móvil */}
+      {/* Card móvil fijo en la parte inferior */}
       {!isFullscreen && (
-        <div className={`md:hidden fixed bottom-0 left-0 right-0 z-20 transition-transform duration-300 ${
-          isPanelVisible ? 'translate-y-0' : 'translate-y-full'
-        }`}>
-          {/* Botón toggle para subir/bajar el panel */}
-          <div className="absolute bottom-full w-full flex justify-end p-4">
-              <button
-                onClick={() => setIsPanelVisible(!isPanelVisible)}
-                className="bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-all duration-200"
-                aria-label={isPanelVisible ? "Ocultar panel" : "Mostrar panel"}
-              >
-                {isPanelVisible ? (
-                  <FiChevronDown className="h-5 w-5" />
-                ) : (
-                  <FiChevronUp className="h-5 w-5" />
-                )}
-              </button>
-          </div>
-          
-          <div ref={mainPanelRef} className="bg-white/20 backdrop-blur-xl rounded-t-3xl shadow-2xl">
-            <div className="px-4 pt-6 pb-6 max-h-[60vh] overflow-y-auto">
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h1 className="text-2xl font-bold text-white">{producto?.title}</h1>
-                  <span className="text-lg font-bold text-white">{formatPrice(producto?.priceRange?.maxVariantPrice)}</span>
-                </div>
-              </div>
-
-              {/* Información seleccionada */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                {/* Talla seleccionada */}
-                <div className="relative dropdown-container">
-                  <button
-                    onClick={() => {
-                      setIsSizeDropdownOpen(!isSizeDropdownOpen);
-                      setIsColorDropdownOpen(false);
-                    }}
-                    className="w-full bg-black/20 backdrop-blur-sm border border-white/20 rounded-full px-4 py-3 text-sm font-medium text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-black/30 transition-all duration-200 text-center hover:bg-black/30 flex items-center justify-between"
-                  >
-                    <span className="flex-1 text-left">{selectedSize || 'Talla'}</span>
-                    <FiChevronDown className={`h-4 w-4 text-white/80 transition-transform duration-200 ${isSizeDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  {/* Dropdown de tallas */}
-                  {isSizeDropdownOpen && (
-                    <div 
-                      ref={sizeDropdownRef}
-                      className="absolute bottom-full left-0 right-0 mb-2 bg-black/90 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl z-50 max-h-48 overflow-y-auto hide-scrollbar"
-                    >
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 w-full" id="bottom-card">
+          <div className="bg-black rounded-t-[50px] shadow-2xl border-t border-white/10 p-8">
+            {/* Fila 1: Selects de Talla y Color */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {/* Select de Talla */}
+              <div className="relative">
+                <select
+                  value={selectedSize || ''}
+                  onChange={(e) => setSelectedSize(e.target.value)}
+                  className="w-full bg-white/10 border border-white/30 rounded-full px-4 py-4 text-base font-medium text-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/50 transition-all duration-200"
+                >
+                  <option value="" className="bg-black text-white" disabled>Talla</option>
                       {getAvailableSizes().map((tallaInfo, index) => (
-                        <button
+                    <option
                           key={index}
-                          onClick={() => {
-                            setSelectedSize(tallaInfo.talla);
-                            closeSizeDropdown();
-                          }}
+                      value={tallaInfo.talla}
                           disabled={!tallaInfo.disponible}
-                          className={`w-full px-4 py-3 text-sm font-medium text-left first:rounded-t-2xl last:rounded-b-2xl ${
-                            !tallaInfo.disponible 
-                              ? 'text-white/40 cursor-not-allowed' 
-                              : selectedSize === tallaInfo.talla
-                                ? 'bg-white/20 text-white'
-                                : 'text-white/80 hover:bg-white/10'
-                          }`}
+                      className="bg-black text-white"
                         >
                           {tallaInfo.talla} {!tallaInfo.disponible ? '(Agotado)' : ''}
-                        </button>
+                    </option>
                       ))}
+                </select>
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                  <FiChevronDown className="h-4 w-4 text-white/70" />
                     </div>
-                  )}
                 </div>
 
-                {/* Color seleccionado */}
-                <div className="relative dropdown-container">
-                  <button
-                    onClick={() => {
-                      setIsColorDropdownOpen(!isColorDropdownOpen);
-                      setIsSizeDropdownOpen(false);
-                    }}
-                    className="w-full bg-black/20 backdrop-blur-sm border border-white/20 rounded-full px-4 py-3 text-sm font-medium text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-black/30 transition-all duration-200 text-center hover:bg-black/30 flex items-center justify-between"
-                  >
-                    <span className="flex-1 text-left">{selectedColor || 'Color'}</span>
-                    <FiChevronDown className={`h-4 w-4 text-white/80 transition-transform duration-200 ${isColorDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  {/* Dropdown de colores */}
-                  {isColorDropdownOpen && (
-                    <div 
-                      ref={colorDropdownRef}
-                      className="absolute bottom-full left-0 right-0 mb-2 bg-black/90 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl z-50 max-h-48 overflow-y-auto hide-scrollbar"
-                    >
+              {/* Select de Color */}
+              <div className="relative">
+                <select
+                  value={selectedColor || ''}
+                  onChange={(e) => setSelectedColor(e.target.value)}
+                  className="w-full bg-white/10 border border-white/30 rounded-full px-4 py-4 text-base font-medium text-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/50 transition-all duration-200"
+                >
+                  <option value="" className="bg-black text-white" disabled>Color</option>
                       {getAvailableColors().map((colorInfo, index) => (
-                        <button
+                    <option
                           key={index}
-                          onClick={() => {
-                            setSelectedColor(colorInfo.nombre);
-                            closeColorDropdown();
-                          }}
+                      value={colorInfo.nombre}
                           disabled={!colorInfo.disponible}
-                          className={`w-full px-4 py-3 text-sm font-medium text-left first:rounded-t-2xl last:rounded-b-2xl flex items-center gap-3 ${
-                            !colorInfo.disponible 
-                              ? 'text-white/40 cursor-not-allowed' 
-                              : selectedColor === colorInfo.nombre
-                                ? 'bg-white/20 text-white'
-                                : 'text-white/80 hover:bg-white/10'
-                          }`}
-                        >
-                          <div 
-                            className="w-4 h-4 rounded-full border border-white/30"
-                            style={{ backgroundColor: colorInfo.codigo }}
-                          />
+                      className="bg-black text-white"
+                    >
                           {colorInfo.nombre} {!colorInfo.disponible ? '(Agotado)' : ''}
-                        </button>
+                    </option>
                       ))}
+                </select>
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                  <FiChevronDown className="h-4 w-4 text-white/70" />
                     </div>
-                  )}
                 </div>
               </div>
 
-              <div className="mb-6">
+            {/* Fila 2: Precio y Add to Cart */}
+            <div className="flex items-center justify-between gap-4">
+              {/* Precio a la izquierda */}
+              <div className="flex-1">
+                <span className="text-2xl font-bold text-white">
+                  {formatPrice(producto?.priceRange?.maxVariantPrice)}
+                </span>
+              </div>
+
+              {/* Botón Add to Cart a la derecha */}
                 <button
                   onClick={handleAddToCart}
-                  className="w-full bg-white/20 backdrop-blur-md text-white py-4 rounded-full font-medium hover:bg-white/30 transition-all duration-200 flex items-center justify-between px-6 border border-white/30 cursor-pointer relative z-10"
+                disabled={!selectedSize || !selectedColor}
+                className="flex-1 bg-white text-black py-4 px-6 rounded-full font-medium hover:bg-white/90 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   type="button"
                 >
                   <span>Add to Cart</span>
-                  <FiShoppingCart className="h-5 w-5" />
+                <FiShoppingCart className="h-4 w-4" />
                 </button>
               </div>
+          </div>
+        </div>
+      )}
 
-              {/* Descripción del producto */}
-              <div ref={descriptionSectionRef} className="mb-6">
-                <p className="text-white/90 text-sm font-normal leading-relaxed">
+      {/* Modal de Product Details - Pantalla completa */}
+      {isDetailsModalOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-black">
+          <div className="h-full flex flex-col">
+            {/* Header del modal */}
+            <div className="flex items-center justify-between p-6 border-b border-white/10">
+              <h2 className="text-xl font-bold text-white uppercase tracking-wider">
+                PRODUCT DETAILS
+              </h2>
+              <button
+                onClick={() => setIsDetailsModalOpen(false)}
+                className="p-2 hover:bg-white/10 rounded-full transition-all duration-200"
+                aria-label="Cerrar modal"
+              >
+                <FiX className="h-6 w-6 text-white" />
+              </button>
+            </div>
+
+            {/* Contenido del modal */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="text-white/90 text-base leading-relaxed whitespace-pre-wrap">
                   {producto?.description || 'Descripción del producto no disponible.'}
-                </p>
               </div>
             </div>
           </div>
         </div>
       )}
-
 
       {/* Modo fullscreen */}
       {isFullscreen && (
@@ -1069,6 +1072,98 @@ export default function ProductClient({ producto }: ProductClientProps) {
           >
             <FiX className="h-5 w-5" />
           </button>
+        </div>
+      )}
+
+      {/* Carruseles de productos recomendados - Solo en escritorio */}
+      {!isFullscreen && (
+        <div className="hidden md:flex w-full justify-center items-center py-8 px-4 md:px-8">
+          <div className="w-full max-w-7xl mx-auto bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-6 md:p-8">
+            {/* Título "You may also love" */}
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center md:text-left uppercase tracking-wider">
+              You may also love
+            </h2>
+            
+            {/* Layout de dos columnas: productos a la izquierda, newsletter a la derecha */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:items-start">
+              {/* Columna izquierda: Carrusel de productos */}
+              {recommendedProducts && recommendedProducts.length > 0 && (
+                <div className="md:col-span-2">
+                  <div className="w-full flex justify-center">
+                    <div className={`grid gap-6 md:gap-6 w-full ${
+                      recommendedProducts.length === 1 
+                        ? 'grid-cols-1 justify-items-center' 
+                        : recommendedProducts.length === 2 
+                        ? 'grid-cols-1 md:grid-cols-2 justify-items-center'
+                        : recommendedProducts.length === 3 
+                        ? 'grid-cols-1 md:grid-cols-3 justify-items-center'
+                        : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4 justify-items-center'
+                    }`}>
+                      {recommendedProducts.slice(0, 4).map((product, index) => {
+                        // Ya no necesitamos centrar con col-start porque usamos grid-cols apropiado
+                    // Obtener segunda imagen si existe
+                    const featuredImageUrl = product.featuredImage?.url;
+                    const secondImage = product.images?.find(img => img.url !== featuredImageUrl);
+                    const hoverImage = secondImage?.url || product.images?.[1]?.url || featuredImageUrl;
+
+                      return (
+                        <Link
+                          key={product.handle}
+                          href={`/product/${product.handle}`}
+                          className="group cursor-pointer w-full max-w-[280px]"
+                        >
+                        <div className="relative aspect-square bg-white/5 rounded-lg overflow-hidden mb-4 w-full">
+                          {product.featuredImage && (
+                            <>
+                              {/* Imagen principal */}
+                              <Image
+                                src={product.featuredImage.url}
+                                alt={product.title}
+                                fill
+                                className="object-cover transition-opacity duration-300 group-hover:opacity-0"
+                                sizes="(min-width: 768px) 25vw, 50vw"
+                              />
+                              {/* Segunda imagen en hover */}
+                              {hoverImage && hoverImage !== product.featuredImage.url && (
+                                <Image
+                                  src={hoverImage}
+                                  alt={product.title}
+                                  fill
+                                  className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100 absolute inset-0"
+                                  sizes="(min-width: 768px) 25vw, 50vw"
+                                />
+                              )}
+                            </>
+                          )}
+                        </div>
+                        <h3 className="text-white text-sm md:text-base font-medium mb-1 line-clamp-1 text-center">
+                          {product.title}
+                        </h3>
+                        <p className="text-white/70 text-xs md:text-sm text-center">
+                          {formatPrice(product.priceRange?.maxVariantPrice)}
+                        </p>
+                      </Link>
+                    );
+                  })}
+                </div>
+                </div>
+              </div>
+              )}
+              
+              {/* Columna derecha: Newsletter */}
+              <div className="md:col-span-1 flex flex-col justify-start md:self-start">
+                <div className="text-center md:text-left">
+                  <h3 className="text-xl md:text-2xl font-bold text-white mb-3 uppercase tracking-wider">
+                    BE PART OF THE MOVEMENT
+                  </h3>
+                  <p className="text-white/80 text-sm md:text-base mb-6">
+                    Be the first to know about launch updates, styling ideas and exclusive offers.
+                  </p>
+                  <NewsletterForm />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

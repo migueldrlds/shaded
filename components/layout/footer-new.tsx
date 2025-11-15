@@ -4,29 +4,41 @@ import LanguageSelector from 'components/language-selector';
 import { useLanguage } from 'components/providers/language-provider';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaFacebook, FaInstagram } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 
-export default function FooterNew() {
+interface FooterNewProps {
+  isDarkMode?: boolean;
+}
+
+export default function FooterNew({ isDarkMode = false }: FooterNewProps) {
   const { t } = useLanguage();
+  
+  // Colores según el modo
+  const textColor = isDarkMode ? 'text-black' : 'text-white';
+  const textColorMuted = isDarkMode ? 'text-black/70' : 'text-white/70';
+  const textColorHover = isDarkMode ? 'hover:text-black' : 'hover:text-white';
+  const textColorMoreMuted = isDarkMode ? 'text-black/60' : 'text-white/60';
+  const borderColor = isDarkMode ? 'border-black' : 'border-white/20';
+  const iconColor = isDarkMode ? 'text-black/70 hover:text-black' : 'text-white/70 hover:text-white';
 
   return (
-    <footer className="mt-8 mb-8">
-      <div className="max-w-7xl mx-auto px-4">
+    <footer className="mt-8 mb-8 px-4">
+      <div className="max-w-7xl mx-auto">
         <div className="relative">
           <div className="absolute inset-0 backdrop-blur-md rounded-2xl" style={{ 
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            borderColor: 'rgba(255, 255, 255, 0.3)', 
+            backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.2)',
+            borderColor: isDarkMode ? '#000000' : 'rgba(255, 255, 255, 0.3)', 
             borderWidth: '1px', 
             borderStyle: 'solid' 
           }}></div>
-          <div className="relative py-12 px-8">
+          <div className="relative py-12 px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           
           {/* Logo y marca */}
           <div className="lg:col-span-1">
             <div className="flex items-center mb-6">
               <Image
-                src="/logo.png"
+                src={isDarkMode ? "/logob.png" : "/logo.png"}
                 alt="Logo"
                 width={120}
                 height={30}
@@ -34,37 +46,37 @@ export default function FooterNew() {
                 priority
               />
             </div>
-            <p className="text-white/80 text-sm leading-relaxed">
+            <p className={`${textColorMuted} text-sm leading-relaxed`}>
               {t('footer.description')}
             </p>
           </div>
 
           {/* Políticas y soporte */}
           <div>
-            <h3 className="text-white font-semibold mb-4">{t('footer.customerService')}</h3>
+            <h3 className={`${textColor} font-semibold mb-4`}>{t('footer.customerService')}</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/return-policy" className="text-white/70 hover:text-white transition-colors text-sm">
+                <Link href="/return-policy" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   {t('footer.returnPolicy')}
                 </Link>
               </li>
               <li>
-                <Link href="/shipping-policy" className="text-white/70 hover:text-white transition-colors text-sm">
+                <Link href="/shipping-policy" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   {t('footer.shippingPolicy')}
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-white/70 hover:text-white transition-colors text-sm">
+                <Link href="/terms" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   {t('footer.terms')}
                 </Link>
               </li>
               <li>
-                <Link href="/support" className="text-white/70 hover:text-white transition-colors text-sm">
+                <Link href="/support" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   {t('footer.customerSupport')}
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-white/70 hover:text-white transition-colors text-sm">
+                <Link href="/contact" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   {t('footer.contactForm')}
                 </Link>
               </li>
@@ -73,15 +85,15 @@ export default function FooterNew() {
 
           {/* Colecciones */}
           <div>
-            <h3 className="text-white font-semibold mb-4">{t('footer.collections')}</h3>
+            <h3 className={`${textColor} font-semibold mb-4`}>{t('footer.collections')}</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/productos?coleccion=serene" className="text-white/70 hover:text-white transition-colors text-sm">
+                <Link href="/productos?coleccion=serene" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   INTRODUCING SERENE
                 </Link>
               </li>
               <li>
-                <Link href="/coleccion" className="text-white/70 hover:text-white transition-colors text-sm">
+                <Link href="/coleccion" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   {t('footer.allCollections')}
                 </Link>
               </li>
@@ -90,13 +102,13 @@ export default function FooterNew() {
 
           {/* Redes sociales */}
           <div>
-            <h3 className="text-white font-semibold mb-4">{t('footer.connectWithUs')}</h3>
+            <h3 className={`${textColor} font-semibold mb-4`}>{t('footer.connectWithUs')}</h3>
             <div className="flex space-x-4">
               <a
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/70 hover:text-white transition-colors"
+                className={`${iconColor} transition-colors`}
                 aria-label="Facebook"
               >
                 <FaFacebook className="w-6 h-6" />
@@ -105,28 +117,37 @@ export default function FooterNew() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/70 hover:text-white transition-colors"
+                className={`${iconColor} transition-colors`}
                 aria-label="Instagram"
               >
                 <FaInstagram className="w-6 h-6" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@shadedthebrand?_t=ZT-8uPMMryWeGB&_r=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${iconColor} transition-colors`}
+                aria-label="TikTok"
+              >
+                <FaTiktok className="w-6 h-6" />
               </a>
             </div>
           </div>
             </div>
 
             {/* Línea divisoria y copyright */}
-            <div className="border-t border-white/20 mt-8 pt-8">
+            <div className={`border-t ${borderColor} mt-8 pt-8`}>
               <div className="flex flex-col md:flex-row justify-between items-center">
-                <p className="text-white/60 text-sm">
+                <p className={`${textColorMoreMuted} text-sm`}>
                   {t('footer.copyright', { year: new Date().getFullYear() })}
                 </p>
                 <div className="flex flex-col md:flex-row items-center gap-6 mt-4 md:mt-0">
-                  <LanguageSelector />
+                  <LanguageSelector isDarkMode={isDarkMode} />
                   <div className="flex space-x-6">
-                    <Link href="/privacy" className="text-white/60 hover:text-white transition-colors text-sm">
+                    <Link href="/privacy" className={`${textColorMoreMuted} ${textColorHover} transition-colors text-sm`}>
                       {t('footer.privacyPolicy')}
                     </Link>
-                    <Link href="/cookies" className="text-white/60 hover:text-white transition-colors text-sm">
+                    <Link href="/cookies" className={`${textColorMoreMuted} ${textColorHover} transition-colors text-sm`}>
                       {t('footer.cookiePolicy')}
                     </Link>
                   </div>

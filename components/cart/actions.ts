@@ -112,9 +112,9 @@ export async function createCartAndSetCookie() {
   (await cookies()).set('cartId', cart.id!);
 }
 
-export async function addItemToCart(variantId: string) {
+export async function addItemToCart(variantId: string, quantity: number = 1) {
   try {
-    await addToCart([{ merchandiseId: variantId, quantity: 1 }]);
+    await addToCart([{ merchandiseId: variantId, quantity }]);
     revalidateTag(TAGS.cart);
     return { success: true };
   } catch (error) {

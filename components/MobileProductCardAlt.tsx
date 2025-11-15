@@ -133,17 +133,17 @@ const MobileProductCardAlt: React.FC<MobileProductCardAltProps> = ({ product }) 
       <div className="absolute bottom-0 left-0 right-0 p-5">
         <div className="flex flex-col gap-3">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: 'Agressive' }}>
+            <h2 className="text-2xl font-bold text-white mb-1">
               {product.title}
             </h2>
-            <p className="text-sm text-white/90 mb-2" style={{ fontFamily: 'Agressive' }}>
+            <p className="text-sm text-white/90 mb-2">
               by shaded
             </p>
           </div>
           
           {/* Precio y colores */}
           <div className="flex items-center justify-between">
-            <span className="text-xl font-bold text-white" style={{ fontFamily: 'Agressive' }}>
+            <span className="text-xl font-bold text-white">
               {formatPrice(product.priceRange?.maxVariantPrice)}
             </span>
             
@@ -180,7 +180,7 @@ const MobileProductCardAlt: React.FC<MobileProductCardAltProps> = ({ product }) 
           
           {/* Call to action */}
           <div className="flex items-center gap-2 text-white/90 mt-2">
-            <span className="text-sm" style={{ fontFamily: 'Agressive' }}>Tap to view</span>
+            <span className="text-sm">Tap to view</span>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>

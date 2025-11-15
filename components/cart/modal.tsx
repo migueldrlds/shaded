@@ -291,11 +291,15 @@ export default function CartModal() {
                        style={{ borderColor: 'rgba(255, 255, 255, 0.3)' }}
                      >
                        <p className="font-light">Taxes</p>
-                       <Price
-                         className="text-right text-base text-white font-light"
-                         amount={cart.cost.totalTaxAmount.amount}
-                         currencyCode={cart.cost.totalTaxAmount.currencyCode}
-                       />
+                       {cart.cost.totalTaxAmount.amount && parseFloat(cart.cost.totalTaxAmount.amount) > 0 ? (
+                         <Price
+                           className="text-right text-base text-white font-light"
+                           amount={cart.cost.totalTaxAmount.amount}
+                           currencyCode={cart.cost.totalTaxAmount.currencyCode}
+                         />
+                       ) : (
+                         <p className="text-right font-light">Calculated at checkout</p>
+                       )}
                      </div>
                      <div 
                        className="mb-3 flex items-center justify-between border-b pb-1 pt-1"

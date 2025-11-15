@@ -23,13 +23,13 @@ type CartAction =
     }
   | {
       type: 'ADD_ITEM';
-      payload: { variant: ProductVariant; product: Product };
+      payload: { variant: ProductVariant; product: Product; quantity?: number };
     };
 
 type CartContextType = {
   cart: Cart | undefined;
   updateCartItem: (merchandiseId: string, updateType: UpdateType) => void;
-  addCartItem: (variant: ProductVariant, product: Product) => Promise<void>;
+  addCartItem: (variant: ProductVariant, product: Product, quantity?: number) => Promise<void>;
   contextId: string;
 };
 
@@ -71,9 +71,10 @@ function updateCartItem(
 function createOrUpdateCartItem(
   existingItem: CartItem | undefined,
   variant: ProductVariant,
-  product: Product
+  product: Product,
+  quantityToAdd: number = 1
 ): CartItem {
-  const quantity = existingItem ? existingItem.quantity + 1 : 1;
+  const quantity = existingItem ? existingItem.quantity + quantityToAdd : quantityToAdd;
   const totalAmount = calculateItemCost(quantity, variant.price.amount);
 
   return {
@@ -167,8 +168,8 @@ function cartReducer(state: Cart | undefined, action: CartAction): Cart {
     }
     case 'ADD_ITEM': {
       console.log('🛒 ADD_ITEM reducer called');
-      const { variant, product } = action.payload;
-      console.log('🛒 Adding item:', { variant: variant.title, product: product.title });
+      const { variant, product, quantity = 1 } = action.payload;
+      console.log('🛒 Adding item:', { variant: variant.title, product: product.title, quantity });
       
       const existingItem = currentCart.lines.find(
         (item) => item.merchandise.id === variant.id
@@ -178,7 +179,8 @@ function cartReducer(state: Cart | undefined, action: CartAction): Cart {
       const updatedItem = createOrUpdateCartItem(
         existingItem,
         variant,
-        product
+        product,
+        quantity
       );
       console.log('🛒 Updated item:', updatedItem);
 
@@ -227,22 +229,22 @@ export function CartProvider({
     });
   };
 
-  const addCartItem = async (variant: ProductVariant, product: Product) => {
-    console.log('🛒 addCartItem called:', { variant: variant.title, product: product.title });
+  const addCartItem = async (variant: ProductVariant, product: Product, quantity: number = 1) => {
+    console.log('🛒 addCartItem called:', { variant: variant.title, product: product.title, quantity });
     
     // Actualizar el carrito local
     setLocalCart(prevCart => {
       if (!prevCart) return prevCart;
       return cartReducer(prevCart, {
         type: 'ADD_ITEM',
-        payload: { variant, product }
+        payload: { variant, product, quantity }
       });
     });
     
     // Sincronizar con Shopify usando la acción del servidor
     try {
       const { addItemToCart } = await import('./actions');
-      const result = await addItemToCart(variant.id);
+      const result = await addItemToCart(variant.id, quantity);
       if (result.success) {
         console.log('🛒 Producto sincronizado con Shopify');
       } else {

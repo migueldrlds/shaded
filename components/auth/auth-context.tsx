@@ -6,7 +6,7 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 interface AuthContextType {
   customer: Customer | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; needsActivation?: boolean; customerId?: string; errors?: string[] }>;
+  login: (email: string, password?: string) => Promise<{ success: boolean; needsActivation?: boolean; customerId?: string; errors?: string[] }>;
   logout: () => Promise<void>;
   register: (firstName: string, lastName: string, email: string, password: string) => Promise<{ success: boolean; needsActivation?: boolean; customerId?: string; errors?: string[] }>;
   refreshCustomer: () => Promise<void>;
@@ -34,8 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Login
-  const login = async (email: string, password: string): Promise<{ success: boolean; needsActivation?: boolean; customerId?: string; errors?: string[] }> => {
+  // Login - Now only requires email (uses Customer Account API with OAuth 2.0)
+  const login = async (email: string, password?: string): Promise<{ success: boolean; needsActivation?: boolean; customerId?: string; errors?: string[] }> => {
     setIsLoading(true);
     try {
       const response = await fetch('/api/auth/login', {
@@ -43,32 +43,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
 
-      if (response.ok && data.success) {
-        // Obtener información actualizada del customer
-        await fetchCustomer();
+      if (response.ok && data.success && data.authorizationUrl) {
+        // Redirect will happen in the component
+        // Return success so component can redirect
         return { success: true };
       } else {
-        // Check if the error indicates need for activation
-        const needsActivation = data.errors?.some((error: string) => 
-          error.toLowerCase().includes('unidentified') || 
-          error.toLowerCase().includes('activation') ||
-          error.toLowerCase().includes('verify')
-        );
-        
-        if (needsActivation) {
-          return { 
-            success: false, 
-            needsActivation: true, 
-            customerId: data.customerId,
-            errors: data.errors || [data.error || 'Login failed'] 
-          };
-        }
-        
         return { 
           success: false, 
           errors: data.errors || [data.error || 'Login failed'] 
