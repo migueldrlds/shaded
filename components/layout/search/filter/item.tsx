@@ -49,15 +49,24 @@ function SortFilterItem({ item }: { item: SortFilterItem }) {
 
   return (
     <li className="mt-2 flex text-sm text-black dark:text-white" key={item.title}>
-      <DynamicTag
-        prefetch={!active ? false : undefined}
-        href={href}
-        className={clsx('w-full hover:underline hover:underline-offset-4', {
-          'underline underline-offset-4': active
-        })}
-      >
-        {item.title}
-      </DynamicTag>
+      {active ? (
+        <p
+          className={clsx('w-full hover:underline hover:underline-offset-4', {
+            'underline underline-offset-4': active
+          })}
+        >
+          {item.title}
+        </p>
+      ) : (
+        <LinkWithTransition
+          href={href}
+          className={clsx('w-full hover:underline hover:underline-offset-4', {
+            'underline underline-offset-4': active
+          })}
+        >
+          {item.title}
+        </LinkWithTransition>
+      )}
     </li>
   );
 }
