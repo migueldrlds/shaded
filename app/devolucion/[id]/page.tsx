@@ -1,8 +1,8 @@
 'use client';
 
 import { useAuth } from 'components/auth/auth-context';
+import LinkWithTransition from 'components/link-with-transition';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FiArrowLeft, FiCheckCircle, FiPackage } from 'react-icons/fi';
@@ -260,12 +260,12 @@ export default function SolicitudDevolucion({ params }: { params: Promise<{ id: 
             <h1 className="text-2xl font-bold mb-4" style={{ color: '#2E2E2C' }}>
               Orden no encontrada
             </h1>
-            <Link 
+            <LinkWithTransition 
               href="/mis-ordenes"
               className="inline-block bg-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors duration-200"
             >
               Volver a Mis Órdenes
-            </Link>
+            </LinkWithTransition>
           </div>
         </div>
       </div>
@@ -299,12 +299,12 @@ export default function SolicitudDevolucion({ params }: { params: Promise<{ id: 
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex items-center mb-8">
-            <Link 
+            <LinkWithTransition 
               href={`/orden/${order.orderNumber}`}
               className="mr-4 p-2 hover:bg-black/5 rounded-full transition-colors duration-200"
             >
               <FiArrowLeft className="h-6 w-6" style={{ color: '#2E2E2C' }} />
-            </Link>
+            </LinkWithTransition>
             <div>
               <h1 className="text-4xl font-bold uppercase" style={{ color: '#2E2E2C' }}>
                 Solicitar devolución

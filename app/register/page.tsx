@@ -1,9 +1,9 @@
 'use client';
 
 import { useAuth } from 'components/auth/auth-context';
+import LinkWithTransition from 'components/link-with-transition';
 import { gsap } from 'gsap';
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from "react";
 import { FiArrowUpRight, FiEye, FiEyeOff } from "react-icons/fi";
@@ -158,9 +158,9 @@ export default function Register() {
           <div ref={headerRef} className="text-center mb-8">
             <div className="flex items-center justify-between mb-6">
               <Image src="/logob.png" alt="Shaded Logo" width={120} height={30} priority />
-              <Link href="/login" className="text-sm text-black/70 hover:text-black transition-colors duration-200">
+              <LinkWithTransition href="/login" className="text-sm text-black/70 hover:text-black transition-colors duration-200">
                 Login
-              </Link>
+              </LinkWithTransition>
             </div>
             <h1 className="text-3xl font-medium text-black mb-2">
               CREATE ACCOUNT
@@ -268,16 +268,16 @@ export default function Register() {
           <div ref={linksRef} className="text-center mt-6">
             <p className="text-sm text-black/70">
               Already have an account?{' '}
-              <Link href="/login" className="text-black hover:underline">
+              <LinkWithTransition href="/login" className="text-black hover:underline">
                 Login
-              </Link>
+              </LinkWithTransition>
             </p>
 
             <div className="text-center mt-4">
-              <Link href="/" className="inline-flex items-center text-sm text-black/70 hover:text-black transition-colors duration-200">
+              <LinkWithTransition href="/" className="inline-flex items-center text-sm text-black/70 hover:text-black transition-colors duration-200">
                 <FiArrowUpRight className="h-4 w-4 mr-1 rotate-180" />
                 Back to home
-              </Link>
+              </LinkWithTransition>
             </div>
           </div>
         </div>

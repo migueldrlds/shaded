@@ -1,7 +1,7 @@
 'use client';
 
+import LinkWithTransition from 'components/link-with-transition';
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FiArrowUpRight } from "react-icons/fi";
 
@@ -56,7 +56,7 @@ export default function Welcome() {
 
           {/* Botón de Sign In */}
           <div className="text-center mt-8">
-            <Link 
+            <LinkWithTransition 
               href="/login" 
               className="inline-block transition-all duration-200 hover:opacity-90" 
               aria-label="Sign in"
@@ -64,25 +64,25 @@ export default function Welcome() {
               <span className="rounded-full text-lg font-medium px-24 py-5 border border-white text-white">
                 Sign In
               </span>
-            </Link>
+            </LinkWithTransition>
           </div>
 
           {/* Enlace de registro */}
           <div className="text-center mt-6">
             <p className="text-sm text-white/70">
               Don't have an account?{' '}
-              <Link href="/register" className="text-white hover:underline font-medium">
+              <LinkWithTransition href="/register" className="text-white hover:underline font-medium">
                 Register
-              </Link>
+              </LinkWithTransition>
             </p>
           </div>
 
           {/* Back to home */}
           <div className="text-center mt-4">
-            <Link href="/" className="inline-flex items-center text-sm text-white/70 hover:text-white transition-colors duration-200">
+            <LinkWithTransition href="/" className="inline-flex items-center text-sm text-white/70 hover:text-white transition-colors duration-200">
               <FiArrowUpRight className="h-4 w-4 mr-1 rotate-180" />
               Back to home
-            </Link>
+            </LinkWithTransition>
           </div>
         </div>
       </div>

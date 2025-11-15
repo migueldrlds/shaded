@@ -2,11 +2,13 @@ import { AuthProvider } from 'components/auth/auth-context';
 import { CartProvider } from 'components/cart/cart-context';
 import { CartModalProvider } from 'components/cart/cart-modal-context';
 import CartModal from 'components/cart/modal';
+import ClientLayout from 'components/client-layout';
 import FooterController from 'components/layout/footer-controller';
 import HeaderWrapper from 'components/layout/header-wrapper';
 import { LanguageProvider } from 'components/providers/language-provider';
 import { getCart } from 'lib/shopify';
 import { baseUrl } from 'lib/utils';
+import { ViewTransitions } from 'next-view-transitions';
 import { Inter } from 'next/font/google';
 import { cookies } from 'next/headers';
 import { ReactNode } from 'react';
@@ -71,21 +73,25 @@ export default async function RootLayout({
             `,
           }}
         />
-        <LanguageProvider initialLanguage={initialLanguage}>
-          <AuthProvider>
-            <CartProvider cartPromise={cart}>
-              <CartModalProvider>
-                <HeaderWrapper />
-                <main>
-                  {children}
-                  <Toaster closeButton />
-                </main>
-                <FooterController />
-                <CartModal />
-              </CartModalProvider>
-            </CartProvider>
-          </AuthProvider>
-        </LanguageProvider>
+        <ViewTransitions>
+          <ClientLayout>
+            <LanguageProvider initialLanguage={initialLanguage}>
+              <AuthProvider>
+                <CartProvider cartPromise={cart}>
+                  <CartModalProvider>
+                    <HeaderWrapper />
+                    <main>
+                      {children}
+                      <Toaster closeButton />
+                    </main>
+                    <FooterController />
+                    <CartModal />
+                  </CartModalProvider>
+                </CartProvider>
+              </AuthProvider>
+            </LanguageProvider>
+          </ClientLayout>
+        </ViewTransitions>
       </body>
     </html>
   );

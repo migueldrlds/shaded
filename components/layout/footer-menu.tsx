@@ -1,8 +1,8 @@
 'use client';
 
 import clsx from 'clsx';
+import LinkWithTransition from 'components/link-with-transition';
 import { Menu } from 'lib/shopify/types';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -16,7 +16,7 @@ export function FooterMenuItem({ item }: { item: Menu }) {
 
   return (
     <li>
-      <Link
+      <LinkWithTransition
         href={item.path}
         className={clsx(
           'block p-2 text-lg underline-offset-4 hover:text-black hover:underline md:inline-block md:text-sm dark:hover:text-neutral-300',
@@ -26,7 +26,7 @@ export function FooterMenuItem({ item }: { item: Menu }) {
         )}
       >
         {item.title}
-      </Link>
+      </LinkWithTransition>
     </li>
   );
 }

@@ -1,9 +1,9 @@
 'use client';
 
 import { useAuth } from 'components/auth/auth-context';
+import LinkWithTransition from 'components/link-with-transition';
 import { gsap } from 'gsap';
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from "react";
 import { FiArrowUpRight } from "react-icons/fi";
@@ -314,10 +314,10 @@ export default function Login() {
 
 
           <div ref={mobileLinkRef} className="text-center mt-4">
-            <Link href="/" className="inline-flex items-center text-sm text-black/70 hover:text-black transition-colors duration-200">
+            <LinkWithTransition href="/" className="inline-flex items-center text-sm text-black/70 hover:text-black transition-colors duration-200">
               <FiArrowUpRight className="h-4 w-4 mr-1 rotate-180" />
               Back to home
-            </Link>
+            </LinkWithTransition>
           </div>
         </div>
 
@@ -392,9 +392,9 @@ export default function Login() {
                   Discover our latest streetwear essentials
                 </p>
                 <div className="flex justify-end">
-                  <Link href="/coleccion" className="text-white text-lg font-medium hover:text-white/70 transition-colors duration-200">
+                  <LinkWithTransition href="/coleccion" className="text-white text-lg font-medium hover:text-white/70 transition-colors duration-200">
                     Explore Now
-                  </Link>
+                  </LinkWithTransition>
                 </div>
               </div>
             </div>

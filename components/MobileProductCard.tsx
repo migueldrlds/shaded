@@ -1,5 +1,6 @@
 'use client';
 
+import LinkWithTransition from 'components/link-with-transition';
 import Image from 'next/image';
 import React from 'react';
 
@@ -119,7 +120,7 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({ product }) => {
   return (
     <div className="w-full max-w-2xl relative">
        {/* Card único con imagen y información - Todo clickeable */}
-       <a 
+       <LinkWithTransition 
          href={`/product/${product.handle}`}
          className="block bg-white/30 backdrop-blur-xl rounded-3xl h-66 relative overflow-visible transition-all duration-300 hover:bg-white/40 cursor-pointer"
        >
@@ -196,7 +197,7 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({ product }) => {
             />
           </div>
         </div>
-      </a>
+      </LinkWithTransition>
     </div>
   );
 };

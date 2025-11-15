@@ -1,6 +1,6 @@
 'use client';
 
-import Link from "next/link";
+import LinkWithTransition from 'components/link-with-transition';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from "react";
 import { FiArrowLeft, FiMail } from "react-icons/fi";
@@ -169,12 +169,12 @@ export default function VerificarCodigo() {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-between mb-6">
-              <Link 
+              <LinkWithTransition 
                 href="/login"
                 className="p-2 hover:bg-black/5 rounded-full transition-colors duration-200"
               >
                 <FiArrowLeft className="h-6 w-6" style={{ color: '#2E2E2C' }} />
-              </Link>
+              </LinkWithTransition>
               <div className="flex-1"></div>
             </div>
             
@@ -254,19 +254,19 @@ export default function VerificarCodigo() {
 
           {/* Sign in with different email */}
           <div className="text-center mt-4">
-            <Link href="/login" className="text-sm text-black/70 hover:text-black transition-colors duration-200">
+            <LinkWithTransition href="/login" className="text-sm text-black/70 hover:text-black transition-colors duration-200">
               Iniciar sesión con otro email
-            </Link>
+            </LinkWithTransition>
           </div>
 
           {/* Footer links */}
           <div className="text-center mt-6 space-x-4">
-            <Link href="/privacy-policy" className="text-xs text-black/60 hover:text-black/80 transition-colors duration-200">
+            <LinkWithTransition href="/privacy-policy" className="text-xs text-black/60 hover:text-black/80 transition-colors duration-200">
               Política de privacidad
-            </Link>
-            <Link href="/terms" className="text-xs text-black/60 hover:text-black/80 transition-colors duration-200">
+            </LinkWithTransition>
+            <LinkWithTransition href="/terms" className="text-xs text-black/60 hover:text-black/80 transition-colors duration-200">
               Términos de servicio
-            </Link>
+            </LinkWithTransition>
           </div>
         </div>
       </div>

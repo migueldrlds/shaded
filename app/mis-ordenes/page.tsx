@@ -1,8 +1,8 @@
 'use client';
 
 import { useAuth } from 'components/auth/auth-context';
+import LinkWithTransition from 'components/link-with-transition';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FiArrowLeft, FiPackage } from 'react-icons/fi';
@@ -128,12 +128,12 @@ export default function MisOrdenes() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex items-center mb-8">
-            <Link 
+            <LinkWithTransition 
               href="/"
               className="mr-4 p-2 hover:bg-black/5 rounded-full transition-colors duration-200"
             >
               <FiArrowLeft className="h-6 w-6" style={{ color: '#2E2E2C' }} />
-            </Link>
+            </LinkWithTransition>
             <h1 className="text-4xl font-bold uppercase" style={{ color: '#2E2E2C' }}>
               Mis Órdenes
             </h1>
@@ -161,12 +161,12 @@ export default function MisOrdenes() {
               <p className="text-sm opacity-80 mb-6" style={{ color: '#2E2E2C' }}>
                 Cuando realices tu primera compra, aparecerá aquí
               </p>
-              <Link 
+              <LinkWithTransition 
                 href="/productos"
                 className="inline-block bg-black text-white px-8 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors duration-200"
               >
                 Explorar Productos
-              </Link>
+              </LinkWithTransition>
             </div>
           ) : (
             <div className="space-y-6">
@@ -186,13 +186,13 @@ export default function MisOrdenes() {
                       <p className="text-lg font-bold" style={{ color: '#2E2E2C' }}>
                         {formatPrice(order.totalPrice.amount, order.totalPrice.currencyCode)}
                       </p>
-                      <Link
+                      <LinkWithTransition
                         href={`/orden/${order.orderNumber}`}
                         className="text-sm underline hover:no-underline transition-all duration-200"
                         style={{ color: '#2E2E2C' }}
                       >
                         Ver estado
-                      </Link>
+                      </LinkWithTransition>
                     </div>
                   </div>
 

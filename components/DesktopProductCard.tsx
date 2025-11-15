@@ -1,5 +1,6 @@
 'use client';
 
+import LinkWithTransition from 'components/link-with-transition';
 import Image from 'next/image';
 
 interface DesktopProductCardProps {
@@ -52,7 +53,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product }) => {
     <div className="flex justify-between items-start h-full pr-0">
       {/* Card izquierdo */}
       <div className="relative w-1/5" style={{ top: '240px' }}>
-        <a
+        <LinkWithTransition
           href={`/product/${product.handle}`}
           className="bg-transparent rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative h-[14rem] md:h-[20rem] w-full block cursor-pointer"
         >
@@ -75,14 +76,14 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product }) => {
               unoptimized={true}
             />
           </div>
-        </a>
+        </LinkWithTransition>
 
         {/* Colores y tallas debajo del card del carrusel */}
         <div className="mt-3 space-y-2">
           {/* Colores disponibles */}
           <div className="flex gap-2">
             {Array.from(new Set(product.variants?.map(v => v.selectedOptions?.find(o => o.name === 'Color')?.value).filter(Boolean))).slice(0, 4).map((color, index) => (
-              <a
+              <LinkWithTransition
                 key={index}
                 href={`/product/${product.handle}?color=${encodeURIComponent(color || '')}`}
                 className="inline-flex items-center justify-center w-6 h-6 rounded-full transition-all duration-300 hover:scale-110 cursor-pointer"
@@ -91,7 +92,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product }) => {
                   className="w-5 h-5 rounded-full border border-white/30"
                   style={{ backgroundColor: color?.toLowerCase() === 'black' ? '#000000' : color?.toLowerCase() === 'white' ? '#ffffff' : color?.toLowerCase() === 'gray' ? '#808080' : '#000000' }}
                 ></div>
-              </a>
+              </LinkWithTransition>
             ))}
           </div>
           
@@ -115,7 +116,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product }) => {
 
       {/* Card derecho */}
       <div className="relative w-[79%] mb-0 self-end">
-        <a href={`/product/${product.handle}`} className="bg-transparent rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative h-[35rem] md:h-[28rem] w-full block cursor-pointer">
+        <LinkWithTransition href={`/product/${product.handle}`} className="bg-transparent rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative h-[35rem] md:h-[28rem] w-full block cursor-pointer">
           {/* Imagen del producto derecho */}
           <div className="relative w-full h-full">
             <Image
@@ -149,7 +150,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product }) => {
               </button>
             </div>
           </div>
-        </a>
+        </LinkWithTransition>
       </div>
     </div>
   );

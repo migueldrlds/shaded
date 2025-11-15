@@ -1,10 +1,10 @@
 'use client';
 
+import LinkWithTransition from "components/link-with-transition";
 import { useLanguage } from "components/providers/language-provider";
 import SplitText from "components/SplitText";
 import { gsap } from 'gsap';
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { FiArrowUpRight } from "react-icons/fi";
 
@@ -306,13 +306,13 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
                   }}
                 />
               </div>
-              <Link 
+              <LinkWithTransition 
                 ref={viewCollectionButtonRef}
                 href={`/productos?coleccion=${latestCollection.handle}`} 
                 className="bg-white/20 backdrop-blur-sm border border-white/70 text-white px-6 py-3 rounded-full text-sm font-light hover:bg-white/30 transition-all duration-200 w-fit"
               >
                 {t('home.viewCollection')}
-              </Link>
+              </LinkWithTransition>
             </div>
           </div>
 
@@ -323,9 +323,9 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
               className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] w-full flex flex-col h-[16rem] p-8 relative items-center justify-center"
             >
               <h1 className="text-3xl font-medium text-white text-center mb-2 max-w-xs">{t('home.seeAllCollections')}</h1>
-              <Link href="/coleccion" className="mt-4 inline-flex items-center transition-all duration-200 hover:opacity-90" aria-label="Explore collections">
+              <LinkWithTransition href="/coleccion" className="mt-4 inline-flex items-center transition-all duration-200 hover:opacity-90" aria-label="Explore collections">
                 <span className="rounded-full text-sm font-light px-8 py-2" style={{ backgroundColor: '#d2d5d3', color: '#2E2E2C' }}>{t('home.explore')}</span>
-              </Link>
+              </LinkWithTransition>
             </div>
           </div>
         </div>
@@ -343,12 +343,12 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
               <h3 className="text-3xl lg:text-5xl font-medium text-white mb-2">{t('home.getDiscount')}</h3>
               <p className="text-sm lg:text-base text-white/80 mb-4">{t('home.forAllNewMembers')}</p>
-              <Link href="/coleccion" className="inline-flex items-center transition-all duration-200 hover:opacity-90" aria-label={t('home.signIn')}>
+              <LinkWithTransition href="/coleccion" className="inline-flex items-center transition-all duration-200 hover:opacity-90" aria-label={t('home.signIn')}>
                 <span className="rounded-full text-sm font-light px-8 py-2" style={{ backgroundColor: '#d2d5d3', color: '#2E2E2C' }}>{t('home.signIn')}</span>
                 <span className="rounded-full w-10 h-10 flex items-center justify-center" style={{ backgroundColor: '#d2d5d3', color: '#2E2E2C' }}>
                   <FiArrowUpRight className="h-5 w-5" />
                 </span>
-              </Link>
+              </LinkWithTransition>
             </div>
           </div>
         </div>

@@ -1,9 +1,9 @@
 'use client';
 
 import clsx from 'clsx';
+import LinkWithTransition from 'components/link-with-transition';
 import type { SortFilterItem } from 'lib/constants';
 import { createUrl } from 'lib/utils';
-import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import type { ListItem, PathFilterItem } from '.';
 
@@ -12,7 +12,7 @@ function PathFilterItem({ item }: { item: PathFilterItem }) {
   const searchParams = useSearchParams();
   const active = pathname === item.path;
   const newParams = new URLSearchParams(searchParams.toString());
-  const DynamicTag = active ? 'p' : Link;
+  const DynamicTag = active ? 'p' : LinkWithTransition;
 
   newParams.delete('q');
 
@@ -45,7 +45,7 @@ function SortFilterItem({ item }: { item: SortFilterItem }) {
       ...(item.slug && item.slug.length && { sort: item.slug })
     })
   );
-  const DynamicTag = active ? 'p' : Link;
+  const DynamicTag = active ? 'p' : LinkWithTransition;
 
   return (
     <li className="mt-2 flex text-sm text-black dark:text-white" key={item.title}>

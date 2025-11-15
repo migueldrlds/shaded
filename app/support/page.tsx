@@ -1,7 +1,7 @@
 'use client';
 
+import LinkWithTransition from 'components/link-with-transition';
 import { useLanguage } from 'components/providers/language-provider';
-import Link from 'next/link';
 
 export default function Support() {
   const { t } = useLanguage();
@@ -78,12 +78,12 @@ export default function Support() {
 
             {/* Botón de contacto */}
             <div className="mt-8 text-center">
-              <Link 
+              <LinkWithTransition 
                 href="/contact" 
                 className="inline-block bg-black text-white px-8 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors duration-200"
               >
                 {t('support.contactUs')}
-              </Link>
+              </LinkWithTransition>
             </div>
           </div>
         </div>

@@ -1,11 +1,11 @@
 'use client';
 
 import { useCart } from 'components/cart/cart-context';
+import LinkWithTransition from 'components/link-with-transition';
 import NewsletterForm from 'components/newsletter-form';
 import { gsap } from 'gsap';
 import type { Product } from 'lib/shopify/types';
 import Image from "next/image";
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { FiArrowLeft, FiChevronDown, FiMinus, FiPlus, FiShare2, FiShoppingCart, FiX } from 'react-icons/fi';
@@ -775,9 +775,9 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                     <span className="text-2xl font-bold text-white">{formatPrice(producto?.priceRange?.maxVariantPrice)}</span>
                   </div>
                     <p className="text-white/60 text-[10px] leading-relaxed text-left mb-6">
-                      <Link href="/shipping-policy" className="underline hover:text-white/80 transition-colors">
+                      <LinkWithTransition href="/shipping-policy" className="underline hover:text-white/80 transition-colors">
                         Shipping
-                      </Link> calculated at checkout.
+                      </LinkWithTransition> calculated at checkout.
                   </p>
                 </div>
               </div>
@@ -1166,7 +1166,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                     const hoverImage = secondImage?.url || product.images?.[1]?.url || featuredImageUrl;
 
                       return (
-                        <Link
+                        <LinkWithTransition
                           key={product.handle}
                           href={`/product/${product.handle}`}
                           className="group cursor-pointer w-full max-w-[280px]"
@@ -1201,7 +1201,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                         <p className="text-white/70 text-xs md:text-sm text-center">
                           {formatPrice(product.priceRange?.maxVariantPrice)}
                         </p>
-                      </Link>
+                      </LinkWithTransition>
                     );
                   })}
                 </div>

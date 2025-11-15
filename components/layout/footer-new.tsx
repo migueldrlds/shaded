@@ -1,9 +1,9 @@
 'use client';
 
 import LanguageSelector from 'components/language-selector';
+import LinkWithTransition from 'components/link-with-transition';
 import { useLanguage } from 'components/providers/language-provider';
 import Image from 'next/image';
-import Link from 'next/link';
 import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 
 interface FooterNewProps {
@@ -56,29 +56,29 @@ export default function FooterNew({ isDarkMode = false }: FooterNewProps) {
             <h3 className={`${textColor} font-semibold mb-4`}>{t('footer.customerService')}</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/return-policy" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
+                <LinkWithTransition href="/return-policy" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   {t('footer.returnPolicy')}
-                </Link>
+                </LinkWithTransition>
               </li>
               <li>
-                <Link href="/shipping-policy" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
+                <LinkWithTransition href="/shipping-policy" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   {t('footer.shippingPolicy')}
-                </Link>
+                </LinkWithTransition>
               </li>
               <li>
-                <Link href="/terms" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
+                <LinkWithTransition href="/terms" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   {t('footer.terms')}
-                </Link>
+                </LinkWithTransition>
               </li>
               <li>
-                <Link href="/support" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
+                <LinkWithTransition href="/support" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   {t('footer.customerSupport')}
-                </Link>
+                </LinkWithTransition>
               </li>
               <li>
-                <Link href="/contact" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
+                <LinkWithTransition href="/contact" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   {t('footer.contactForm')}
-                </Link>
+                </LinkWithTransition>
               </li>
             </ul>
           </div>
@@ -88,14 +88,14 @@ export default function FooterNew({ isDarkMode = false }: FooterNewProps) {
             <h3 className={`${textColor} font-semibold mb-4`}>{t('footer.collections')}</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/productos?coleccion=serene" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
+                <LinkWithTransition href="/productos?coleccion=serene" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   INTRODUCING SERENE
-                </Link>
+                </LinkWithTransition>
               </li>
               <li>
-                <Link href="/coleccion" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
+                <LinkWithTransition href="/coleccion" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                   {t('footer.allCollections')}
-                </Link>
+                </LinkWithTransition>
               </li>
             </ul>
           </div>
@@ -144,12 +144,12 @@ export default function FooterNew({ isDarkMode = false }: FooterNewProps) {
                 <div className="flex flex-col md:flex-row items-center gap-6 mt-4 md:mt-0">
                   <LanguageSelector isDarkMode={isDarkMode} />
                   <div className="flex space-x-6">
-                    <Link href="/privacy" className={`${textColorMoreMuted} ${textColorHover} transition-colors text-sm`}>
+                    <LinkWithTransition href="/privacy" className={`${textColorMoreMuted} ${textColorHover} transition-colors text-sm`}>
                       {t('footer.privacyPolicy')}
-                    </Link>
-                    <Link href="/cookies" className={`${textColorMoreMuted} ${textColorHover} transition-colors text-sm`}>
+                    </LinkWithTransition>
+                    <LinkWithTransition href="/cookies" className={`${textColorMoreMuted} ${textColorHover} transition-colors text-sm`}>
                       {t('footer.cookiePolicy')}
-                    </Link>
+                    </LinkWithTransition>
                   </div>
                 </div>
               </div>

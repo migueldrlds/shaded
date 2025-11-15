@@ -2,11 +2,11 @@
 
 import { useCart } from 'components/cart/cart-context';
 import { useCartModal } from 'components/cart/cart-modal-context';
+import LinkWithTransition from 'components/link-with-transition';
 import { useLanguage } from 'components/providers/language-provider';
 import UserMenu from 'components/user-menu';
 import { gsap } from 'gsap';
 import Image from 'next/image';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { FiMenu, FiShoppingCart, FiX } from 'react-icons/fi';
@@ -137,7 +137,7 @@ export default function Header({ transparent = false, latestCollection }: Header
             
              {/* Logo izquierdo */}
              <div className="flex items-center ml-2">
-              <Link href="/" aria-label="Ir al inicio" className="inline-flex items-center">
+              <LinkWithTransition href="/" aria-label="Ir al inicio" className="inline-flex items-center">
                 <Image
                   src={isDarkHeader ? '/logob.png' : '/logo.png'}
                   alt="Logo"
@@ -146,12 +146,12 @@ export default function Header({ transparent = false, latestCollection }: Header
                   sizes="(max-width: 768px) 100px, 120px"
                   priority
                 />
-              </Link>
+              </LinkWithTransition>
              </div>
 
             {/* Navegación central */}
             <nav className="hidden md:flex items-center space-x-8">
-              <a
+              <LinkWithTransition
                 href="/productos?coleccion=all"
                 className="transition-colors duration-200 font-light"
                 style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
@@ -159,18 +159,18 @@ export default function Header({ transparent = false, latestCollection }: Header
                 onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
               >
                 {t('header.shopNow')}
-              </a>
+              </LinkWithTransition>
               {navigationItems.map((item) => (
-                <a
+                <LinkWithTransition
                   key={item.label}
                   href={item.href}
                   className="transition-colors duration-200 font-light"
                   style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
-                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
-                onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
+                  onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                  onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
                 >
                   {item.label}
-                </a>
+                </LinkWithTransition>
               ))}
             </nav>
 
@@ -231,7 +231,7 @@ export default function Header({ transparent = false, latestCollection }: Header
             <div className="px-6 py-4">
               {/* Navegación móvil */}
               <nav className="space-y-2">
-            <a
+            <LinkWithTransition
               href="/productos?coleccion=all"
               className="block px-4 py-2 rounded-lg transition-colors duration-200 font-light"
               style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
@@ -240,7 +240,7 @@ export default function Header({ transparent = false, latestCollection }: Header
               onClick={closeMenuWithAnimation}
             >
               {t('header.shopNow')}
-            </a>
+            </LinkWithTransition>
             <button
               onClick={() => {
                 openCart();
@@ -267,7 +267,7 @@ export default function Header({ transparent = false, latestCollection }: Header
               ) : null}
             </button>
                 {navigationItems.map((item) => (
-                  <a
+                  <LinkWithTransition
                     key={item.label}
                     href={item.href}
                     className="block px-4 py-2 rounded-lg transition-colors duration-200 font-light"
@@ -277,7 +277,7 @@ export default function Header({ transparent = false, latestCollection }: Header
                     onClick={closeMenuWithAnimation}
                   >
                     {item.label}
-                  </a>
+                  </LinkWithTransition>
                 ))}
               </nav>
             </div>

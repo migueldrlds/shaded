@@ -1,7 +1,7 @@
 import { GridTileImage } from 'components/grid/tile';
+import LinkWithTransition from 'components/link-with-transition';
 import { getCollectionProducts } from 'lib/shopify';
 import type { Product } from 'lib/shopify/types';
-import Link from 'next/link';
 
 function ThreeItemGridItem({
   item,
@@ -16,10 +16,9 @@ function ThreeItemGridItem({
     <div
       className={size === 'full' ? 'md:col-span-4 md:row-span-2' : 'md:col-span-2 md:row-span-1'}
     >
-      <Link
+      <LinkWithTransition
         className="relative block aspect-square h-full w-full"
         href={`/product/${item.handle}`}
-        prefetch={true}
       >
         <GridTileImage
           src={item.featuredImage.url}
@@ -36,7 +35,7 @@ function ThreeItemGridItem({
             currencyCode: item.priceRange.maxVariantPrice.currencyCode
           }}
         />
-      </Link>
+      </LinkWithTransition>
     </div>
   );
 }

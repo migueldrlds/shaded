@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from 'components/auth/auth-context';
-import Link from 'next/link';
+import LinkWithTransition from 'components/link-with-transition';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { FiLogOut, FiPackage, FiUser } from 'react-icons/fi';
@@ -52,12 +52,12 @@ export default function UserMenu({ iconColor = 'white' }: UserMenuProps) {
   // Si no está autenticado, redirigir a login
   if (!customer) {
     return (
-      <Link 
+      <LinkWithTransition 
         href="/login" 
         className="p-2 rounded-full transition-all duration-200 hover:opacity-70" 
       >
         <FiUser className="h-5 w-5" style={{ color: iconColor }} />
-      </Link>
+      </LinkWithTransition>
     );
   }
 
@@ -87,14 +87,14 @@ export default function UserMenu({ iconColor = 'white' }: UserMenuProps) {
 
           {/* Opciones del menú */}
           <div className="py-1">
-            <Link
+            <LinkWithTransition
               href="/mis-ordenes"
               onClick={() => setIsOpen(false)}
               className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
             >
               <FiPackage className="h-4 w-4 mr-3 text-gray-400" />
               Mis Órdenes
-            </Link>
+            </LinkWithTransition>
 
             <button
               onClick={handleLogout}

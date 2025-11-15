@@ -1,7 +1,7 @@
 'use client';
 
 import { Dialog, Transition } from '@headlessui/react';
-import Link from 'next/link';
+import LinkWithTransition from 'components/link-with-transition';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Fragment, Suspense, useEffect, useState } from 'react';
 
@@ -83,9 +83,9 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
                         className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white"
                         key={item.title}
                       >
-                        <Link href={item.path} prefetch={true} onClick={closeMobileMenu}>
+                        <LinkWithTransition href={item.path} onClick={closeMobileMenu}>
                           {item.title}
-                        </Link>
+                        </LinkWithTransition>
                       </li>
                     ))}
                   </ul>
