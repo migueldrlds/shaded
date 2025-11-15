@@ -19,8 +19,34 @@
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
 }
 
+.cart-sidebar[style*="pointer-events: all"] {
+  pointer-events: all;
+}
+
 .cart-sidebar p {
   color: #fff;
+}
+
+.revealer {
+  position: relative;
+  width: max-content;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+  overflow: hidden;
+}
+
+.revealer p {
+  display: block;
+  will-change: transform;
+}
+
+.revealer span {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Para los revealers que contienen flex, necesitamos ajustar el width */
+.revealer[style*="display: flex"] {
+  width: 100%;
 }
 
 .cart-nav {
@@ -43,8 +69,33 @@
 
 .cart-items {
   overflow-y: auto;
-  height: 100%;
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
   padding: 1em;
+  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+  scrollbar-width: thin; /* Firefox - scrollbar delgado */
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox - color del scrollbar */
+}
+
+/* Scrollbar personalizado para WebKit (Chrome, Safari, Edge) */
+.cart-items::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cart-items::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;
+}
+
+.cart-items::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.cart-items::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .cart-item {
@@ -69,6 +120,12 @@
   aspect-ratio: 1;
   border-radius: 12px;
   overflow: hidden;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.cart-item-img:hover {
+  opacity: 0.8;
 }
 
 .cart-item-info {
@@ -82,12 +139,24 @@
   display: flex;
   justify-content: space-between;
   gap: 1em;
+  align-items: center;
+}
+
+.cart-item-product-name {
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.cart-item-product-name:hover {
+  opacity: 0.7;
+}
+
+.cart-item-product-name p {
+  margin: 0;
 }
 
 .cart-summary {
-  position: absolute;
-  left: 0;
-  bottom: 0;
+  flex-shrink: 0;
   width: 100%;
   padding: 1.5em;
   display: flex;
@@ -143,6 +212,34 @@
 @media (max-width: 900px) {
   .cart-sidebar {
     width: 100%;
+    background-color: rgba(0, 0, 0, 1);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-radius: 0;
+    border-left: none;
+    left: 0;
+    right: 0;
+  }
+
+  .cart-summary {
+    border-radius: 45px 45px 0 0;
+    background-color: rgb(48, 48, 48);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .cart-item-info-row {
+    align-items: center;
+  }
+
+  .cart-item-product-price {
+    display: flex;
+    align-items: center;
+  }
+
+  .cart-item-remove-btn {
+    display: flex;
+    align-items: center;
   }
 }
 

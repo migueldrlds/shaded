@@ -110,7 +110,7 @@ export default function Header({ transparent = false, latestCollection }: Header
 
   const headerBase = transparent
     ? 'bg-transparent shadow-none fixed top-0 w-full z-50 px-4 py-4'
-    : (pathname === '/' ? 'absolute top-0 left-0 right-0 z-50 px-4 py-4' : 'bg-transparent shadow-none fixed top-0 w-full z-50 px-4 py-4');
+    : 'bg-transparent shadow-none fixed top-0 w-full z-50 px-4 py-4';
 
   return (
     <header 

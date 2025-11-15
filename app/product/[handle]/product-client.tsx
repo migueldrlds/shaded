@@ -3,6 +3,8 @@
 import { useCart } from 'components/cart/cart-context';
 import LinkWithTransition from 'components/link-with-transition';
 import NewsletterForm from 'components/newsletter-form';
+import { useLanguage } from 'components/providers/language-provider';
+import SplitText from 'components/SplitText';
 import { gsap } from 'gsap';
 import type { Product } from 'lib/shopify/types';
 import Image from "next/image";
@@ -19,6 +21,7 @@ interface ProductClientProps {
 export default function ProductClient({ producto, recommendedProducts = [], otherProducts = [] }: ProductClientProps) {
   const router = useRouter();
   const { addCartItem } = useCart();
+  const { t } = useLanguage();
   // Estados para la galería de imágenes
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -48,6 +51,36 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
   const colorDropdownRef = useRef<HTMLDivElement>(null);
   const descriptionAccordionRef = useRef<HTMLDivElement>(null);
   const descriptionDesktopRef = useRef<HTMLDivElement>(null);
+  
+  // Refs para animación staggered del panel derecho
+  const rightPanelRef = useRef<HTMLDivElement>(null);
+  const priceRef = useRef<HTMLDivElement>(null);
+  const shippingRef = useRef<HTMLParagraphElement>(null);
+  const colorLabelRef = useRef<HTMLLabelElement>(null);
+  const colorButtonsRef = useRef<HTMLDivElement>(null);
+  const sizeLabelRef = useRef<HTMLLabelElement>(null);
+  const sizeButtonsRef = useRef<HTMLDivElement>(null);
+  const quantityLabelRef = useRef<HTMLLabelElement>(null);
+  const quantityControlsRef = useRef<HTMLDivElement>(null);
+  const addToCartRef = useRef<HTMLDivElement>(null);
+  const productDetailsRef = useRef<HTMLButtonElement>(null);
+  const shareButtonRef = useRef<HTMLButtonElement>(null);
+  const productImageRef = useRef<HTMLDivElement>(null);
+  
+  // Refs para evitar que las animaciones se ejecuten múltiples veces
+  // Usamos sessionStorage para persistir entre re-renders causados por revalidateTag
+  const hasAnimatedImage = useRef(false);
+  const hasAnimatedPanel = useRef(false);
+  const currentProductId = useRef<string | null>(null);
+  
+  // Resetear refs cuando cambia el producto (navegación a otro producto)
+  useEffect(() => {
+    if (producto?.id && currentProductId.current !== producto.id) {
+      currentProductId.current = producto.id;
+      hasAnimatedImage.current = false;
+      hasAnimatedPanel.current = false;
+    }
+  }, [producto?.id]);
 
   // Extraer colores únicos de las variantes
   const getAvailableColors = () => {
@@ -222,6 +255,95 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
       }
     }
   }, [currentImageIndex, producto?.images]);
+
+  // Animación de la imagen del producto (solo desktop)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !producto?.id) return;
+    const isDesktop = window.innerWidth >= 768;
+    if (!isDesktop || !productImageRef.current) return;
+
+    // Verificar si ya se animó en esta sesión (solo evitar si ya se ejecutó en este render)
+    if (hasAnimatedImage.current) return;
+
+    // Configurar estado inicial: slide desde la izquierda con fade
+    gsap.set(productImageRef.current, {
+      opacity: 0,
+      y: 100,
+    });
+
+    // Animar: slide in con fade
+    gsap.to(productImageRef.current, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power3.out',
+      delay: 0.3,
+      onComplete: () => {
+        hasAnimatedImage.current = true;
+        if (typeof window !== 'undefined' && producto?.id) {
+          sessionStorage.setItem(`product-animated-image-${producto.id}`, 'true');
+        }
+      }
+    });
+
+    return () => {
+      if (productImageRef.current) {
+        gsap.killTweensOf(productImageRef.current);
+      }
+    };
+  }, [producto?.id]);
+
+  // Animación staggered del panel derecho (solo desktop)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !producto?.id) return;
+    const isDesktop = window.innerWidth >= 768;
+    if (!isDesktop) return;
+
+    // Verificar si ya se animó en esta sesión (solo evitar si ya se ejecutó en este render)
+    if (hasAnimatedPanel.current) return;
+
+    const elements = [
+      priceRef.current,
+      shippingRef.current,
+      colorLabelRef.current,
+      colorButtonsRef.current,
+      sizeLabelRef.current,
+      sizeButtonsRef.current,
+      quantityLabelRef.current,
+      quantityControlsRef.current,
+      addToCartRef.current,
+      productDetailsRef.current,
+      shareButtonRef.current,
+    ].filter(Boolean);
+
+    if (elements.length === 0) return;
+
+    // Configurar estado inicial
+    gsap.set(elements, {
+      opacity: 0,
+      y: 30,
+    });
+
+    // Animar con stagger
+    const tl = gsap.timeline({ delay: 0.8 }); // Delay para que aparezca después del título
+    tl.to(elements, {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      ease: 'power3.out',
+      stagger: 0.08,
+      onComplete: () => {
+        hasAnimatedPanel.current = true;
+        if (typeof window !== 'undefined' && producto?.id) {
+          sessionStorage.setItem(`product-animated-panel-${producto.id}`, 'true');
+        }
+      }
+    });
+
+    return () => {
+      gsap.killTweensOf(elements);
+    };
+  }, [producto?.id]);
 
   // Navegación con teclado
   useEffect(() => {
@@ -703,16 +825,18 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                 className="relative w-full aspect-square min-h-[600px] cursor-pointer"
                 onClick={() => setIsFullscreen(true)}
               >
-                <Image
-                  src={producto?.images?.[currentImageIndex]?.url || '/img1.jpg'}
-                  alt={producto?.images?.[currentImageIndex]?.altText || producto?.title || 'Product image'}
-                  fill
-                  className="object-cover"
-                  style={{ objectFit: 'cover' }}
-                  sizes="50vw"
-                  priority
-                  loading="eager"
-                />
+                <div ref={productImageRef} className="relative w-full h-full">
+                  <Image
+                    src={producto?.images?.[currentImageIndex]?.url || '/img1.jpg'}
+                    alt={producto?.images?.[currentImageIndex]?.altText || producto?.title || 'Product image'}
+                    fill
+                    className="object-cover"
+                    style={{ objectFit: 'cover' }}
+                    sizes="50vw"
+                    priority
+                    loading="eager"
+                  />
+                </div>
                 {/* Indicadores */}
                 <div 
                   className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-3 bg-black/30 backdrop-blur-md rounded-full px-6 py-3 border border-white/20 z-20"
@@ -766,18 +890,30 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
             </div>
 
             {/* Columna derecha - Controles */}
-            <div className="w-1/2 p-8 flex flex-col justify-between relative z-20 flex-shrink-0">
+            <div ref={rightPanelRef} className="w-1/2 p-8 flex flex-col justify-between relative z-20 flex-shrink-0">
               <div>
                 <div className="mb-6">
                 <div className="max-w-xs mx-auto">
-                  <h1 className="text-3xl font-bold text-white mb-2 leading-tight text-left">{producto?.title}</h1>
-                    <div className="flex items-baseline space-x-3 mb-2">
+                  <div className="slide-title mb-2" style={{ overflow: 'visible', lineHeight: '1.2' }}>
+                    <SplitText
+                      text={producto?.title || ''}
+                      className="text-3xl font-bold text-white"
+                      delay={500}
+                      duration={1}
+                      ease="power4.out"
+                      splitType="words"
+                      threshold={0.1}
+                      rootMargin="-100px"
+                      textAlign="left"
+                    />
+                  </div>
+                    <div ref={priceRef} className="flex items-baseline space-x-3 mb-2">
                     <span className="text-2xl font-bold text-white">{formatPrice(producto?.priceRange?.maxVariantPrice)}</span>
                   </div>
-                    <p className="text-white/60 text-[10px] leading-relaxed text-left mb-6">
+                    <p ref={shippingRef} className="text-white/60 text-[10px] leading-relaxed text-left mb-6">
                       <LinkWithTransition href="/shipping-policy" className="underline hover:text-white/80 transition-colors">
-                        Shipping
-                      </LinkWithTransition> calculated at checkout.
+                        {t('product.shipping')}
+                      </LinkWithTransition> {t('product.shippingCalculated')}.
                   </p>
                 </div>
               </div>
@@ -785,8 +921,8 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                 <div className="space-y-6 flex flex-col items-center">
                 {/* Selectores de color */}
                   <div className="max-w-xs w-full">
-                  <label className="block text-white/90 text-sm font-semibold mb-4 uppercase tracking-wider text-left">COLOR</label>
-                  <div className="flex relative justify-start">
+                  <label ref={colorLabelRef} className="block text-white/90 text-sm font-semibold mb-4 uppercase tracking-wider text-left">{t('product.color')}</label>
+                  <div ref={colorButtonsRef} className="flex relative justify-start">
                     {getAvailableColors().map((colorInfo, index) => (
                       <button
                         key={index}
@@ -813,8 +949,8 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
 
                 {/* Selector de talla */}
                   <div className="max-w-xs w-full">
-                  <label className="block text-white/90 text-sm font-semibold mb-4 uppercase tracking-wider text-left">SIZE</label>
-                  <div className="flex space-x-2 justify-start">
+                  <label ref={sizeLabelRef} className="block text-white/90 text-sm font-semibold mb-4 uppercase tracking-wider text-left">{t('product.size')}</label>
+                  <div ref={sizeButtonsRef} className="flex space-x-2 justify-start">
                     {getAvailableSizes().map((tallaInfo, index) => (
                       <button
                         key={index}
@@ -834,8 +970,8 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
 
                   {/* Selector de cantidad */}
                   <div className="max-w-xs w-full">
-                    <label className="block text-white/90 text-sm font-semibold mb-4 uppercase tracking-wider text-left">Quantity</label>
-                    <div className="flex items-center justify-start gap-4">
+                    <label ref={quantityLabelRef} className="block text-white/90 text-sm font-semibold mb-4 uppercase tracking-wider text-left">{t('product.quantity')}</label>
+                    <div ref={quantityControlsRef} className="flex items-center justify-start gap-4">
                       <button
                         onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
                         className="w-10 h-10 rounded-full border-2 border-white/30 text-white/90 hover:border-white/50 hover:text-white transition-all duration-200 flex items-center justify-center"
@@ -857,14 +993,14 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
               </div>
 
               {/* Botón agregar al carrito */}
-              <div className="flex justify-center mt-8">
+              <div ref={addToCartRef} className="flex justify-center mt-8">
                 <div className="max-w-xs w-full">
                   <button
                     onClick={handleAddToCart}
                     className="w-full bg-white/20 backdrop-blur-md text-white py-4 rounded-full font-medium hover:bg-white/30 transition-all duration-200 flex items-center justify-between px-6 border border-white/30 cursor-pointer relative z-10"
                     type="button"
                   >
-                    <span>Add to Cart</span>
+                    <span>{t('product.addToCart')}</span>
                     <FiShoppingCart className="h-5 w-5" />
                   </button>
         </div>
@@ -874,10 +1010,11 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
               <div className="flex justify-center mt-6">
                 <div className="max-w-xs w-full">
           <button 
+                    ref={productDetailsRef}
                     onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
                     className="w-full flex items-center justify-between py-3 border-t border-b border-white/20 text-white/90 hover:text-white transition-colors"
           >
-                    <span className="text-sm font-medium uppercase tracking-wider">Product Details</span>
+                    <span className="text-sm font-medium uppercase tracking-wider">{t('product.details')}</span>
                     <FiChevronDown 
                       className={`h-4 w-4 transition-transform duration-300 ${isDescriptionOpen ? 'rotate-180' : ''}`}
                     />
@@ -888,19 +1025,20 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                     style={{ height: 0, opacity: 0 }}
                   >
                     <p className="text-white/85 text-base leading-relaxed text-left pt-4">
-                      {producto?.description || 'Descripción del producto no disponible.'}
+                      {producto?.description || t('product.descriptionNotAvailable')}
                     </p>
         </div>
                   
                   {/* Botón Share */}
               <button
+                    ref={shareButtonRef}
                     onClick={handleShare}
                     className="w-full flex items-center justify-between py-4 mt-2 text-white/90 hover:text-white transition-colors"
                     aria-label="Compartir producto"
                   >
                     <div className="flex items-center gap-2">
                       <FiShare2 className="h-4 w-4" />
-                      <span className="text-sm font-medium uppercase tracking-wider">Share</span>
+                      <span className="text-sm font-medium uppercase tracking-wider">{t('product.share')}</span>
                     </div>
               </button>
           </div>
@@ -932,7 +1070,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
               onClick={() => setIsDetailsModalOpen(true)}
               className="w-full text-left text-sm font-medium text-black/70 hover:text-black transition-colors uppercase tracking-wider"
             >
-              PRODUCT DETAILS
+              {t('product.detailsMobile')}
             </button>
           </div>
         </div>
@@ -951,7 +1089,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                   onChange={(e) => setSelectedSize(e.target.value)}
                   className="w-full bg-white/10 border border-white/30 rounded-full px-4 py-4 text-base font-medium text-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/50 transition-all duration-200"
                 >
-                  <option value="" className="bg-black text-white" disabled>Talla</option>
+                  <option value="" className="bg-black text-white" disabled>{t('product.sizePlaceholder')}</option>
                       {getAvailableSizes().map((tallaInfo, index) => (
                     <option
                           key={index}
@@ -959,7 +1097,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                           disabled={!tallaInfo.disponible}
                       className="bg-black text-white"
                         >
-                          {tallaInfo.talla} {!tallaInfo.disponible ? '(Agotado)' : ''}
+                          {tallaInfo.talla} {!tallaInfo.disponible ? t('product.outOfStock') : ''}
                     </option>
                       ))}
                 </select>
@@ -975,7 +1113,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                   onChange={(e) => setSelectedColor(e.target.value)}
                   className="w-full bg-white/10 border border-white/30 rounded-full px-4 py-4 text-base font-medium text-white appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/50 transition-all duration-200"
                 >
-                  <option value="" className="bg-black text-white" disabled>Color</option>
+                  <option value="" className="bg-black text-white" disabled>{t('product.colorPlaceholder')}</option>
                       {getAvailableColors().map((colorInfo, index) => (
                     <option
                           key={index}
@@ -983,7 +1121,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                           disabled={!colorInfo.disponible}
                       className="bg-black text-white"
                     >
-                          {colorInfo.nombre} {!colorInfo.disponible ? '(Agotado)' : ''}
+                          {colorInfo.nombre} {!colorInfo.disponible ? t('product.outOfStock') : ''}
                     </option>
                       ))}
                 </select>
@@ -1009,7 +1147,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                 className="flex-1 bg-white text-black py-4 px-6 rounded-full font-medium hover:bg-white/90 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   type="button"
                 >
-                  <span>Add to Cart</span>
+                  <span>{t('product.addToCart')}</span>
                 <FiShoppingCart className="h-4 w-4" />
                 </button>
               </div>
@@ -1024,7 +1162,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
             {/* Header del modal */}
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <h2 className="text-xl font-bold text-white uppercase tracking-wider">
-                PRODUCT DETAILS
+                {t('product.detailsMobile')}
               </h2>
               <button
                 onClick={() => setIsDetailsModalOpen(false)}
@@ -1038,7 +1176,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
             {/* Contenido del modal */}
             <div className="flex-1 overflow-y-auto p-6">
               <div className="text-white/90 text-base leading-relaxed whitespace-pre-wrap">
-                  {producto?.description || 'Descripción del producto no disponible.'}
+                  {producto?.description || t('product.descriptionNotAvailable')}
               </div>
             </div>
           </div>
@@ -1140,7 +1278,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
           <div className="w-full max-w-7xl mx-auto bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-6 md:p-8">
             {/* Título "You may also love" */}
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center md:text-left uppercase tracking-wider">
-              You may also love
+              {t('product.youMayAlsoLove')}
             </h2>
             
             {/* Layout de dos columnas: productos a la izquierda, newsletter a la derecha */}
@@ -1213,10 +1351,10 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
               <div className="md:col-span-1 flex flex-col justify-start md:self-start">
                 <div className="text-center md:text-left">
                   <h3 className="text-xl md:text-2xl font-bold text-white mb-3 uppercase tracking-wider">
-                    BE PART OF THE MOVEMENT
+                    {t('newsletter.bePartOfMovement')}
                   </h3>
                   <p className="text-white/80 text-sm md:text-base mb-6">
-                    Be the first to know about launch updates, styling ideas and exclusive offers.
+                    {t('newsletter.description')}
                   </p>
                   <NewsletterForm />
                 </div>

@@ -259,7 +259,7 @@ export default function Login() {
       <div className="fixed inset-0 bg-black/20 -z-10"></div>
       
       {/* Contenido principal */}
-      <div className="relative z-10 flex items-end justify-center min-h-screen">
+      <div className="relative z-10 flex items-end md:items-center justify-center min-h-screen">
         {/* Layout móvil: card único */}
         <div 
           ref={mobileCardRef}
@@ -324,7 +324,7 @@ export default function Login() {
         {/* Layout desktop: 2 columnas x 2 filas */}
         <div 
           ref={desktopGridRef}
-          className="hidden md:grid md:grid-cols-2 md:gap-6 md:w-full md:max-w-4xl md:mx-20 md:my-8"
+          className="hidden md:grid md:grid-cols-2 md:gap-6 md:w-full md:max-w-4xl md:mx-auto md:my-8"
         >
           {/* Columna izquierda */}
           <div className="space-y-6">

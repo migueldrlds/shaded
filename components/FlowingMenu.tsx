@@ -1,5 +1,6 @@
 'use client';
 
+import LinkWithTransition from 'components/link-with-transition';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 import React, { useCallback, useRef, useState } from 'react';
@@ -224,7 +225,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-      <a href={link} className="block w-full h-full">
+      <LinkWithTransition href={link} className="block w-full h-full">
         <div
           ref={itemRef}
           className="relative w-full h-full"
@@ -267,7 +268,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
             </div>
           </div>
         </div>
-      </a>
+      </LinkWithTransition>
     </div>
   );
 };
@@ -367,6 +368,16 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
       style={{ willChange: 'height' }}
       onClick={handleContainerClick}
     >
+        <LinkWithTransition 
+          href={link}
+          className="block w-full h-full"
+          onClick={(e) => {
+            // Si no está expandido, prevenir la navegación para permitir la expansión
+            if (!isExpanded) {
+              e.preventDefault();
+            }
+          }}
+        >
         <div
           ref={contentRef}
           className="relative w-full h-full"
@@ -392,7 +403,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
               if (isExpanded) {
                 // Cuando está expandido y se toca el overlay, navegar
                 e.stopPropagation();
-                window.location.href = link;
+                // La navegación se manejará a través del LinkWithTransition
               }
             }}
           >
@@ -438,10 +449,11 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-          </div>
-        </div>
+              </div>
+            </div>
           )}
-      </div>
+        </div>
+        </LinkWithTransition>
     </div>
   );
 };

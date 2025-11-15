@@ -264,10 +264,10 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
       />
       
       {/* Cards principales */}
-      <div className="relative z-10 flex items-start justify-center min-h-screen pt-25 px-4">
+      <div className="relative z-10 flex items-start justify-center min-h-screen pt-25 px-4 pb-0 md:pb-auto">
         <div 
           ref={containerRef}
-          className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl mb-4"
+          className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl"
         >
           {/* Card de Colección - Ocupa toda la fila */}
           <div 
@@ -332,7 +332,7 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
       </div>
 
       {/* Card de DESCUENTO para nuevos miembros */}
-      <div className="relative z-10 px-4 pb-12">
+      <div className="relative z-10 px-4 mb-6 -mt-18 md:mt-0">
         <div 
           ref={discountCardRef}
           className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl mx-auto"
@@ -355,7 +355,7 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
       </div>
 
       {/* Card de SHADED MOVEMENT */}
-      <div className="relative z-10 px-4 pb-12">
+      <div className="relative z-10 px-4 pb-0 md:pb-12">
         <div 
           ref={movementCardRef}
           className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl mx-auto"

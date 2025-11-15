@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useLanguage } from './providers/language-provider';
 
 export default function NewsletterForm() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -20,10 +22,10 @@ export default function NewsletterForm() {
       // Simulación de envío
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      setMessage('Thank you for subscribing!');
+      setMessage(t('newsletter.success'));
       setEmail('');
     } catch (error) {
-      setMessage('An error occurred. Please try again.');
+      setMessage(t('newsletter.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -34,7 +36,7 @@ export default function NewsletterForm() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="email"
-          placeholder="Email"
+          placeholder={t('newsletter.email')}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -46,7 +48,7 @@ export default function NewsletterForm() {
           disabled={isSubmitting}
           className="w-full px-8 py-3 bg-white text-black rounded-full font-medium hover:bg-white/90 transition-colors duration-200 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+          {isSubmitting ? t('newsletter.subscribing') : t('newsletter.subscribe')}
         </button>
       </form>
       {message && (
