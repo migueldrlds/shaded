@@ -199,50 +199,35 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     }
   }, [producto]);
 
-  // Pre-cargar solo la imagen actual y las adyacentes (solo en escritorio)
+  // Limpiar preloads no utilizados (Next.js Image maneja el preload automáticamente)
   useEffect(() => {
     if (!producto?.images || producto.images.length === 0 || typeof window === 'undefined') return;
     
-    // Verificar si estamos en escritorio
+    // Obtener todas las URLs de imágenes de este producto
+    const productImageUrls = new Set(producto.images.map(img => img.url).filter(Boolean));
+    
+    // La imagen que debe tener preload:
+    // - En desktop: solo la actual (con priority)
+    // - En mobile: solo la primera (con priority)
     const isDesktop = window.innerWidth >= 768;
-    if (!isDesktop) return;
+    const imageUrlToKeep = isDesktop 
+      ? producto.images[currentImageIndex]?.url 
+      : producto.images[0]?.url;
 
-    // Limpiar preloads anteriores que no se estén usando
+    // Limpiar todos los preloads que corresponden a este producto excepto la imagen que debe mantenerse
+    // Next.js Image con priority ya maneja el preload de la imagen principal
     const allPreloads = document.querySelectorAll('link[rel="preload"][as="image"]');
-    const currentImageUrls = new Set([
-      producto.images[currentImageIndex]?.url,
-      producto.images[currentImageIndex + 1 >= producto.images.length ? 0 : currentImageIndex + 1]?.url,
-      producto.images[currentImageIndex - 1 < 0 ? producto.images.length - 1 : currentImageIndex - 1]?.url
-    ].filter(Boolean));
-
-    // Remover preloads que ya no son necesarios
-    allPreloads.forEach((link) => {
-      const href = link.getAttribute('href');
-      if (href && !currentImageUrls.has(href) && href.includes('cdn.shopify.com')) {
-        link.remove();
-      }
-    });
-
-    // Pre-cargar solo la imagen actual y las adyacentes
-    const imagesToPreload = [
-      producto.images[currentImageIndex]?.url, // Imagen actual
-      producto.images[currentImageIndex + 1 >= producto.images.length ? 0 : currentImageIndex + 1]?.url, // Siguiente
-      producto.images[currentImageIndex - 1 < 0 ? producto.images.length - 1 : currentImageIndex - 1]?.url // Anterior
-    ].filter(Boolean);
-
-    imagesToPreload.forEach((imageUrl) => {
-      if (imageUrl) {
-        // Verificar si ya existe un preload para esta imagen
-        const existingLink = document.querySelector(`link[rel="preload"][as="image"][href="${imageUrl}"]`);
-        if (!existingLink) {
-          const link = document.createElement('link');
-          link.rel = 'preload';
-          link.as = 'image';
-          link.href = imageUrl;
-          document.head.appendChild(link);
+    
+    // Usar setTimeout para ejecutar después de que Next.js haya procesado los preloads
+    setTimeout(() => {
+      allPreloads.forEach((link) => {
+        const href = link.getAttribute('href');
+        // Si es una imagen de este producto y no es la que debe mantenerse, eliminarla
+        if (href && productImageUrls.has(href) && href !== imageUrlToKeep) {
+          link.remove();
         }
-      }
-    });
+      });
+    }, 100);
   }, [currentImageIndex, producto?.images]);
 
   // Animación de la imagen del producto (solo desktop)
@@ -772,6 +757,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                   fill
                   className="object-cover"
                   priority={index === 0}
+                  loading={index === 0 ? 'eager' : 'lazy'}
                   sizes="100vw"
                   onClick={() => setIsFullscreen(true)}
                 />
