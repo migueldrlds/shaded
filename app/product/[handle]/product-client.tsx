@@ -199,7 +199,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     }
   }, [producto]);
 
-  // Pre-cargar todas las imágenes del producto al montar el componente (solo en escritorio)
+  // Pre-cargar solo la imagen actual y las adyacentes (solo en escritorio)
   useEffect(() => {
     if (!producto?.images || producto.images.length === 0 || typeof window === 'undefined') return;
     
@@ -207,53 +207,42 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     const isDesktop = window.innerWidth >= 768;
     if (!isDesktop) return;
 
-    // Pre-cargar todas las imágenes del producto
-    producto.images.forEach((imagen) => {
-      if (imagen?.url) {
+    // Limpiar preloads anteriores que no se estén usando
+    const allPreloads = document.querySelectorAll('link[rel="preload"][as="image"]');
+    const currentImageUrls = new Set([
+      producto.images[currentImageIndex]?.url,
+      producto.images[currentImageIndex + 1 >= producto.images.length ? 0 : currentImageIndex + 1]?.url,
+      producto.images[currentImageIndex - 1 < 0 ? producto.images.length - 1 : currentImageIndex - 1]?.url
+    ].filter(Boolean));
+
+    // Remover preloads que ya no son necesarios
+    allPreloads.forEach((link) => {
+      const href = link.getAttribute('href');
+      if (href && !currentImageUrls.has(href) && href.includes('cdn.shopify.com')) {
+        link.remove();
+      }
+    });
+
+    // Pre-cargar solo la imagen actual y las adyacentes
+    const imagesToPreload = [
+      producto.images[currentImageIndex]?.url, // Imagen actual
+      producto.images[currentImageIndex + 1 >= producto.images.length ? 0 : currentImageIndex + 1]?.url, // Siguiente
+      producto.images[currentImageIndex - 1 < 0 ? producto.images.length - 1 : currentImageIndex - 1]?.url // Anterior
+    ].filter(Boolean);
+
+    imagesToPreload.forEach((imageUrl) => {
+      if (imageUrl) {
         // Verificar si ya existe un preload para esta imagen
-        const existingLink = document.querySelector(`link[rel="preload"][as="image"][href="${imagen.url}"]`);
+        const existingLink = document.querySelector(`link[rel="preload"][as="image"][href="${imageUrl}"]`);
         if (!existingLink) {
           const link = document.createElement('link');
           link.rel = 'preload';
           link.as = 'image';
-          link.href = imagen.url;
+          link.href = imageUrl;
           document.head.appendChild(link);
         }
       }
     });
-  }, [producto?.images]);
-
-  // Pre-cargar imágenes adyacentes cuando cambia la imagen actual
-  useEffect(() => {
-    if (!producto?.images || producto.images.length === 0 || typeof window === 'undefined') return;
-
-    // Pre-cargar imagen siguiente
-    const nextIndex = currentImageIndex + 1 >= producto.images.length ? 0 : currentImageIndex + 1;
-    const nextImageUrl = producto.images[nextIndex]?.url;
-    if (nextImageUrl) {
-      const existingLink = document.querySelector(`link[rel="preload"][as="image"][href="${nextImageUrl}"]`);
-      if (!existingLink) {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = nextImageUrl;
-        document.head.appendChild(link);
-      }
-    }
-
-    // Pre-cargar imagen anterior
-    const prevIndex = currentImageIndex - 1 < 0 ? producto.images.length - 1 : currentImageIndex - 1;
-    const prevImageUrl = producto.images[prevIndex]?.url;
-    if (prevImageUrl && prevImageUrl !== nextImageUrl) {
-      const existingLink = document.querySelector(`link[rel="preload"][as="image"][href="${prevImageUrl}"]`);
-      if (!existingLink) {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = prevImageUrl;
-        document.head.appendChild(link);
-      }
-    }
   }, [currentImageIndex, producto?.images]);
 
   // Animación de la imagen del producto (solo desktop)
