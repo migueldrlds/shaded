@@ -44,56 +44,30 @@ const FlowingMenu: React.FC<FlowingMenuProps> = ({ items = [] }) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   }, [expandedIndex]);
 
-  // Preload selectivo de imágenes de colecciones (solo las visibles y adyacentes)
+  // Limpiar preloads no utilizados (Next.js Image maneja el preload automáticamente)
   React.useEffect(() => {
     if (typeof window === 'undefined' || items.length === 0) return;
 
-    // Determinar qué imágenes preloadear
-    const imagesToPreload = new Set<string>();
+    // Obtener todas las URLs de imágenes de las colecciones
+    const collectionImageUrls = new Set(items.map(item => item.image).filter(Boolean));
     
-    // Siempre preloadear las primeras imágenes visibles (desktop muestra todas inicialmente)
-    const visibleCount = typeof window !== 'undefined' && window.innerWidth >= 768 ? items.length : 3;
-    for (let i = 0; i < Math.min(visibleCount, items.length); i++) {
-      const item = items[i];
-      if (item?.image) {
-        imagesToPreload.add(item.image);
-      }
-    }
+    // Solo mantener el preload de la primera imagen visible
+    // Next.js Image con priority puede manejar el preload de la imagen principal
+    const firstImageUrl = items[0]?.image;
 
-    // Si hay hover, preloadear imagen anterior y siguiente
-    if (hoveredIndex !== null && hoveredIndex >= 0 && hoveredIndex < items.length) {
-      const prevItem = hoveredIndex > 0 ? items[hoveredIndex - 1] : undefined;
-      const nextItem = hoveredIndex < items.length - 1 ? items[hoveredIndex + 1] : undefined;
-      
-      if (prevItem?.image) {
-        imagesToPreload.add(prevItem.image);
-      }
-      if (nextItem?.image) {
-        imagesToPreload.add(nextItem.image);
-      }
-    }
-
-    // Limpiar preloads anteriores que no se necesitan
-    const allPreloads = document.querySelectorAll('link[rel="preload"][as="image"]');
-    allPreloads.forEach((link) => {
-      const href = link.getAttribute('href');
-      if (href && !imagesToPreload.has(href) && (href.includes('cdn.shopify.com') || href.includes('/img'))) {
-        link.remove();
-      }
-    });
-
-    // Crear preloads para las imágenes necesarias
-    imagesToPreload.forEach((imageUrl) => {
-      const existingLink = document.querySelector(`link[rel="preload"][as="image"][href="${imageUrl}"]`);
-      if (!existingLink) {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = imageUrl;
-        document.head.appendChild(link);
-      }
-    });
-  }, [items, hoveredIndex]);
+    // Limpiar preloads que corresponden a estas colecciones excepto la primera
+    // Usar setTimeout para ejecutar después de que Next.js haya procesado los preloads
+    setTimeout(() => {
+      const allPreloads = document.querySelectorAll('link[rel="preload"][as="image"]');
+      allPreloads.forEach((link) => {
+        const href = link.getAttribute('href');
+        // Si es una imagen de estas colecciones y no es la primera, eliminarla
+        if (href && collectionImageUrls.has(href) && href !== firstImageUrl) {
+          link.remove();
+        }
+      });
+    }, 100);
+  }, [items]);
 
   const totalItems = items.length;
 
@@ -291,7 +265,8 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
               alt={text}
               fill
               className="object-cover"
-              priority={false}
+              priority={isFirst}
+              loading={isFirst ? 'eager' : 'lazy'}
               unoptimized={true}
             />
           </div>
@@ -440,7 +415,8 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
               alt={text}
               fill
               className="object-cover"
-              priority={false}
+              priority={index === 0}
+              loading={index === 0 ? 'eager' : 'lazy'}
               unoptimized={true}
             />
           </div>

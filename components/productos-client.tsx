@@ -15,58 +15,41 @@ interface ProductosClientProps {
 }
 
 export default function ProductosClient({ children, products }: ProductosClientProps) {
-  // Preload selectivo de imágenes de productos (solo las visibles inicialmente)
+  // Limpiar preloads no utilizados (Next.js Image maneja el preload automáticamente)
   useEffect(() => {
     if (typeof window === 'undefined' || !products || products.length === 0) return;
 
-    // Determinar cuántos productos son visibles inicialmente
-    const isDesktop = window.innerWidth >= 768;
-    // En desktop generalmente se muestran todos, en móvil solo los primeros
-    const visibleCount = isDesktop ? Math.min(products.length, 10) : Math.min(products.length, 3);
-
-    // Determinar qué imágenes preloadear
-    const imagesToPreload = new Set<string>();
-
-    // Preloadear imágenes de productos visibles
-    for (let i = 0; i < visibleCount; i++) {
-      const product = products[i];
-      if (!product) continue;
-
-      // Preloadear featured image
+    // Obtener todas las URLs de imágenes de productos
+    const productImageUrls = new Set<string>();
+    products.forEach(product => {
       if (product.featuredImage?.url) {
-        imagesToPreload.add(product.featuredImage.url);
+        productImageUrls.add(product.featuredImage.url);
       }
+      if (product.images) {
+        product.images.forEach(img => {
+          if (img.url) {
+            productImageUrls.add(img.url);
+          }
+        });
+      }
+    });
+    
+    // Solo mantener el preload de la primera imagen visible
+    // Next.js Image con priority puede manejar el preload de la imagen principal
+    const firstProductImageUrl = products[0]?.featuredImage?.url;
 
-      // Preloadear segunda imagen si existe (para hover effect en desktop)
-      if (isDesktop && product.images && product.images.length > 1) {
-        const featuredImageUrl = product.featuredImage?.url;
-        const secondImage = product.images.find(img => img.url !== featuredImageUrl);
-        if (secondImage?.url) {
-          imagesToPreload.add(secondImage.url);
+    // Limpiar preloads que corresponden a estos productos excepto la primera imagen
+    // Usar setTimeout para ejecutar después de que Next.js haya procesado los preloads
+    setTimeout(() => {
+      const allPreloads = document.querySelectorAll('link[rel="preload"][as="image"]');
+      allPreloads.forEach((link) => {
+        const href = link.getAttribute('href');
+        // Si es una imagen de estos productos y no es la primera, eliminarla
+        if (href && productImageUrls.has(href) && href !== firstProductImageUrl) {
+          link.remove();
         }
-      }
-    }
-
-    // Limpiar preloads anteriores que no se necesitan
-    const allPreloads = document.querySelectorAll('link[rel="preload"][as="image"]');
-    allPreloads.forEach((link) => {
-      const href = link.getAttribute('href');
-      if (href && !imagesToPreload.has(href) && (href.includes('cdn.shopify.com') || href.includes('/img'))) {
-        link.remove();
-      }
-    });
-
-    // Crear preloads para las imágenes necesarias
-    imagesToPreload.forEach((imageUrl) => {
-      const existingLink = document.querySelector(`link[rel="preload"][as="image"][href="${imageUrl}"]`);
-      if (!existingLink) {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = imageUrl;
-        document.head.appendChild(link);
-      }
-    });
+      });
+    }, 100);
   }, [products]);
 
   return <>{children}</>;
