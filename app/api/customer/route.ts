@@ -30,7 +30,6 @@ export async function GET() {
       }
     } catch (error) {
       // If Customer Account API fails, try legacy API
-      console.log('Customer Account API failed, trying legacy API:', error);
     }
 
     // Fallback to legacy API

@@ -15,7 +15,6 @@ export default function Contact() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Aquí se manejaría el envío del formulario
-    console.log('Form submitted:', formData);
     alert(t('contact.successMessage'));
   };
 

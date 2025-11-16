@@ -32,16 +32,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log('Return request received:', {
-      orderId,
-      orderNumber,
-      returnItems: returnItems.map((item: any) => ({
-        variantId: item.variantId,
-        title: item.title,
-        quantity: item.quantity,
-        reason: item.reason
-      }))
-    });
 
     try {
       // Create a note on the order in Shopify Admin
@@ -62,13 +52,11 @@ Solicitado por: Cliente vía web`;
       const noteResult = await addOrderNote(orderId, returnNote) as any;
       
       if (noteResult?.data?.orderUpdate?.userErrors?.length > 0) {
-        console.error('Shopify note errors:', noteResult.data.orderUpdate.userErrors);
+        // Shopify note errors
       }
 
-      console.log('✅ Return request note added to Shopify order');
-
     } catch (shopifyError) {
-      console.error('⚠️ Could not add note to Shopify, but return request logged:', shopifyError);
+      // Could not add note to Shopify, but return request logged
       // Continue even if Shopify integration fails
     }
 

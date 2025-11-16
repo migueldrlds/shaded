@@ -14,12 +14,10 @@ export function CartModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const openCart = () => {
-    console.log('🛒 Abriendo carrito desde contexto...');
     setIsOpen(true);
   };
 
   const closeCart = () => {
-    console.log('🛒 Cerrando carrito desde contexto...');
     setIsOpen(false);
   };
 

@@ -35,19 +35,6 @@ export function FooterMenuItem({ item }: { item: Menu }) {
                    (pathnameSegment && itemPathSegment && pathnameSegment === itemPathSegment) ||
                    (normalizedItemPath && normalizedPathname.includes(normalizedItemPath)) ||
                    (normalizedPathname && normalizedItemPath.includes(normalizedPathname));
-  
-  // Debug temporal - descomentar para ver qué se está comparando
-  if (item.title.toLowerCase().includes('return')) {
-    console.log('Return Policy Debug:', {
-      pathname,
-      itemPath: item.path,
-      normalizedPathname,
-      normalizedItemPath,
-      pathnameSegment,
-      itemPathSegment,
-      isActive
-    });
-  }
 
   // Si estamos en la página actual, mostrar como span no clickeable
   if (isActive) {

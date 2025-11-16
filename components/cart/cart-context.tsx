@@ -167,14 +167,11 @@ function cartReducer(state: Cart | undefined, action: CartAction): Cart {
       };
     }
     case 'ADD_ITEM': {
-      console.log('🛒 ADD_ITEM reducer called');
       const { variant, product, quantity = 1 } = action.payload;
-      console.log('🛒 Adding item:', { variant: variant.title, product: product.title, quantity });
       
       const existingItem = currentCart.lines.find(
         (item) => item.merchandise.id === variant.id
       );
-      console.log('🛒 Existing item found:', existingItem ? 'Yes' : 'No');
       
       const updatedItem = createOrUpdateCartItem(
         existingItem,
@@ -182,15 +179,12 @@ function cartReducer(state: Cart | undefined, action: CartAction): Cart {
         product,
         quantity
       );
-      console.log('🛒 Updated item:', updatedItem);
 
       const updatedLines = existingItem
         ? currentCart.lines.map((item) =>
             item.merchandise.id === variant.id ? updatedItem : item
           )
         : [...currentCart.lines, updatedItem];
-
-      console.log('🛒 Final lines:', updatedLines.length);
 
       return {
         ...currentCart,
@@ -215,9 +209,6 @@ export function CartProvider({
   
   // Generar un ID único para esta instancia del contexto
   const contextId = useMemo(() => Math.random().toString(36).substr(2, 9), []);
-  console.log('🛒 CartProvider - Context ID:', contextId);
-  console.log('🛒 CartContext - initialCart:', initialCart);
-  console.log('🛒 CartContext - localCart:', localCart);
 
   const updateCartItem = (merchandiseId: string, updateType: UpdateType) => {
     setLocalCart(prevCart => {
@@ -230,8 +221,6 @@ export function CartProvider({
   };
 
   const addCartItem = async (variant: ProductVariant, product: Product, quantity: number = 1) => {
-    console.log('🛒 addCartItem called:', { variant: variant.title, product: product.title, quantity });
-    
     // Actualizar el carrito local
     setLocalCart(prevCart => {
       if (!prevCart) return prevCart;
@@ -244,23 +233,14 @@ export function CartProvider({
     // Sincronizar con Shopify usando la acción del servidor
     try {
       const { addItemToCart } = await import('./actions');
-      const result = await addItemToCart(variant.id, quantity);
-      if (result.success) {
-        console.log('🛒 Producto sincronizado con Shopify');
-      } else {
-        console.error('🛒 Error sincronizando con Shopify:', result.error);
-      }
+      await addItemToCart(variant.id, quantity);
     } catch (error) {
-      console.error('🛒 Error sincronizando con Shopify:', error);
+      // Error sincronizando con Shopify
     }
-    
-    console.log('🛒 addCartItem completed');
   };
 
   const contextValue = useMemo(
     () => {
-      console.log('🛒 useMemo - localCart:', localCart);
-      console.log('🛒 useMemo - localCart.lines:', localCart?.lines?.length);
       return {
         cart: localCart,
         updateCartItem,
@@ -270,10 +250,6 @@ export function CartProvider({
     },
     [localCart, contextId]
   );
-  
-  console.log('🛒 useMemo - contextValue:', contextValue);
-  console.log('🛒 useMemo - contextValue.cart:', contextValue.cart);
-  console.log('🛒 useMemo - contextValue.cart.lines:', contextValue.cart?.lines?.length);
 
   return (
     <CartContext.Provider value={contextValue}>

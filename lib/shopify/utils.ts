@@ -15,7 +15,6 @@ export async function getLatestCollection(): Promise<LatestCollection> {
   
   try {
     const allCollections = await getCollections();
-    console.log('🔍 getLatestCollection - Colecciones de Shopify:', allCollections.map(c => c.title));
     
     // Filtrar colecciones - excluir "ALL" y otras colecciones no deseadas
     const collections = allCollections.filter(collection => {
@@ -30,14 +29,8 @@ export async function getLatestCollection(): Promise<LatestCollection> {
         collection.title !== 'All Collections'
       );
       
-      if (!shouldInclude) {
-        console.log(`❌ Excluyendo colección: "${collection.title}"`);
-      }
-      
       return shouldInclude;
     });
-    
-    console.log('✅ getLatestCollection - Colecciones filtradas:', collections.map(c => c.title));
     
     if (collections && collections.length > 0) {
       // Ordenar por updatedAt para obtener la más reciente
@@ -59,17 +52,10 @@ export async function getLatestCollection(): Promise<LatestCollection> {
           title: titleCase,
           handle: latest.handle
         };
-        
-        console.log('🎯 getLatestCollection - Colección seleccionada:', {
-          original: latest.title,
-          formatted: titleCase,
-          handle: latest.handle,
-          updatedAt: latest.updatedAt
-        });
       }
     }
   } catch (error) {
-    console.error('Error fetching latest collection:', error);
+    // Error fetching latest collection
   }
   
   return latestCollection;

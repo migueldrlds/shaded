@@ -5,9 +5,6 @@ export default async function Coleccion() {
   // Obtener colecciones de Shopify
   const allCollections = await getCollections();
   
-  // Debug: ver qué colecciones están llegando
-  console.log('🔍 Colecciones de Shopify:', allCollections.map(c => c.title));
-  
   // Filtrar colecciones - excluir "ALL" y otras colecciones no deseadas
   const collections = allCollections.filter(collection => 
     collection.title !== 'ALL' && 
@@ -15,8 +12,6 @@ export default async function Coleccion() {
     collection.title !== 'Home page' &&
     collection.title !== 'Featured products'
   );
-  
-  console.log('✅ Colecciones filtradas:', collections.map(c => c.title));
 
   // Convertir colecciones a formato para FlowingMenu
   const menuItems = [

@@ -83,9 +83,6 @@ export default function Header({ transparent = false, latestCollection }: Header
       setIsMenuOpen(false);
     }
   };
-
-  // Debug: ver qué colección está llegando
-  console.log('🔍 Header - latestCollection recibida:', latestCollection);
   
   // Detectar si estamos en móvil
   const [isMobile, setIsMobile] = useState(false);

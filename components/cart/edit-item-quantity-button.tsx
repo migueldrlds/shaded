@@ -20,16 +20,14 @@ export function EditItemQuantityButton({
   };
 
   const handleUpdate = async () => {
-    console.log('📝 Updating quantity:', payload);
     // Actualizar el carrito local primero
     optimisticUpdate(payload.merchandiseId, type);
     
     // Sincronizar con Shopify
     try {
       await updateItemQuantity(null, payload);
-      console.log('📝 Quantity updated in Shopify');
     } catch (error) {
-      console.error('📝 Error updating quantity in Shopify:', error);
+      // Error updating quantity in Shopify
     }
   };
 

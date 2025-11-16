@@ -302,7 +302,6 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
                   rootMargin="-100px"
                   textAlign="left"
                   onLetterAnimationComplete={() => {
-                    console.log('All letters have animated!');
                   }}
                 />
               </div>

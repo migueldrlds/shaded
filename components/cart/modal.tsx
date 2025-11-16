@@ -25,28 +25,16 @@ type MerchandiseSearchParams = {
 };
 
 export default function CartModal() {
-  console.log('🛒 CartModal component is rendering...');
-  
   const cartRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   
   const cartContext = useCart();
   const { isOpen, openCart, closeCart } = useCartModal();
   const { t } = useLanguage();
-  console.log('🛒 CartModal - cartContext:', cartContext);
-  console.log('🛒 CartModal - cartContext.cart:', cartContext.cart);
-  console.log('🛒 CartModal - cartContext.cart.lines:', cartContext.cart?.lines?.length);
-  console.log('🛒 CartModal - cartContext.contextId:', cartContext.contextId);
   
   const { cart, updateCartItem } = cartContext;
   
-  // Log cada vez que el cart cambia
-  console.log('🛒 CartModal - cart prop:', cart);
-  console.log('🛒 CartModal - cart.lines:', cart?.lines?.length);
   const quantityRef = useRef(cart?.totalQuantity);
-  
-  console.log('🛒 CartModal component render - cart:', cart);
-  console.log('🛒 CartModal component render - isOpen:', isOpen);
 
   useEffect(() => {
     if (!cart) {
@@ -55,34 +43,17 @@ export default function CartModal() {
   }, [cart]);
 
   useEffect(() => {
-    console.log('🛒 CartModal - Cart updated:', {
-      totalQuantity: cart?.totalQuantity,
-      previousQuantity: quantityRef.current,
-      isOpen,
-      lines: cart?.lines?.length
-    });
-    
     if (
       cart?.totalQuantity &&
       cart?.totalQuantity !== quantityRef.current &&
       cart?.totalQuantity > 0
     ) {
-      console.log('🛒 Abriendo carrito automáticamente...');
       if (!isOpen) {
         openCart();
       }
       quantityRef.current = cart?.totalQuantity;
     }
   }, [isOpen, cart?.totalQuantity, quantityRef, openCart]);
-
-  // Agregar un useEffect para detectar cambios en el carrito
-  useEffect(() => {
-    console.log('🛒 CartModal - Cart changed:', {
-      cart: cart,
-      lines: cart?.lines?.length,
-      totalQuantity: cart?.totalQuantity
-    });
-  }, [cart]);
 
 
   const handleClose = useCallback(() => {
@@ -257,7 +228,6 @@ export default function CartModal() {
     }
   }, [isOpen]);
 
-  console.log('🛒 CartModal render - isOpen:', isOpen, 'cart lines:', cart?.lines?.length);
   
   return (
     <>

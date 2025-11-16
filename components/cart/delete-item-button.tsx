@@ -14,16 +14,14 @@ export function DeleteItemButton({
   const merchandiseId = item.merchandise.id;
 
   const handleRemove = async () => {
-    console.log('🗑️ Removing item:', merchandiseId);
     // Actualizar el carrito local primero
     optimisticUpdate(merchandiseId, 'delete');
     
     // Sincronizar con Shopify
     try {
       await removeItem(null, merchandiseId);
-      console.log('🗑️ Item removed from Shopify');
     } catch (error) {
-      console.error('🗑️ Error removing from Shopify:', error);
+      // Error removing from Shopify
     }
   };
 

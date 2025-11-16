@@ -573,7 +573,6 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
 
   const handleAddToCart = async () => {
     if (!producto?.variants || producto.variants.length === 0) {
-      console.log('❌ No hay variantes disponibles');
       return;
     }
 
@@ -592,13 +591,10 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     });
 
     if (!selectedVariant) {
-      console.log('❌ No se encontró la variante seleccionada');
-      // Opcional: manejar este caso, por ejemplo, mostrando un error al usuario.
       return;
     }
 
     if (!selectedVariant.availableForSale) {
-      console.log('❌ La variante seleccionada no está disponible');
       return;
     }
 
