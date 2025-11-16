@@ -44,6 +44,57 @@ const FlowingMenu: React.FC<FlowingMenuProps> = ({ items = [] }) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   }, [expandedIndex]);
 
+  // Preload selectivo de imágenes de colecciones (solo las visibles y adyacentes)
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || items.length === 0) return;
+
+    // Determinar qué imágenes preloadear
+    const imagesToPreload = new Set<string>();
+    
+    // Siempre preloadear las primeras imágenes visibles (desktop muestra todas inicialmente)
+    const visibleCount = typeof window !== 'undefined' && window.innerWidth >= 768 ? items.length : 3;
+    for (let i = 0; i < Math.min(visibleCount, items.length); i++) {
+      const item = items[i];
+      if (item?.image) {
+        imagesToPreload.add(item.image);
+      }
+    }
+
+    // Si hay hover, preloadear imagen anterior y siguiente
+    if (hoveredIndex !== null && hoveredIndex >= 0 && hoveredIndex < items.length) {
+      const prevItem = hoveredIndex > 0 ? items[hoveredIndex - 1] : undefined;
+      const nextItem = hoveredIndex < items.length - 1 ? items[hoveredIndex + 1] : undefined;
+      
+      if (prevItem?.image) {
+        imagesToPreload.add(prevItem.image);
+      }
+      if (nextItem?.image) {
+        imagesToPreload.add(nextItem.image);
+      }
+    }
+
+    // Limpiar preloads anteriores que no se necesitan
+    const allPreloads = document.querySelectorAll('link[rel="preload"][as="image"]');
+    allPreloads.forEach((link) => {
+      const href = link.getAttribute('href');
+      if (href && !imagesToPreload.has(href) && (href.includes('cdn.shopify.com') || href.includes('/img'))) {
+        link.remove();
+      }
+    });
+
+    // Crear preloads para las imágenes necesarias
+    imagesToPreload.forEach((imageUrl) => {
+      const existingLink = document.querySelector(`link[rel="preload"][as="image"][href="${imageUrl}"]`);
+      if (!existingLink) {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = imageUrl;
+        document.head.appendChild(link);
+      }
+    });
+  }, [items, hoveredIndex]);
+
   const totalItems = items.length;
 
   return (
