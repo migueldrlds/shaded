@@ -9,13 +9,14 @@ import { LanguageProvider } from 'components/providers/language-provider';
 import { getCart } from 'lib/shopify';
 import { baseUrl } from 'lib/utils';
 import { ViewTransitions } from 'next-view-transitions';
-import { Inter } from 'next/font/google';
+import { Inter, Teko } from 'next/font/google';
 import { cookies } from 'next/headers';
 import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const teko = Teko({ subsets: ['latin'], variable: '--font-teko', weight: ['300', '400', '500', '600', '700'] });
 
 const { SITE_NAME } = process.env;
 
@@ -47,7 +48,7 @@ export default async function RootLayout({
     : 'en';
 
   return (
-    <html lang={initialLanguage} className={inter.variable}>
+    <html lang={initialLanguage} className={`${inter.variable} ${teko.variable}`}>
       <body className={`${inter.className} bg-transparent text-black selection:bg-teal-300 dark:text-white dark:selection:bg-pink-500 dark:selection:text-white`}>
         <script
           dangerouslySetInnerHTML={{

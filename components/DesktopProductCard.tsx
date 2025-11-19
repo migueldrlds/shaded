@@ -28,6 +28,7 @@ interface DesktopProductCardProps {
       };
     };
   };
+  collectionName?: string;
 }
 
 const formatPrice = (price: { amount: string; currencyCode: string } | undefined) => {
@@ -35,7 +36,7 @@ const formatPrice = (price: { amount: string; currencyCode: string } | undefined
   return `$${parseFloat(price.amount).toFixed(2)} ${price.currencyCode}`;
 };
 
-const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product }) => {
+const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collectionName }) => {
   if (!product) return null;
 
   // Función para obtener la segunda imagen disponible
@@ -52,10 +53,11 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product }) => {
   return (
     <div className="flex justify-between items-start h-full pr-0">
       {/* Card izquierdo */}
-      <div className="relative w-1/5" style={{ top: '240px' }}>
+      <div className="relative" style={{ top: '240px', width: '300px', right: '-30px' }}>
         <LinkWithTransition
           href={`/product/${product.handle}`}
-          className="bg-transparent rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative h-[14rem] md:h-[20rem] w-full block cursor-pointer"
+          className="bg-transparent rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative w-full block cursor-pointer"
+          style={{ height: '500px' }}
         >
           {/* Imagen del producto */}
           <div className="relative w-full h-full">
@@ -115,8 +117,8 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product }) => {
       </div>
 
       {/* Card derecho */}
-      <div className="relative w-[79%] mb-0 self-end">
-        <LinkWithTransition href={`/product/${product.handle}`} className="bg-transparent rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative h-[35rem] md:h-[28rem] w-full block cursor-pointer">
+      <div className="relative mb-0 self-end" style={{ width: '900px' }}>
+        <LinkWithTransition href={`/product/${product.handle}`} className="bg-transparent rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative w-full block cursor-pointer" style={{ height: '660px' }}>
           {/* Imagen del producto derecho */}
           <div className="relative w-full h-full">
             <Image
@@ -141,9 +143,16 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product }) => {
           {/* Precio flotante centrado con botón circular pegado */}
           <div className="absolute right-130 top-1/2 -translate-y-1/2">
             <div className="flex items-center">
-              <div className="bg-black/50 text-white rounded-full px-4 py-2 backdrop-blur-sm flex items-center gap-10">
-                <span className="text-xs">{product?.title}</span>
-                <span className="text-sm font-semibold">{formatPrice(product?.priceRange?.maxVariantPrice)}</span>
+              <div className="bg-black/50 text-white rounded-full px-4 py-2.5 backdrop-blur-sm flex items-center gap-6">
+                <div className="flex flex-col items-start gap-0.5">
+                  <span className="text-xs">{product?.title}</span>
+                  {collectionName && (
+                    <span className="text-[9px] font-thin opacity-75 leading-tight">{collectionName}</span>
+                  )}
+                </div>
+                <div className="flex items-center">
+                  <span className="text-xs font-light">{formatPrice(product?.priceRange?.maxVariantPrice)}</span>
+                </div>
               </div>
               <button className="ml-0 rounded-full bg-black/50 text-white backdrop-blur-sm flex items-center justify-center px-2.5 py-2.5">
                 <div className="w-3 h-3 rounded-full bg-white"></div>

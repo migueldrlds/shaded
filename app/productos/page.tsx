@@ -1,4 +1,4 @@
-import { getCollectionProducts, getProducts } from 'lib/shopify';
+import { getCollection, getCollectionProducts, getProducts } from 'lib/shopify';
 import Image from 'next/image';
 import DesktopProductCard from '../../components/DesktopProductCard';
 import MobileProductCard from '../../components/MobileProductCard';
@@ -43,6 +43,13 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
 
   // Tomar todos los productos disponibles
   const productosFiltrados = allProducts;
+
+  // Obtener el nombre de la colección
+  let collectionName = '';
+  if (coleccion && coleccion !== 'all') {
+    const collection = await getCollection(coleccion);
+    collectionName = collection?.title || '';
+  }
 
   // Función para formatear el precio
   const formatPrice = (price: any) => {
@@ -187,7 +194,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
             <div className="max-w-7xl mx-auto flex flex-col items-center hidden md:block mt-8 space-y-12">
               {productosFiltrados.map((producto, index) => (
                 <div key={producto.id || index} className="max-w-7xl mx-auto flex justify-center">
-                  <div className="bg-white/50 backdrop-blur-xl rounded-3xl pl-5 pr-0 pt-8 pb-0 relative h-[35rem] md:h-[45rem] w-full max-w-7xl">
+                  <div className="bg-white/50 backdrop-blur-xl rounded-3xl pl-5 pr-0 pt-8 pb-0 relative w-full max-w-7xl" style={{ height: '930px' }}>
                     {/* Logo en la esquina izquierda */}
                     <div className="absolute top-4 left-4 z-10 mt-4 ml-4">
                       <Image
@@ -201,7 +208,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
 
                     {/* Número grande */}
                     <div className="absolute z-10 mt-2" style={{ top: '1rem', left: 'calc(20% + 2rem)' }}>
-                      <span className="select-none leading-none" style={{ fontWeight: 700, fontSize: '3.5rem', lineHeight: 1, color: '#000000' }}>
+                      <span className="select-none leading-none" style={{ fontFamily: 'var(--font-teko)', fontWeight: 400, fontSize: '150px', lineHeight: 1, color: '#000000' }}>
                         {String(index + 1).padStart(2, '0')}
                       </span>
                     </div>
@@ -306,7 +313,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
                     </div>
 
                     {/* Componente de card de escritorio */}
-                    <DesktopProductCard product={producto} />
+                    <DesktopProductCard product={producto} collectionName={collectionName} />
                   </div>
                 </div>
               ))}

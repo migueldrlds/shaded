@@ -297,7 +297,7 @@ export default function CartModal() {
                     <div className="cart-item-info">
                       <div className="cart-item-info-row">
                         <LinkWithTransition 
-                          href={merchandiseUrl}
+                                  href={merchandiseUrl}
                           onClick={handleClose}
                           className="revealer cart-item-product-name"
                           style={{ cursor: 'pointer' }}
