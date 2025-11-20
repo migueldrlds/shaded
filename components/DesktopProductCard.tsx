@@ -66,6 +66,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
               alt={product.title}
               fill
               className="object-contain group-hover:scale-105 transition-transform duration-300"
+              sizes="300px"
               priority={false}
               unoptimized={true}
             />
@@ -74,6 +75,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
               alt={product.title}
               fill
               className="object-contain group-hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100 absolute inset-0"
+              sizes="300px"
               priority={false}
               unoptimized={true}
             />
@@ -126,6 +128,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
               alt={product?.title || 'Producto derecho'}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="900px"
               priority={false}
               unoptimized={true}
             />

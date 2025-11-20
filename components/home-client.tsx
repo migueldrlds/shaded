@@ -4,6 +4,7 @@ import LinkWithTransition from "components/link-with-transition";
 import { useLanguage } from "components/providers/language-provider";
 import SplitText from "components/SplitText";
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { FiArrowUpRight } from "react-icons/fi";
@@ -17,6 +18,14 @@ interface HomeClientProps {
 
 export default function HomeClient({ latestCollection }: HomeClientProps) {
   const { t } = useLanguage();
+  
+  // Registrar ScrollTrigger
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+  }, []);
+
   const backgroundVideoRef = useRef<HTMLVideoElement>(null);
   const collectionVideoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,6 +35,14 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
   const movementCardRef = useRef<HTMLDivElement>(null);
   const viewCollectionButtonRef = useRef<HTMLAnchorElement>(null);
   const secondCardWrapperRef = useRef<HTMLDivElement>(null);
+  const exploreButtonRef = useRef<HTMLDivElement>(null);
+  const signInButtonRef = useRef<HTMLDivElement>(null);
+  const seeAllCollectionsTitleRef = useRef<HTMLDivElement>(null);
+  const getDiscountTitleRef = useRef<HTMLDivElement>(null);
+  const signInTextRef = useRef<HTMLDivElement>(null);
+  const exploreTextRef = useRef<HTMLDivElement>(null);
+  const movementTitleRef1 = useRef<HTMLDivElement>(null);
+  const movementTitleRef2 = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let syncInterval: NodeJS.Timeout;
@@ -240,6 +257,7 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
           ease: 'power2.out'
         }, '-=0.35');
       }
+
     }, 100);
 
     return () => {
@@ -247,6 +265,193 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
       if (tl) {
         tl.kill();
       }
+    };
+  }, []);
+
+  // Animaciones con ScrollTrigger
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Animación del título "See all of our collections"
+    if (seeAllCollectionsTitleRef.current) {
+      gsap.fromTo(seeAllCollectionsTitleRef.current,
+        {
+          opacity: 0,
+          y: 30
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: seeAllCollectionsTitleRef.current,
+            start: 'top 100%',
+            toggleActions: 'play none none none',
+            once: true
+          }
+        }
+      );
+    }
+
+    // Animación del texto "Explore"
+    if (exploreTextRef.current) {
+      gsap.fromTo(exploreTextRef.current,
+        {
+          opacity: 0,
+          y: 15
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: exploreTextRef.current,
+            start: 'top 100%',
+            toggleActions: 'play none none none',
+            once: true
+          }
+        }
+      );
+    }
+
+    // Animación del botón Explore completo
+    if (exploreButtonRef.current) {
+      gsap.fromTo(exploreButtonRef.current,
+        {
+          opacity: 0,
+          scale: 0.9
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.6,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: exploreButtonRef.current,
+            start: 'top 100%',
+            toggleActions: 'play none none none',
+            once: true
+          }
+        }
+      );
+    }
+
+    // Animación del título "Get a Discount"
+    if (getDiscountTitleRef.current) {
+      gsap.fromTo(getDiscountTitleRef.current,
+        {
+          opacity: 0,
+          y: 30
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: getDiscountTitleRef.current,
+            start: 'top 40%',
+            toggleActions: 'play none none none',
+            once: true
+          }
+        }
+      );
+    }
+
+    // Animación del texto "Sign In"
+    if (signInTextRef.current) {
+      gsap.fromTo(signInTextRef.current,
+        {
+          opacity: 0,
+          y: 15
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: signInTextRef.current,
+            start: 'top 60%',
+            toggleActions: 'play none none none',
+            once: true
+          }
+        }
+      );
+    }
+
+    // Animación del botón Sign In completo
+    if (signInButtonRef.current) {
+      gsap.fromTo(signInButtonRef.current,
+        {
+          opacity: 0,
+          scale: 0.9
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.6,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: signInButtonRef.current,
+            start: 'top 40%',
+            toggleActions: 'play none none none',
+            once: true
+          }
+        }
+      );
+    }
+
+    // Animación del título "SHADED is more than..."
+    if (movementTitleRef1.current) {
+      gsap.fromTo(movementTitleRef1.current,
+        {
+          opacity: 0,
+          y: 30
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: movementTitleRef1.current,
+            start: 'top 40%',
+            toggleActions: 'play none none none',
+            once: true
+          }
+        }
+      );
+    }
+
+    // Animación del título "IT'S A MOVEMENT"
+    if (movementTitleRef2.current) {
+      gsap.fromTo(movementTitleRef2.current,
+        {
+          opacity: 0,
+          y: 30
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: movementTitleRef2.current,
+            start: 'top 60%',
+            toggleActions: 'play none none none',
+            once: true
+          }
+        }
+      );
+    }
+
+    // Cleanup
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
 
@@ -317,56 +522,86 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
 
           {/* Nueva fila: Card de texto que ocupa toda la fila */}
           <div ref={secondCardWrapperRef} className="mt-4">
-            <div 
-              ref={secondCardRef}
-              className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] w-full flex flex-col h-[16rem] p-8 relative items-center justify-center"
-            >
-              <h1 className="text-3xl font-medium text-white text-center mb-2 max-w-xs">{t('home.seeAllCollections')}</h1>
-              <LinkWithTransition href="/coleccion" className="mt-4 inline-flex items-center transition-all duration-200 hover:opacity-90" aria-label="Explore collections">
-                <span className="rounded-full text-sm font-light px-8 py-2" style={{ backgroundColor: '#d2d5d3', color: '#2E2E2C' }}>{t('home.explore')}</span>
-              </LinkWithTransition>
-            </div>
+            <LinkWithTransition href="/coleccion" className="block group" aria-label="Explore collections">
+              <div 
+                ref={secondCardRef}
+                className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] w-full flex flex-col h-[256px] p-12 md:p-16 relative items-center justify-center cursor-pointer border border-white/5 group-hover:border-white/10 transition-all duration-0"
+              >
+                <div ref={seeAllCollectionsTitleRef} className="text-3xl md:text-4xl lg:text-5xl font-light text-white text-center mb-8 md:mb-10 max-w-3xl leading-tight" style={{ letterSpacing: '-0.03em' }}>
+                  {t('home.seeAllCollections')}
+                </div>
+                <div ref={exploreButtonRef} className="inline-flex items-center gap-3 opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+                  <span ref={exploreTextRef} className="text-sm md:text-base font-extralight text-white uppercase tracking-widest" style={{ letterSpacing: '0.15em' }}>
+                    {t('home.explore')}
+                  </span>
+                  <div className="w-px h-4 bg-white/50"></div>
+                  <div className="rounded-full w-10 h-10 flex items-center justify-center border border-white/30 group-hover:border-white/60 group-hover:bg-white/10 transition-all duration-300">
+                    <FiArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                  </div>
+                </div>
+              </div>
+            </LinkWithTransition>
           </div>
         </div>
       </div>
 
       {/* Card de DESCUENTO para nuevos miembros */}
-      <div className="relative z-10 px-4 mb-6 -mt-18 md:mt-0">
+      <div className="relative z-10 px-4 mb-8 md:mb-10 mt-8 md:mt-10">
         <div 
           ref={discountCardRef}
           className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl mx-auto"
         >
           <div className="relative overflow-hidden rounded-[60px] lg:rounded-[40px] h-[20rem] md:h-[28rem]">
-            <Image src="/img1.jpg" alt={t('home.getDiscount')} fill className="object-cover" />
-            <div className="absolute inset-0 bg-black/40"></div>
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-              <h3 className="text-3xl lg:text-5xl font-medium text-white mb-2">{t('home.getDiscount')}</h3>
-              <p className="text-sm lg:text-base text-white/80 mb-4">{t('home.forAllNewMembers')}</p>
-              <LinkWithTransition href="/coleccion" className="inline-flex items-center transition-all duration-200 hover:opacity-90" aria-label={t('home.signIn')}>
-                <span className="rounded-full text-sm font-light px-8 py-2" style={{ backgroundColor: '#d2d5d3', color: '#2E2E2C' }}>{t('home.signIn')}</span>
-                <span className="rounded-full w-10 h-10 flex items-center justify-center" style={{ backgroundColor: '#d2d5d3', color: '#2E2E2C' }}>
-                  <FiArrowUpRight className="h-5 w-5" />
-                </span>
-              </LinkWithTransition>
+            <Image src="https://shadedthebrand.com/cdn/shop/files/IMG_6110.jpg?v=1736476598&width=3000" alt={t('home.getDiscount')} fill className="object-cover" sizes="(min-width: 1280px) 80rem, 100vw" />
+            <div className="absolute inset-0 bg-black/50"></div>
+            <div className="absolute inset-0 flex flex-col items-start justify-center text-left px-8 md:px-12 lg:px-16">
+                <h3 ref={getDiscountTitleRef} className="text-3xl md:text-4xl lg:text-5xl font-light text-white mb-4 md:mb-6 max-w-2xl leading-tight" style={{ letterSpacing: '-0.02em' }}>
+                  {t('home.getDiscount')}
+                </h3>
+              <p className="text-sm md:text-base lg:text-lg font-extralight text-white/70 mb-8 md:mb-10 max-w-xl" style={{ letterSpacing: '-0.01em' }}>
+                {t('home.forAllNewMembers')}
+              </p>
+              <div ref={signInButtonRef} className="inline-flex items-center gap-3 group/btn transition-all duration-300 hover:opacity-90">
+                <LinkWithTransition href="/coleccion" className="inline-flex items-center gap-3" aria-label={t('home.signIn')}>
+                  <span ref={signInTextRef} className="text-sm md:text-base font-extralight text-white uppercase tracking-widest" style={{ letterSpacing: '0.15em' }}>
+                    {t('home.signIn')}
+                  </span>
+                  <div className="w-px h-4 bg-white/50"></div>
+                  <div className="rounded-full w-10 h-10 flex items-center justify-center border border-white/30 group-hover/btn:border-white/60 group-hover/btn:bg-white/10 transition-all duration-300">
+                    <FiArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                  </div>
+                </LinkWithTransition>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Card de SHADED MOVEMENT */}
-      <div className="relative z-10 px-4 pb-0 md:pb-12">
+      <div className="relative z-10 px-4 pb-8 md:pb-12 mt-8 md:mt-10">
         <div 
           ref={movementCardRef}
           className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl mx-auto"
         >
-          <div className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] p-8 lg:p-12">
-            <div className="text-center">
-              <h2 className="text-2xl lg:text-4xl font-medium text-white mb-6">
-                {t('home.movementTitle')}
-              </h2>
-              <p className="text-sm lg:text-lg text-white/80 leading-relaxed max-w-4xl mx-auto">
-                {t('home.movementDescription')}
-              </p>
+          <div className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] p-12 md:p-16 lg:p-20">
+            <div className="flex flex-col items-center space-y-8 md:space-y-10">
+              {/* Título con diseño mejorado */}
+              <div className="text-center max-w-4xl">
+                <div ref={movementTitleRef1} className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-light text-white leading-[1.1] mb-4 md:mb-6" style={{ letterSpacing: '-0.03em' }}>
+                  SHADED is more than just an Athleisure Brand
+                </div>
+                <div className="w-16 h-px bg-white/30 mx-auto mb-4 md:mb-6"></div>
+                <div ref={movementTitleRef2} className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-light text-white leading-[1.1]" style={{ letterSpacing: '-0.03em' }}>
+                  IT'S A MOVEMENT
+                </div>
+              </div>
+              
+              {/* Descripción con mejor formato */}
+              <div className="text-center max-w-2xl pt-4 md:pt-6 border-t border-white/10">
+                <p className="text-sm md:text-base lg:text-lg font-extralight text-white/60 leading-relaxed" style={{ letterSpacing: '-0.01em' }}>
+                  {t('home.movementDescription')}
+                </p>
+              </div>
             </div>
           </div>
         </div>

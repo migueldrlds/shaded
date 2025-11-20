@@ -160,7 +160,6 @@ export default function SplitText({
     // Configurar posición inicial: y: "100%" (como en el portfolio)
     gsap.set(elementsToAnimate, {
       y: '100%',
-      force3d: true,
     });
 
     // Esperar un poco antes de animar (como en el portfolio)
@@ -172,7 +171,6 @@ export default function SplitText({
         duration,
         ease,
         stagger: 0.1, // Stagger fijo como en el portfolio
-        force3d: true,
         delay: delay / 1000,
         onComplete: () => {
           if (onLetterAnimationComplete) {

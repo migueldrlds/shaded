@@ -192,6 +192,7 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({ product }) => {
               alt={product.title}
               fill
               className="object-contain rounded-3xl"
+              sizes="256px"
               priority={false}
               unoptimized={true}
             />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useLanguage } from 'components/providers/language-provider';
+import Image from 'next/image';
 import FlowingMenu from './FlowingMenu';
 
 interface ColeccionClientProps {
@@ -27,16 +28,32 @@ export default function ColeccionClient({ menuItems }: ColeccionClientProps) {
       
       {/* Contenido principal */}
       <div className="relative z-10 min-h-screen w-full">
-        <div className="pt-40 px-4 pb-8">
+        <div className="pt-32 px-4 pb-8">
           <div className="max-w-7xl mx-auto">
-            {/* Título de la página */}
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#2E2E2C' }}>
-                {t('collections.title')}
-              </h1>
-              <p className="text-lg font-light" style={{ color: '#2E2E2C', opacity: 0.7 }}>
-                {t('collections.description')}
-              </p>
+            {/* Card con título y descripción */}
+            <div className="mb-12 relative overflow-hidden rounded-[40px]" style={{ height: '400px' }}>
+              <div className="absolute inset-0">
+                <Image
+                  src="https://cdn.shopify.com/s/files/1/0703/4562/1751/files/ext.png?v=1763597648"
+                  alt="Collections"
+                  fill
+                  className="object-cover"
+                  sizes="(min-width: 1280px) 80rem, 100vw"
+                  priority
+                />
+                {/* Overlay sutil */}
+                <div className="absolute inset-0 bg-black/30"></div>
+              </div>
+              
+              {/* Contenido del card */}
+              <div className="relative h-full flex flex-col justify-center items-start px-8 md:px-12 lg:px-16">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium mb-4 text-white" style={{ letterSpacing: '-0.02em' }}>
+                  {t('collections.title')}
+                </h1>
+                <p className="text-lg md:text-xl lg:text-2xl font-light text-white" style={{ opacity: 0.9, letterSpacing: '-0.01em' }}>
+                  {t('collections.description')}
+                </p>
+              </div>
             </div>
 
             {/* FlowingMenu de colecciones */}

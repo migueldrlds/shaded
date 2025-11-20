@@ -84,6 +84,7 @@ const DesktopProductCardAlt: React.FC<DesktopProductCardAltProps> = ({ product }
                   fill
                   className={`motion-reduce ${hasHoverImage ? 'group-hover:opacity-0' : ''} transition-opacity duration-500`}
                   style={{ objectFit: 'contain' }}
+                  sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                   priority={false}
                   unoptimized={true}
                 />
@@ -96,6 +97,7 @@ const DesktopProductCardAlt: React.FC<DesktopProductCardAltProps> = ({ product }
                     fill
                     className="motion-reduce opacity-0 group-hover:opacity-100 transition-opacity duration-500 absolute inset-0"
                     style={{ objectFit: 'contain' }}
+                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                     loading="lazy"
                     unoptimized={true}
                   />

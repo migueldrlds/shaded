@@ -119,6 +119,9 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
   const initialTextRef = useRef<HTMLDivElement>(null);
   const widthRef = useRef<HTMLDivElement>(null);
 
+  // Detectar si es "Coming Soon" - no clickeable
+  const isComingSoon = link === '#' || text.toUpperCase().includes('COMING SOON') || text.toUpperCase().includes('PRÓXIMAMENTE');
+
   // Calcular anchos dinámicamente
   const baseWidth = `${100 / totalItems}%`;
   const expandedWidth = totalItems === 2 ? '70%' : `${(100 / totalItems) * 1.4}%`;
@@ -240,21 +243,22 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
   return (
     <div
       ref={widthRef}
-      className={`relative overflow-hidden cursor-pointer h-[300px] md:h-[400px] lg:h-[500px] ${
-        isFirst ? 'rounded-l-2xl' : isLast ? 'rounded-r-2xl' : ''
+      className={`relative overflow-hidden ${isComingSoon ? 'cursor-default' : 'cursor-pointer'} h-[400px] md:h-[550px] lg:h-[650px] ${
+        isFirst ? 'rounded-l-[40px]' : isLast ? 'rounded-r-[40px]' : ''
       }`}
       style={{ 
         width: baseWidth,
         willChange: 'width'
       }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={!isComingSoon ? handleMouseEnter : undefined}
+        onMouseLeave={!isComingSoon ? handleMouseLeave : undefined}
       >
-      <LinkWithTransition href={link} className="block w-full h-full">
-        <div
-          ref={itemRef}
-          className="relative w-full h-full"
-        >
+      {isComingSoon ? (
+        <div className="block w-full h-full">
+          <div
+            ref={itemRef}
+            className="relative w-full h-full"
+          >
           {/* Imagen de fondo */}
           <div 
             ref={imageRef}
@@ -265,6 +269,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
               alt={text}
               fill
               className="object-cover"
+              sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, 33vw"
               priority={isFirst}
               loading={isFirst ? 'eager' : 'lazy'}
               unoptimized={true}
@@ -274,27 +279,75 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
           {/* Overlay con texto */}
           <div
             ref={overlayRef}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 flex items-center justify-center"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 flex items-center justify-center"
             style={{ willChange: 'opacity' }}
           >
             <div
               ref={textRef}
-              className="text-white uppercase text-2xl md:text-3xl lg:text-4xl font-bold text-center px-4"
-              style={{ willChange: 'transform, opacity' }}
+              className="text-white text-3xl md:text-4xl lg:text-5xl font-medium text-center px-4"
+              style={{ willChange: 'transform, opacity', letterSpacing: '-0.02em' }}
             >
               {text}
             </div>
           </div>
 
           {/* Texto inicial (visible cuando no hay hover) */}
-          <div className="absolute bottom-4 left-4 right-4 z-10" ref={initialTextRef}>
-            <div className="text-white uppercase text-lg md:text-xl font-semibold"
-                 >
-        {text}
+          <div className="absolute bottom-6 left-6 right-6 z-10" ref={initialTextRef}>
+            <div className="text-white text-xl md:text-2xl font-medium"
+                 style={{ letterSpacing: '-0.01em' }}>
+              {text}
+            </div>
+          </div>
+        </div>
+        </div>
+      ) : (
+        <LinkWithTransition href={link} className="block w-full h-full">
+          <div
+            ref={itemRef}
+            className="relative w-full h-full"
+          >
+          {/* Imagen de fondo */}
+          <div 
+            ref={imageRef}
+            className="absolute inset-0 w-full h-full"
+          >
+            <Image
+              src={image}
+              alt={text}
+              fill
+              className="object-cover"
+              sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, 33vw"
+              priority={isFirst}
+              loading={isFirst ? 'eager' : 'lazy'}
+              unoptimized={true}
+            />
+          </div>
+
+          {/* Overlay con texto */}
+          <div
+            ref={overlayRef}
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 flex items-center justify-center"
+            style={{ willChange: 'opacity' }}
+          >
+            <div
+              ref={textRef}
+              className="text-white text-3xl md:text-4xl lg:text-5xl font-medium text-center px-4"
+              style={{ willChange: 'transform, opacity', letterSpacing: '-0.02em' }}
+            >
+              {text}
+            </div>
+          </div>
+
+          {/* Texto inicial (visible cuando no hay hover) */}
+          <div className="absolute bottom-6 left-6 right-6 z-10" ref={initialTextRef}>
+            <div className="text-white text-xl md:text-2xl font-medium"
+                 style={{ letterSpacing: '-0.01em' }}>
+              {text}
             </div>
           </div>
         </div>
       </LinkWithTransition>
+      )}
     </div>
   );
 };
@@ -390,7 +443,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
   return (
     <div
       ref={itemRef}
-      className="relative w-full h-[250px] overflow-hidden rounded-2xl cursor-pointer bg-gray-200"
+      className="relative w-full h-[350px] overflow-hidden rounded-[40px] cursor-pointer bg-gray-200"
       style={{ willChange: 'height' }}
       onClick={handleContainerClick}
     >
@@ -436,17 +489,17 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
           >
             <div
               ref={textRef}
-              className="text-white uppercase text-3xl font-bold text-center px-4"
-              style={{ willChange: 'transform, opacity' }}
+              className="text-white text-3xl font-medium text-center px-4"
+              style={{ willChange: 'transform, opacity', letterSpacing: '-0.02em' }}
             >
               {text}
             </div>
           </div>
 
           {/* Texto inicial (visible cuando no está expandido) */}
-          <div className="absolute bottom-4 left-4 right-4 z-10" ref={initialTextRef}>
-            <div className="text-white uppercase text-xl font-semibold"
-                 >
+          <div className="absolute bottom-6 left-6 right-6 z-10" ref={initialTextRef}>
+            <div className="text-white text-xl font-medium"
+                 style={{ letterSpacing: '-0.01em' }}>
               {text}
             </div>
           </div>

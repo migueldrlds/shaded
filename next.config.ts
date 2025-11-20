@@ -21,6 +21,11 @@ export default {
         protocol: 'https',
         hostname: '*.myshopify.com',
         pathname: '/s/files/**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'shadedthebrand.com',
+        pathname: '/cdn/**'
       }
     ]
   }
