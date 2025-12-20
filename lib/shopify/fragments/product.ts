@@ -38,6 +38,12 @@ const productFragment = /* GraphQL */ `
             amount
             currencyCode
           }
+          image {
+            url
+            altText
+            width
+            height
+          }
         }
       }
     }

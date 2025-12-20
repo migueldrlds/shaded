@@ -1,4 +1,4 @@
-import { getProduct, getProductRecommendations, getProducts } from 'lib/shopify';
+import { getMetaobjects, getProduct, getProductRecommendations, getProducts } from 'lib/shopify';
 import ProductClient from './product-client';
 
 interface ProductPageProps {
@@ -26,19 +26,23 @@ export default async function ProductoDetalle({ params }: ProductPageProps) {
   }
 
   // Obtener productos recomendados y todos los productos (excluyendo el actual)
-  const [recommendedProducts, allProducts] = await Promise.all([
+  // Tambien obtenemos los metaobjetos de color
+  const [recommendedProducts, allProducts, colorsMetaobjects] = await Promise.all([
     getProductRecommendations(producto.id),
-    getProducts({ sortKey: 'CREATED_AT', reverse: true })
+    getProducts({ sortKey: 'CREATED_AT', reverse: true }),
+    // Intentamos con el tipo estándar de Shopify para colores
+    getMetaobjects('shopify--color-pattern')
   ]);
 
   // Filtrar el producto actual de todos los productos
   const otherProducts = allProducts.filter(p => p.handle !== producto.handle).slice(0, 20);
 
   return (
-    <ProductClient 
-      producto={producto} 
+    <ProductClient
+      producto={producto}
       recommendedProducts={recommendedProducts.slice(0, 10)}
       otherProducts={otherProducts}
+      colorsMetaobjects={colorsMetaobjects}
     />
   );
 }

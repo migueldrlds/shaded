@@ -1,5 +1,6 @@
 'use client';
 
+import shopifyLoader from 'lib/image-loader';
 import Image from 'next/image';
 import React from 'react';
 
@@ -45,9 +46,9 @@ const DesktopProductCardAlt: React.FC<DesktopProductCardAltProps> = ({ product }
       // Si hay 2 o menos imágenes, no mostrar hover
       return null;
     }
-    
+
     const featuredImageUrl = product.featuredImage?.url;
-    
+
     // Buscar una imagen que no sea la featured ni la segunda (índice 1)
     // Preferir la tercera imagen (índice 2) o la última
     for (let i = 2; i < product.images.length; i++) {
@@ -56,13 +57,13 @@ const DesktopProductCardAlt: React.FC<DesktopProductCardAltProps> = ({ product }
         return image.url;
       }
     }
-    
+
     // Si no encontramos una adecuada, usar la última imagen
     const lastImage = product.images[product.images.length - 1];
     if (lastImage?.url && lastImage.url !== featuredImageUrl && product.images.length > 2) {
       return lastImage.url;
     }
-    
+
     return null;
   };
 
@@ -86,9 +87,9 @@ const DesktopProductCardAlt: React.FC<DesktopProductCardAltProps> = ({ product }
                   style={{ objectFit: 'contain' }}
                   sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                   priority={false}
-                  unoptimized={true}
+                  loader={shopifyLoader}
                 />
-                
+
                 {/* Imagen de hover (tercera o posterior, nunca la segunda) */}
                 {hasHoverImage && hoverImage && (
                   <Image
@@ -99,19 +100,19 @@ const DesktopProductCardAlt: React.FC<DesktopProductCardAltProps> = ({ product }
                     style={{ objectFit: 'contain' }}
                     sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                     loading="lazy"
-                    unoptimized={true}
+                    loader={shopifyLoader}
                   />
                 )}
               </a>
             </div>
           </div>
         </div>
-        
+
         <div className="card__content">
           <div className="card__information">
             <h3 className="card__heading h5">
-              <a 
-                href={`/product/${product.handle}`} 
+              <a
+                href={`/product/${product.handle}`}
                 className="full-unstyled-link card__title-link"
                 id={`CardLink-${product.handle}`}
               >

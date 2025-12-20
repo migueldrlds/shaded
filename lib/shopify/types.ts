@@ -40,6 +40,11 @@ export type Collection = ShopifyCollection & {
   path: string;
 };
 
+export type Metaobject = {
+  handle: string;
+  [key: string]: any;
+};
+
 export type Image = {
   url: string;
   altText: string;
@@ -88,6 +93,7 @@ export type ProductVariant = {
     value: string;
   }[];
   price: Money;
+  image?: Image;
 };
 
 export type SEO = {

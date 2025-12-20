@@ -12,13 +12,13 @@ export default async function OpengraphImage(
 ): Promise<ImageResponse> {
   const { title } = {
     ...{
-      title: process.env.SITE_NAME
+      title: 'Shaded'
     },
     ...props
   };
 
   let font: ArrayBuffer | undefined;
-  
+
   try {
     const fontPath = resolve(process.cwd(), 'fonts', 'Inter-Bold.ttf');
     const file = await readFile(fontPath);

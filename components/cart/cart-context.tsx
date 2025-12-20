@@ -18,13 +18,13 @@ type UpdateType = 'plus' | 'minus' | 'delete';
 
 type CartAction =
   | {
-      type: 'UPDATE_ITEM';
-      payload: { merchandiseId: string; updateType: UpdateType };
-    }
+    type: 'UPDATE_ITEM';
+    payload: { merchandiseId: string; updateType: UpdateType };
+  }
   | {
-      type: 'ADD_ITEM';
-      payload: { variant: ProductVariant; product: Product; quantity?: number };
-    };
+    type: 'ADD_ITEM';
+    payload: { variant: ProductVariant; product: Product; quantity?: number };
+  };
 
 type CartContextType = {
   cart: Cart | undefined;
@@ -94,7 +94,7 @@ function createOrUpdateCartItem(
         id: product.id,
         handle: product.handle,
         title: product.title,
-        featuredImage: product.featuredImage
+        featuredImage: variant.image || product.featuredImage
       }
     }
   };
@@ -168,11 +168,11 @@ function cartReducer(state: Cart | undefined, action: CartAction): Cart {
     }
     case 'ADD_ITEM': {
       const { variant, product, quantity = 1 } = action.payload;
-      
+
       const existingItem = currentCart.lines.find(
         (item) => item.merchandise.id === variant.id
       );
-      
+
       const updatedItem = createOrUpdateCartItem(
         existingItem,
         variant,
@@ -182,8 +182,8 @@ function cartReducer(state: Cart | undefined, action: CartAction): Cart {
 
       const updatedLines = existingItem
         ? currentCart.lines.map((item) =>
-            item.merchandise.id === variant.id ? updatedItem : item
-          )
+          item.merchandise.id === variant.id ? updatedItem : item
+        )
         : [...currentCart.lines, updatedItem];
 
       return {
@@ -206,7 +206,7 @@ export function CartProvider({
 }) {
   const initialCart = use(cartPromise);
   const [localCart, setLocalCart] = useState(initialCart);
-  
+
   // Generar un ID único para esta instancia del contexto
   const contextId = useMemo(() => Math.random().toString(36).substr(2, 9), []);
 
@@ -229,7 +229,7 @@ export function CartProvider({
         payload: { variant, product, quantity }
       });
     });
-    
+
     // Sincronizar con Shopify usando la acción del servidor
     try {
       const { addItemToCart } = await import('./actions');

@@ -24,20 +24,13 @@ export default function FooterController() {
   if (
     pathname &&
     (pathname.startsWith('/register') ||
-     pathname.startsWith('/welcome') ||
-     pathname.startsWith('/login'))
+      pathname.startsWith('/welcome') ||
+      pathname.startsWith('/login'))
   ) {
     return null;
   }
 
-  // No mostrar footer en páginas de productos en móvil
-  if (
-    pathname &&
-    pathname.startsWith('/product/') &&
-    isMobile
-  ) {
-    return null;
-  }
+
 
   // Detectar si estamos en la página de colecciones para usar estilos oscuros
   const isColeccionPage = pathname === '/coleccion';

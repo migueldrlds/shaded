@@ -1,5 +1,6 @@
 import { getCollection, getCollectionProducts, getProducts } from 'lib/shopify';
 import Image from 'next/image';
+import CollectionHero from '../../components/collection-hero';
 import DesktopProductCard from '../../components/DesktopProductCard';
 import MobileProductCard from '../../components/MobileProductCard';
 import ProductosClient from '../../components/productos-client';
@@ -24,7 +25,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
     // Si no se especifica colección o es 'all', obtener todos los productos
     allProducts = await getProducts({});
   }
-  
+
   // Si no hay productos, mostrar mensaje
   if (!allProducts || allProducts.length === 0) {
     return (
@@ -44,11 +45,13 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
   // Tomar todos los productos disponibles
   const productosFiltrados = allProducts;
 
-  // Obtener el nombre de la colección
+  // Obtener el nombre y descripción de la colección
   let collectionName = '';
+  let collectionDescription = '';
   if (coleccion && coleccion !== 'all') {
     const collection = await getCollection(coleccion);
     collectionName = collection?.title || '';
+    collectionDescription = collection?.description || '';
   }
 
   // Función para formatear el precio
@@ -60,21 +63,21 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
   // Función para obtener detalles del producto desde Shopify
   const getProductDetails = (product: any) => {
     if (!product) return [];
-    
+
     // Usar la descripción del producto de Shopify
     const description = product.description || '';
-    
+
     // Si hay descripción, procesar el formato
     if (description) {
       // Dividir por títulos específicos
       const titleRegex = /(THE EXPERIENCE|THE FEATURES|THE FINISH|WASH AND CARE|MODEL INFO)/g;
       const parts = description.split(titleRegex).filter((part: string) => part.trim() !== '');
-      
+
       const processedLines: string[] = [];
-      
+
       for (let i = 0; i < parts.length; i++) {
         const part: string = parts[i].trim();
-        
+
         // Si es un título, agregarlo sin viñeta
         if (titleRegex.test(part)) {
           processedLines.push(part);
@@ -82,7 +85,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
           // Es contenido, dividir en viñetas individuales
           // Usar un enfoque más simple basado en el texto real
           const content = part.trim();
-          
+
           // Dividir por patrones específicos que veo en el ejemplo
           const patterns = [
             'Luxurious blend of comfort and quality',
@@ -103,7 +106,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
             'Straight hair model wears size Medium in Black',
             'Model wearing grey wears size XL'
           ];
-          
+
           // Buscar cada patrón en el contenido
           let remainingContent = content;
           patterns.forEach(pattern => {
@@ -115,17 +118,17 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
               remainingContent = remainingContent.substring(index + pattern.length).trim();
             }
           });
-          
+
           // Si queda contenido, agregarlo también
           if (remainingContent && remainingContent.length > 2) {
             processedLines.push(`.${remainingContent}`);
           }
         }
       }
-      
+
       return processedLines;
     }
-    
+
     // Si no hay descripción, usar el formato original con puntos
     const fallbackDetails = [
       'THE EXPERIENCE',
@@ -147,7 +150,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
       '.Cool iron if needed',
       '.No bleach/dry clean'
     ];
-    
+
     return fallbackDetails;
   };
 
@@ -165,21 +168,18 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
 
       {/* Overlay sutil (fijo, sobre el video) */}
       <div className="fixed inset-0 bg-black/20 -z-10"></div>
-      
+
       {/* Contenido principal */}
       <ProductosClient products={productosFiltrados}>
         <div className="relative z-10 pt-24 px-4 pb-4">
           <div className="max-w-7xl mx-auto">
-            {/* Título de la página */}
+            {/* Hero Header */}
             {coleccion !== 'all' && (
-              <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold uppercase mb-4" style={{ color: '#FFFFFF' }}>
-                  {coleccion.toUpperCase()} COLLECTION
-                </h1>
-                <p className="text-lg font-light" style={{ color: '#FFFFFF', opacity: 0.8 }}>
-                  Descubre los productos de esta colección
-                </p>
-              </div>
+              <CollectionHero
+                collectionName={collectionName}
+                productCount={productosFiltrados.length}
+                collectionHandle={coleccion}
+              />
             )}
 
 
@@ -248,7 +248,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
                               );
                             })}
                           </div>
-                          
+
                           {/* Segunda columna - elementos 8-14 */}
                           <div className="space-y-2">
                             {getProductDetails(producto).slice(7, 14).map((item: string, idx: number) => {
@@ -278,7 +278,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
                               );
                             })}
                           </div>
-                          
+
                           {/* Tercera columna - elementos 15+ */}
                           <div className="space-y-2">
                             {getProductDetails(producto).slice(14).map((item: string, idx: number) => {

@@ -348,6 +348,7 @@ html.lenis {
   overflow: hidden;
 }
 
-.lenis.lenis-scrolling iframe {
+
+img {
   pointer-events: none;
 }

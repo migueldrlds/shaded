@@ -23,9 +23,10 @@ const { SITE_NAME } = process.env;
 export const metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: SITE_NAME!,
-    template: `%s | ${SITE_NAME}`
+    default: 'Shaded | A New Era of Everyday Comfort',
+    template: `%s | Shaded`
   },
+  description: 'SHADED is more than just an Athleisure Brand—IT’S A MOVEMENT. We totally get it—life is all about movement! Each piece is designed to help you feel confident and comfortable.',
   robots: {
     follow: true,
     index: true
@@ -43,7 +44,7 @@ export default async function RootLayout({
   // Get language from cookie on server
   const cookieStore = await cookies();
   const localeCookie = cookieStore.get('locale');
-  const initialLanguage = (localeCookie?.value === 'en' || localeCookie?.value === 'es') 
+  const initialLanguage = (localeCookie?.value === 'en' || localeCookie?.value === 'es')
     ? localeCookie.value as 'en' | 'es'
     : 'en';
 

@@ -2,6 +2,7 @@
 
 import LinkWithTransition from 'components/link-with-transition';
 import { gsap } from 'gsap';
+import shopifyLoader from 'lib/image-loader';
 import Image from 'next/image';
 import React, { useCallback, useRef, useState } from 'react';
 
@@ -50,7 +51,7 @@ const FlowingMenu: React.FC<FlowingMenuProps> = ({ items = [] }) => {
 
     // Obtener todas las URLs de imágenes de las colecciones
     const collectionImageUrls = new Set(items.map(item => item.image).filter(Boolean));
-    
+
     // Solo mantener el preload de la primera imagen visible
     // Next.js Image con priority puede manejar el preload de la imagen principal
     const firstImageUrl = items[0]?.image;
@@ -96,7 +97,7 @@ const FlowingMenu: React.FC<FlowingMenuProps> = ({ items = [] }) => {
       {/* Versión Móvil - lista vertical con tap para expandir */}
       <div className="md:hidden w-full">
         <div className="flex flex-col gap-4">
-        {items.map((item, idx) => (
+          {items.map((item, idx) => (
             <MobileMenuItem
               key={idx}
               {...item}
@@ -106,7 +107,7 @@ const FlowingMenu: React.FC<FlowingMenuProps> = ({ items = [] }) => {
             />
           ))}
         </div>
-    </div>
+      </div>
     </>
   );
 };
@@ -134,7 +135,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
     onHover(index);
 
     const tl = gsap.timeline({ defaults: { ease: 'power2.out', overwrite: true } });
-    
+
     // Expandir el ancho del item (suave y fluido)
     tl.to(widthRef.current, {
       width: expandedWidth,
@@ -143,35 +144,35 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
       overwrite: true,
       immediateRender: false
     })
-    // Ocultar texto inicial (suave)
-    .to(initialTextRef.current, {
-      opacity: 0,
-      duration: 0.25,
-      ease: 'power2.out',
-      overwrite: true
-    }, 0)
-    // Mostrar overlay con el texto (suave)
-    .to(overlayRef.current, {
-      opacity: 1,
-      duration: 0.3,
-      ease: 'power2.out',
-      overwrite: true
-    }, 0.1)
-    // Animar el texto (suave y elegante)
-    .fromTo(textRef.current, 
-      {
-        y: 15,
-        opacity: 0
-      },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.35,
+      // Ocultar texto inicial (suave)
+      .to(initialTextRef.current, {
+        opacity: 0,
+        duration: 0.25,
         ease: 'power2.out',
         overwrite: true
-      }, 
-      0.15
-    );
+      }, 0)
+      // Mostrar overlay con el texto (suave)
+      .to(overlayRef.current, {
+        opacity: 1,
+        duration: 0.3,
+        ease: 'power2.out',
+        overwrite: true
+      }, 0.1)
+      // Animar el texto (suave y elegante)
+      .fromTo(textRef.current,
+        {
+          y: 15,
+          opacity: 0
+        },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.35,
+          ease: 'power2.out',
+          overwrite: true
+        },
+        0.15
+      );
   };
 
   const handleMouseLeave = () => {
@@ -181,7 +182,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
     onHover(null);
 
     const tl = gsap.timeline({ defaults: { ease: 'power2.in', overwrite: true } });
-    
+
     // Revertir todas las animaciones (suave)
     tl.to(overlayRef.current, {
       opacity: 0,
@@ -189,21 +190,21 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
       ease: 'power2.in',
       overwrite: true
     })
-    .to(textRef.current, {
-      y: 15,
-      opacity: 0,
-      duration: 0.2,
-      ease: 'power2.in',
-      overwrite: true
-    }, 0)
-    .to(widthRef.current, {
-      width: baseWidth,
-      duration: 0.4,
-      ease: 'power2.out',
-      overwrite: true,
-      immediateRender: false
-    }, 0.05);
-    
+      .to(textRef.current, {
+        y: 15,
+        opacity: 0,
+        duration: 0.2,
+        ease: 'power2.in',
+        overwrite: true
+      }, 0)
+      .to(widthRef.current, {
+        width: baseWidth,
+        duration: 0.4,
+        ease: 'power2.out',
+        overwrite: true,
+        immediateRender: false
+      }, 0.05);
+
     // Mostrar texto inicial nuevamente (suave)
     if (initialTextRef.current) {
       tl.to(initialTextRef.current, {
@@ -243,62 +244,61 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
   return (
     <div
       ref={widthRef}
-      className={`relative overflow-hidden ${isComingSoon ? 'cursor-default' : 'cursor-pointer'} h-[400px] md:h-[550px] lg:h-[650px] ${
-        isFirst ? 'rounded-l-[40px]' : isLast ? 'rounded-r-[40px]' : ''
-      }`}
-      style={{ 
+      className={`relative overflow-hidden ${isComingSoon ? 'cursor-default' : 'cursor-pointer'} h-[400px] md:h-[550px] lg:h-[650px] ${isFirst ? 'rounded-l-[40px]' : isLast ? 'rounded-r-[40px]' : ''
+        }`}
+      style={{
         width: baseWidth,
         willChange: 'width'
       }}
-        onMouseEnter={!isComingSoon ? handleMouseEnter : undefined}
-        onMouseLeave={!isComingSoon ? handleMouseLeave : undefined}
-      >
+      onMouseEnter={!isComingSoon ? handleMouseEnter : undefined}
+      onMouseLeave={!isComingSoon ? handleMouseLeave : undefined}
+    >
       {isComingSoon ? (
         <div className="block w-full h-full">
           <div
             ref={itemRef}
             className="relative w-full h-full"
           >
-          {/* Imagen de fondo */}
-          <div 
-            ref={imageRef}
-            className="absolute inset-0 w-full h-full"
-          >
-            <Image
-              src={image}
-              alt={text}
-              fill
-              className="object-cover"
-              sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, 33vw"
-              priority={isFirst}
-              loading={isFirst ? 'eager' : 'lazy'}
-              unoptimized={true}
-            />
-          </div>
-
-          {/* Overlay con texto */}
-          <div
-            ref={overlayRef}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 flex items-center justify-center"
-            style={{ willChange: 'opacity' }}
-          >
+            {/* Imagen de fondo */}
             <div
-              ref={textRef}
-              className="text-white text-3xl md:text-4xl lg:text-5xl font-medium text-center px-4"
-              style={{ willChange: 'transform, opacity', letterSpacing: '-0.02em' }}
+              ref={imageRef}
+              className="absolute inset-0 w-full h-full"
             >
-              {text}
+              <Image
+                src={image}
+                alt={text}
+                fill
+                className="object-cover"
+                sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, 33vw"
+                priority={isFirst}
+                loading={isFirst ? 'eager' : 'lazy'}
+                loader={shopifyLoader}
+              />
             </div>
-          </div>
 
-          {/* Texto inicial (visible cuando no hay hover) */}
-          <div className="absolute bottom-6 left-6 right-6 z-10" ref={initialTextRef}>
-            <div className="text-white text-xl md:text-2xl font-medium"
-                 style={{ letterSpacing: '-0.01em' }}>
-              {text}
+            {/* Overlay con texto */}
+            <div
+              ref={overlayRef}
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 flex items-center justify-center"
+              style={{ willChange: 'opacity' }}
+            >
+              <div
+                ref={textRef}
+                className="text-white text-3xl md:text-4xl lg:text-5xl font-medium text-center px-4"
+                style={{ willChange: 'transform, opacity', letterSpacing: '-0.02em' }}
+              >
+                {text}
+              </div>
+            </div>
+
+            {/* Texto inicial (visible cuando no hay hover) */}
+            <div className="absolute bottom-6 left-6 right-6 z-10" ref={initialTextRef}>
+              <div className="text-white text-xl md:text-2xl font-medium"
+                style={{ letterSpacing: '-0.01em' }}>
+                {text}
+              </div>
             </div>
           </div>
-        </div>
         </div>
       ) : (
         <LinkWithTransition href={link} className="block w-full h-full">
@@ -306,47 +306,47 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
             ref={itemRef}
             className="relative w-full h-full"
           >
-          {/* Imagen de fondo */}
-          <div 
-            ref={imageRef}
-            className="absolute inset-0 w-full h-full"
-          >
-            <Image
-              src={image}
-              alt={text}
-              fill
-              className="object-cover"
-              sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, 33vw"
-              priority={isFirst}
-              loading={isFirst ? 'eager' : 'lazy'}
-              unoptimized={true}
-            />
-          </div>
-
-          {/* Overlay con texto */}
-          <div
-            ref={overlayRef}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 flex items-center justify-center"
-            style={{ willChange: 'opacity' }}
-          >
+            {/* Imagen de fondo */}
             <div
-              ref={textRef}
-              className="text-white text-3xl md:text-4xl lg:text-5xl font-medium text-center px-4"
-              style={{ willChange: 'transform, opacity', letterSpacing: '-0.02em' }}
+              ref={imageRef}
+              className="absolute inset-0 w-full h-full"
             >
-              {text}
+              <Image
+                src={image}
+                alt={text}
+                fill
+                className="object-cover"
+                sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, 33vw"
+                priority={isFirst}
+                loading={isFirst ? 'eager' : 'lazy'}
+                loader={shopifyLoader}
+              />
             </div>
-          </div>
 
-          {/* Texto inicial (visible cuando no hay hover) */}
-          <div className="absolute bottom-6 left-6 right-6 z-10" ref={initialTextRef}>
-            <div className="text-white text-xl md:text-2xl font-medium"
-                 style={{ letterSpacing: '-0.01em' }}>
-              {text}
+            {/* Overlay con texto */}
+            <div
+              ref={overlayRef}
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 flex items-center justify-center"
+              style={{ willChange: 'opacity' }}
+            >
+              <div
+                ref={textRef}
+                className="text-white text-3xl md:text-4xl lg:text-5xl font-medium text-center px-4"
+                style={{ willChange: 'transform, opacity', letterSpacing: '-0.02em' }}
+              >
+                {text}
+              </div>
+            </div>
+
+            {/* Texto inicial (visible cuando no hay hover) */}
+            <div className="absolute bottom-6 left-6 right-6 z-10" ref={initialTextRef}>
+              <div className="text-white text-xl md:text-2xl font-medium"
+                style={{ letterSpacing: '-0.01em' }}>
+                {text}
+              </div>
             </div>
           </div>
-        </div>
-      </LinkWithTransition>
+        </LinkWithTransition>
       )}
     </div>
   );
@@ -367,68 +367,68 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
     if (isExpanded) {
       // Habilitar pointer events en el overlay cuando se expande
       overlayRef.current.style.pointerEvents = 'auto';
-      
+
       // Expandir el item
       const tl = gsap.timeline({ defaults: { ease: 'power2.out', overwrite: true } });
-      
+
       tl.to(itemRef.current, {
         height: '400px',
         duration: 0.4,
         ease: 'power2.out'
       })
-      .to(initialTextRef.current, {
-        opacity: 0,
-        duration: 0.2,
-        ease: 'power2.out'
-      }, 0)
-      .to(overlayRef.current, {
-        opacity: 1,
-        duration: 0.3,
-        ease: 'power2.out'
-      }, 0.1)
-      .fromTo(textRef.current,
-        {
-          y: 15,
-          opacity: 0
-        },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.35,
+        .to(initialTextRef.current, {
+          opacity: 0,
+          duration: 0.2,
           ease: 'power2.out'
-        },
-        0.15
-      );
+        }, 0)
+        .to(overlayRef.current, {
+          opacity: 1,
+          duration: 0.3,
+          ease: 'power2.out'
+        }, 0.1)
+        .fromTo(textRef.current,
+          {
+            y: 15,
+            opacity: 0
+          },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.35,
+            ease: 'power2.out'
+          },
+          0.15
+        );
     } else {
       // Deshabilitar pointer events cuando se contrae
       if (overlayRef.current) {
         overlayRef.current.style.pointerEvents = 'none';
       }
-      
+
       // Contraer el item
       const tl = gsap.timeline({ defaults: { ease: 'power2.in', overwrite: true } });
-      
+
       tl.to(overlayRef.current, {
         opacity: 0,
         duration: 0.2,
         ease: 'power2.in'
       })
-      .to(textRef.current, {
-        y: 15,
-        opacity: 0,
-        duration: 0.2,
-        ease: 'power2.in'
-      }, 0)
-      .to(itemRef.current, {
-        height: '250px',
-        duration: 0.4,
-        ease: 'power2.out'
-      }, 0.05)
-      .to(initialTextRef.current, {
-        opacity: 1,
-        duration: 0.3,
-        ease: 'power2.out'
-      }, 0.15);
+        .to(textRef.current, {
+          y: 15,
+          opacity: 0,
+          duration: 0.2,
+          ease: 'power2.in'
+        }, 0)
+        .to(itemRef.current, {
+          height: '250px',
+          duration: 0.4,
+          ease: 'power2.out'
+        }, 0.05)
+        .to(initialTextRef.current, {
+          opacity: 1,
+          duration: 0.3,
+          ease: 'power2.out'
+        }, 0.15);
     }
   }, [isExpanded]);
 
@@ -447,16 +447,16 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
       style={{ willChange: 'height' }}
       onClick={handleContainerClick}
     >
-        <LinkWithTransition 
-          href={link}
-          className="block w-full h-full"
-          onClick={(e) => {
-            // Si no está expandido, prevenir la navegación para permitir la expansión
-            if (!isExpanded) {
-              e.preventDefault();
-            }
-          }}
-        >
+      <LinkWithTransition
+        href={link}
+        className="block w-full h-full"
+        onClick={(e) => {
+          // Si no está expandido, prevenir la navegación para permitir la expansión
+          if (!isExpanded) {
+            e.preventDefault();
+          }
+        }}
+      >
         <div
           ref={contentRef}
           className="relative w-full h-full"
@@ -470,7 +470,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
               className="object-cover"
               priority={index === 0}
               loading={index === 0 ? 'eager' : 'lazy'}
-              unoptimized={true}
+              loader={shopifyLoader}
             />
           </div>
 
@@ -499,7 +499,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
           {/* Texto inicial (visible cuando no está expandido) */}
           <div className="absolute bottom-6 left-6 right-6 z-10" ref={initialTextRef}>
             <div className="text-white text-xl font-medium"
-                 style={{ letterSpacing: '-0.01em' }}>
+              style={{ letterSpacing: '-0.01em' }}>
               {text}
             </div>
           </div>
@@ -517,7 +517,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
 
           {/* Botón de cerrar cuando está expandido */}
           {isExpanded && (
-            <div 
+            <div
               className="absolute top-4 right-4 z-20"
               onClick={(e) => {
                 e.preventDefault();
@@ -533,7 +533,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
             </div>
           )}
         </div>
-        </LinkWithTransition>
+      </LinkWithTransition>
     </div>
   );
 };

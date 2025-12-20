@@ -4,27 +4,28 @@ import LinkWithTransition from "components/link-with-transition";
 import { useLanguage } from "components/providers/language-provider";
 import SplitText from "components/SplitText";
 import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import shopifyLoader from "lib/image-loader";
+import { subscribeToNewsletter } from "lib/shopify/actions";
+import { Product } from "lib/shopify/types";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
-import { FiArrowUpRight } from "react-icons/fi";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { FiArrowRight, FiArrowUpRight, FiCheck, FiRefreshCw, FiShield, FiTruck } from "react-icons/fi";
+
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 interface HomeClientProps {
   latestCollection: {
     title: string;
     handle: string;
   };
+  trendingProducts: Product[];
 }
 
-export default function HomeClient({ latestCollection }: HomeClientProps) {
+export default function HomeClient({ latestCollection, trendingProducts }: HomeClientProps) {
+  console.log('HomeClient trendingProducts:', trendingProducts?.length, trendingProducts);
   const { t } = useLanguage();
-  
-  // Registrar ScrollTrigger
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      gsap.registerPlugin(ScrollTrigger);
-    }
-  }, []);
+
+
 
   const backgroundVideoRef = useRef<HTMLVideoElement>(null);
   const collectionVideoRef = useRef<HTMLVideoElement>(null);
@@ -35,14 +36,44 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
   const movementCardRef = useRef<HTMLDivElement>(null);
   const viewCollectionButtonRef = useRef<HTMLAnchorElement>(null);
   const secondCardWrapperRef = useRef<HTMLDivElement>(null);
-  const exploreButtonRef = useRef<HTMLDivElement>(null);
-  const signInButtonRef = useRef<HTMLDivElement>(null);
-  const seeAllCollectionsTitleRef = useRef<HTMLDivElement>(null);
-  const getDiscountTitleRef = useRef<HTMLDivElement>(null);
-  const signInTextRef = useRef<HTMLDivElement>(null);
-  const exploreTextRef = useRef<HTMLDivElement>(null);
-  const movementTitleRef1 = useRef<HTMLDivElement>(null);
-  const movementTitleRef2 = useRef<HTMLDivElement>(null);
+  const benefitsRef = useRef<HTMLDivElement>(null);
+  const featuredProductsRef = useRef<HTMLDivElement>(null);
+  const socialProofRef = useRef<HTMLDivElement>(null);
+
+  // Newsletter State
+  const [newsletterState, setNewsletterState] = useState<'idle' | 'interacting' | 'success' | 'error'>('idle');
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleDiscountClick = () => {
+    if (newsletterState === 'idle') {
+      setNewsletterState('interacting');
+    }
+  };
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loading) return; // Prevent double submission
+
+    setLoading(true);
+    setErrorMessage('');
+
+    try {
+      const result = await subscribeToNewsletter(email);
+      if (result.success) {
+        setNewsletterState('success');
+      } else {
+        setErrorMessage(result.error || 'Something went wrong');
+        // Mantener el estado en 'interacting' para que el usuario pueda intentar de nuevo
+        // setNewsletterState('error'); 
+      }
+    } catch (err) {
+      setErrorMessage('Network error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     let syncInterval: NodeJS.Timeout;
@@ -51,17 +82,17 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
     const syncVideos = () => {
       if (backgroundVideoRef.current && collectionVideoRef.current && !isSyncing) {
         isSyncing = true;
-        
+
         const bgTime = backgroundVideoRef.current.currentTime;
         const collectionTime = collectionVideoRef.current.currentTime;
         const timeDiff = Math.abs(bgTime - collectionTime);
-        
+
         // Si hay diferencia de más de 0.05 segundos, sincronizar
         if (timeDiff > 0.05) {
           // Usar el video de fondo como referencia principal
           collectionVideoRef.current.currentTime = bgTime;
         }
-        
+
         isSyncing = false;
       }
     };
@@ -74,7 +105,7 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
           if (backgroundVideoRef.current && collectionVideoRef.current) {
             const bgTime = backgroundVideoRef.current.currentTime;
             collectionVideoRef.current.currentTime = bgTime;
-            
+
             // Iniciar sincronización continua cada 50ms para mayor precisión
             syncInterval = setInterval(syncVideos, 50);
           }
@@ -94,7 +125,7 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
   }, []);
 
   // Animación de cards
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     // Esperar a que todos los refs estén listos
     if (!containerRef.current || !mainCardRef.current || !secondCardRef.current) {
       return;
@@ -107,47 +138,48 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
     let secondCardPaddingTop = 0;
     let secondCardPaddingBottom = 0;
     let secondCardWrapperMarginTop = 0;
-    
+
     // Calcular alturas naturales ANTES de establecerlas a 0
     const container = containerRef.current;
     const mainCard = mainCardRef.current;
     const secondCard = secondCardRef.current;
-    
+
     // Obtener alturas naturales mientras los elementos están en su estado natural
     containerNaturalHeight = container.offsetHeight || container.scrollHeight;
     mainCardNaturalHeight = mainCard.offsetHeight || 448;
     secondCardNaturalHeight = secondCard.offsetHeight || 256;
-    
+
     const secondCardStyle = window.getComputedStyle(secondCard);
     secondCardPaddingTop = parseFloat(secondCardStyle.paddingTop) || 0;
     secondCardPaddingBottom = parseFloat(secondCardStyle.paddingBottom) || 0;
-    
+
     const secondCardWrapper = secondCardWrapperRef.current;
     if (secondCardWrapper) {
       const secondCardWrapperStyle = window.getComputedStyle(secondCardWrapper);
       secondCardWrapperMarginTop = parseFloat(secondCardWrapperStyle.marginTop) || 0;
       gsap.set(secondCardWrapper, { marginTop: 0 });
     }
-    
+
     // Establecer alturas iniciales a 0
     gsap.set(container, {
       height: 0,
       overflow: 'hidden',
-      transformOrigin: 'top center'
+      transformOrigin: 'top center',
+      opacity: 1
     });
-    
+
     gsap.set(mainCard, {
       height: 0,
       overflow: 'hidden'
     });
-    
+
     gsap.set(secondCard, {
       height: 0,
       paddingTop: 0,
       paddingBottom: 0,
       overflow: 'hidden'
     });
-    
+
     // Esperar un momento para que el DOM se renderice completamente
     const timeoutId = setTimeout(() => {
       tl = gsap.timeline({ delay: 0.25 });
@@ -172,7 +204,7 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
           duration: 0.9,
           ease: 'power3.out',
           onComplete: () => {
-            gsap.set(mainCard, { 
+            gsap.set(mainCard, {
               overflow: 'hidden'
             });
           }
@@ -199,12 +231,12 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
           duration: 0.9,
           ease: 'power3.out',
           onComplete: () => {
-            gsap.set(secondCard, { 
+            gsap.set(secondCard, {
               overflow: 'hidden'
             });
             // Cuando el segundo card termina, el contenedor puede cambiar a altura auto
             if (containerRef.current) {
-              gsap.set(containerRef.current, { 
+              gsap.set(containerRef.current, {
                 height: 'auto',
                 overflow: 'visible'
               });
@@ -219,7 +251,7 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
         gsap.set(viewCollectionButtonRef.current, {
           opacity: 0
         });
-        
+
         tl.to(viewCollectionButtonRef.current, {
           opacity: 1,
           duration: 0.6,
@@ -228,35 +260,6 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
       }
 
 
-      // Animación del card de descuento (revelación)
-      if (discountCardRef.current) {
-        gsap.set(discountCardRef.current, {
-          opacity: 0,
-          y: 30
-        });
-        
-        tl.to(discountCardRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: 'power2.out'
-        }, '-=0.35');
-      }
-
-      // Animación del card de movimiento (revelación)
-      if (movementCardRef.current) {
-        gsap.set(movementCardRef.current, {
-          opacity: 0,
-          y: 30
-        });
-        
-        tl.to(movementCardRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: 'power2.out'
-        }, '-=0.35');
-      }
 
     }, 100);
 
@@ -268,192 +271,7 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
     };
   }, []);
 
-  // Animaciones con ScrollTrigger
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    gsap.registerPlugin(ScrollTrigger);
 
-    // Animación del título "See all of our collections"
-    if (seeAllCollectionsTitleRef.current) {
-      gsap.fromTo(seeAllCollectionsTitleRef.current,
-        {
-          opacity: 0,
-          y: 30
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: seeAllCollectionsTitleRef.current,
-            start: 'top 100%',
-            toggleActions: 'play none none none',
-            once: true
-          }
-        }
-      );
-    }
-
-    // Animación del texto "Explore"
-    if (exploreTextRef.current) {
-      gsap.fromTo(exploreTextRef.current,
-        {
-          opacity: 0,
-          y: 15
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: exploreTextRef.current,
-            start: 'top 100%',
-            toggleActions: 'play none none none',
-            once: true
-          }
-        }
-      );
-    }
-
-    // Animación del botón Explore completo
-    if (exploreButtonRef.current) {
-      gsap.fromTo(exploreButtonRef.current,
-        {
-          opacity: 0,
-          scale: 0.9
-        },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.6,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: exploreButtonRef.current,
-            start: 'top 100%',
-            toggleActions: 'play none none none',
-            once: true
-          }
-        }
-      );
-    }
-
-    // Animación del título "Get a Discount"
-    if (getDiscountTitleRef.current) {
-      gsap.fromTo(getDiscountTitleRef.current,
-        {
-          opacity: 0,
-          y: 30
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: getDiscountTitleRef.current,
-            start: 'top 40%',
-            toggleActions: 'play none none none',
-            once: true
-          }
-        }
-      );
-    }
-
-    // Animación del texto "Sign In"
-    if (signInTextRef.current) {
-      gsap.fromTo(signInTextRef.current,
-        {
-          opacity: 0,
-          y: 15
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: signInTextRef.current,
-            start: 'top 60%',
-            toggleActions: 'play none none none',
-            once: true
-          }
-        }
-      );
-    }
-
-    // Animación del botón Sign In completo
-    if (signInButtonRef.current) {
-      gsap.fromTo(signInButtonRef.current,
-        {
-          opacity: 0,
-          scale: 0.9
-        },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.6,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: signInButtonRef.current,
-            start: 'top 40%',
-            toggleActions: 'play none none none',
-            once: true
-          }
-        }
-      );
-    }
-
-    // Animación del título "SHADED is more than..."
-    if (movementTitleRef1.current) {
-      gsap.fromTo(movementTitleRef1.current,
-        {
-          opacity: 0,
-          y: 30
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: movementTitleRef1.current,
-            start: 'top 40%',
-            toggleActions: 'play none none none',
-            once: true
-          }
-        }
-      );
-    }
-
-    // Animación del título "IT'S A MOVEMENT"
-    if (movementTitleRef2.current) {
-      gsap.fromTo(movementTitleRef2.current,
-        {
-          opacity: 0,
-          y: 30
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: movementTitleRef2.current,
-            start: 'top 60%',
-            toggleActions: 'play none none none',
-            once: true
-          }
-        }
-      );
-    }
-
-    // Cleanup
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, []);
 
   return (
     <div className="relative min-h-screen">
@@ -467,15 +285,16 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
         loop
         playsInline
       />
-      
+
       {/* Cards principales */}
       <div className="relative z-10 flex items-start justify-center min-h-screen pt-25 px-4 pb-0 md:pb-auto">
-        <div 
+        <div
           ref={containerRef}
           className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl"
+          style={{ opacity: 0 }}
         >
           {/* Card de Colección - Ocupa toda la fila */}
-          <div 
+          <div
             ref={mainCardRef}
             className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] w-full flex flex-col h-[28rem] relative overflow-hidden"
           >
@@ -489,10 +308,10 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
               loop
               playsInline
             />
-            
+
             {/* Overlay negro sutil */}
             <div className="absolute inset-0 bg-black/30"></div>
-            
+
             {/* Texto centrado verticalmente y alineado a la izquierda */}
             <div className="relative z-10 flex flex-col justify-center h-full px-8 space-y-4" style={{ overflow: 'visible', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}>
               <div className="slide-title" style={{ overflow: 'visible', lineHeight: '1.2', paddingTop: '0.2rem', paddingBottom: '0.2rem' }}>
@@ -510,9 +329,9 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
                   }}
                 />
               </div>
-              <LinkWithTransition 
+              <LinkWithTransition
                 ref={viewCollectionButtonRef}
-                href={`/productos?coleccion=${latestCollection.handle}`} 
+                href={`/productos?coleccion=${latestCollection.handle}`}
                 className="bg-white/20 backdrop-blur-sm border border-white/70 text-white px-6 py-3 rounded-full text-sm font-light hover:bg-white/30 transition-all duration-200 w-fit"
               >
                 {t('home.viewCollection')}
@@ -523,15 +342,15 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
           {/* Nueva fila: Card de texto que ocupa toda la fila */}
           <div ref={secondCardWrapperRef} className="mt-4">
             <LinkWithTransition href="/coleccion" className="block group" aria-label="Explore collections">
-              <div 
+              <div
                 ref={secondCardRef}
                 className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] w-full flex flex-col h-[256px] p-12 md:p-16 relative items-center justify-center cursor-pointer border border-white/5 group-hover:border-white/10 transition-all duration-0"
               >
-                <div ref={seeAllCollectionsTitleRef} className="text-3xl md:text-4xl lg:text-5xl font-light text-white text-center mb-8 md:mb-10 max-w-3xl leading-tight" style={{ letterSpacing: '-0.03em' }}>
+                <div className="text-3xl md:text-4xl lg:text-5xl font-light text-white text-center mb-8 md:mb-10 max-w-3xl leading-tight" style={{ letterSpacing: '-0.03em' }}>
                   {t('home.seeAllCollections')}
                 </div>
-                <div ref={exploreButtonRef} className="inline-flex items-center gap-3 opacity-70 group-hover:opacity-100 transition-opacity duration-300">
-                  <span ref={exploreTextRef} className="text-sm md:text-base font-extralight text-white uppercase tracking-widest" style={{ letterSpacing: '0.15em' }}>
+                <div className="inline-flex items-center gap-3 opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="text-sm md:text-base font-extralight text-white uppercase tracking-widest" style={{ letterSpacing: '0.15em' }}>
                     {t('home.explore')}
                   </span>
                   <div className="w-px h-4 bg-white/50"></div>
@@ -545,60 +364,236 @@ export default function HomeClient({ latestCollection }: HomeClientProps) {
         </div>
       </div>
 
-      {/* Card de DESCUENTO para nuevos miembros */}
+      {/* BENEFITS BAR */}
+      <div ref={benefitsRef} className="relative z-10 px-4 mt-4 mb-8 md:mb-12">
+        <div className="bg-black/30 backdrop-blur-md rounded-[30px] border border-white/10 p-6 md:p-8 w-full max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            {/* Benefit 1 */}
+            <div className="flex flex-col items-center text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-1">
+                <FiTruck className="w-5 h-5 text-white/80" />
+              </div>
+              <h4 className="text-white font-light text-lg tracking-wide">Fast Shipping</h4>
+              <p className="text-white/50 text-sm font-extralight max-w-[200px]">Delivery within 3-5 business days depending on your location.</p>
+            </div>
+
+            {/* Benefit 2 */}
+            <div className="flex flex-col items-center text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-1">
+                <FiRefreshCw className="w-5 h-5 text-white/80" />
+              </div>
+              <h4 className="text-white font-light text-lg tracking-wide">Easy Returns</h4>
+              <p className="text-white/50 text-sm font-extralight max-w-[200px]">Hassle-free returns within 30 days of purchase.</p>
+            </div>
+
+            {/* Benefit 3 */}
+            <div className="flex flex-col items-center text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-1">
+                <FiShield className="w-5 h-5 text-white/80" />
+              </div>
+              <h4 className="text-white font-light text-lg tracking-wide">Premium Quality</h4>
+              <p className="text-white/50 text-sm font-extralight max-w-[200px]">Crafted with high-grade sustainable materials.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FEATURED PRODUCTS (Gymshark style) */}
+      <div ref={featuredProductsRef} className="relative z-10 px-4 mb-8 md:mb-12">
+        <div className="w-full max-w-5xl mx-auto">
+          <div className="flex items-center justify-between mb-8 px-2">
+            <h3 className="text-2xl md:text-3xl font-light text-white tracking-tight">Trending Now</h3>
+            <LinkWithTransition href="/coleccion" className="text-sm text-white/70 hover:text-white transition-colors uppercase tracking-widest border-b border-transparent hover:border-white/50 pb-1">
+              View All
+            </LinkWithTransition>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            {trendingProducts?.slice(0, 2).map((product, index) => (
+              <LinkWithTransition
+                key={`${product.id}-${index}`}
+                href={`/product/${product.handle}`}
+                className="group relative bg-black/30 backdrop-blur-md rounded-[40px] border border-white/10 overflow-hidden aspect-[4/5] md:aspect-[3/4] block cursor-pointer"
+              >
+                <Image
+                  src={product.featuredImage?.url || ''}
+                  alt={product.title}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  loader={shopifyLoader}
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-8 md:p-10 flex flex-col items-start">
+                  <h4 className="text-2xl md:text-3xl font-light text-white mb-2">{product.title}</h4>
+                  <p className="text-white/70 font-extralight text-sm mb-6 max-w-xs line-clamp-2">
+                    {product.description || 'Premium athleisure wear.'}
+                  </p>
+                  <div
+                    className="bg-white text-black px-6 py-3 rounded-full text-sm font-medium hover:bg-white/90 transition-all w-full md:w-auto text-center"
+                  >
+                    Shop Now
+                  </div>
+                </div>
+              </LinkWithTransition>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* SOCIAL PROOF / COMMUNITY */}
+      <div ref={socialProofRef} className="relative z-10 px-4 mb-8 md:mb-12">
+        <div className="w-full max-w-5xl mx-auto bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-6 md:p-8">
+          <div className="text-center mb-10">
+            <h3 className="text-2xl md:text-3xl font-light text-white mb-3 tracking-tight">Join the Movement</h3>
+            <p className="text-white/60 font-extralight">Tag @shadedthebrand to be featured</p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {trendingProducts?.slice(2, 6).map((product, index) => (
+              <div key={`${product.id}-${index}`} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-white/5">
+                <Image
+                  src={product.featuredImage?.url || '/logo.png'}
+                  alt={`Community Member - ${product.title}`}
+                  fill
+                  className="object-cover hover:scale-110 transition-transform duration-500"
+                  sizes="(min-width: 768px) 50vw, 50vw"
+                  loader={shopifyLoader}
+                />
+              </div>
+            ))}
+            {/* Fallback blocks if fewer than 4 items */}
+            {trendingProducts?.slice(2, 6).length < 4 && Array.from({ length: 4 - (trendingProducts?.slice(2, 6).length || 0) }).map((_, i) => (
+              <div key={`fallback-${i}`} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-white/5 flex items-center justify-center">
+                <Image src="/logo.png" alt="Shaded" width={40} height={40} className="opacity-20" />
+              </div>
+            ))}
+          </div>
+
+
+        </div>
+      </div>
       <div className="relative z-10 px-4 mb-8 md:mb-10 mt-8 md:mt-10">
-        <div 
+        <div
           ref={discountCardRef}
           className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl mx-auto"
         >
           <div className="relative overflow-hidden rounded-[60px] lg:rounded-[40px] h-[20rem] md:h-[28rem]">
-            <Image src="https://shadedthebrand.com/cdn/shop/files/IMG_6110.jpg?v=1736476598&width=3000" alt={t('home.getDiscount')} fill className="object-cover" sizes="(min-width: 1280px) 80rem, 100vw" />
-            <div className="absolute inset-0 bg-black/50"></div>
-            <div className="absolute inset-0 flex flex-col items-start justify-center text-left px-8 md:px-12 lg:px-16">
-                <h3 ref={getDiscountTitleRef} className="text-3xl md:text-4xl lg:text-5xl font-light text-white mb-4 md:mb-6 max-w-2xl leading-tight" style={{ letterSpacing: '-0.02em' }}>
-                  {t('home.getDiscount')}
-                </h3>
-              <p className="text-sm md:text-base lg:text-lg font-extralight text-white/70 mb-8 md:mb-10 max-w-xl" style={{ letterSpacing: '-0.01em' }}>
-                {t('home.forAllNewMembers')}
-              </p>
-              <div ref={signInButtonRef} className="inline-flex items-center gap-3 group/btn transition-all duration-300 hover:opacity-90">
-                <LinkWithTransition href="/coleccion" className="inline-flex items-center gap-3" aria-label={t('home.signIn')}>
-                  <span ref={signInTextRef} className="text-sm md:text-base font-extralight text-white uppercase tracking-widest" style={{ letterSpacing: '0.15em' }}>
-                    {t('home.signIn')}
-                  </span>
-                  <div className="w-px h-4 bg-white/50"></div>
-                  <div className="rounded-full w-10 h-10 flex items-center justify-center border border-white/30 group-hover/btn:border-white/60 group-hover/btn:bg-white/10 transition-all duration-300">
-                    <FiArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-white" />
+            <Image
+              src={trendingProducts?.[1]?.featuredImage?.url || '/logo.png'}
+              alt={t('home.getDiscount')}
+              fill
+              className="object-cover"
+              sizes="(min-width: 1280px) 80rem, 100vw"
+              loader={shopifyLoader}
+            />
+            <div className={`absolute inset-0 transition-colors duration-500 ${newsletterState === 'interacting' ? 'bg-black/70' : 'bg-black/50'}`}></div>
+
+            <div
+              className="absolute inset-0 flex flex-col items-start justify-center text-left px-8 md:px-12 lg:px-16 cursor-pointer"
+              onClick={handleDiscountClick}
+            >
+              {newsletterState === 'idle' && (
+                <>
+                  <h3 className="text-3xl md:text-4xl lg:text-5xl font-light text-white mb-4 md:mb-6 max-w-2xl leading-tight" style={{ letterSpacing: '-0.02em' }}>
+                    {t('home.getDiscount')}
+                  </h3>
+                  <p className="text-sm md:text-base lg:text-lg font-extralight text-white/70 mb-8 md:mb-10 max-w-xl" style={{ letterSpacing: '-0.01em' }}>
+                    {t('home.forAllNewMembers')}
+                  </p>
+                  <div className="inline-flex items-center gap-3 group/btn transition-all duration-300 hover:opacity-90">
+                    <span className="text-sm md:text-base font-extralight text-white uppercase tracking-widest" style={{ letterSpacing: '0.15em' }}>
+                      {t('home.signIn')}
+                    </span>
+                    <div className="w-px h-4 bg-white/50"></div>
+                    <div className="rounded-full w-10 h-10 flex items-center justify-center border border-white/30 group-hover/btn:border-white/60 group-hover/btn:bg-white/10 transition-all duration-300">
+                      <FiArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                    </div>
                   </div>
-                </LinkWithTransition>
-              </div>
+                </>
+              )}
+
+              {newsletterState === 'interacting' && (
+                <div className="w-full max-w-md animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+                  <h3 className="text-2xl md:text-3xl font-light text-white mb-6">{t('newsletter.joinCommunity')}</h3>
+                  <form onSubmit={handleNewsletterSubmit} className="flex flex-col gap-4">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder={t('newsletter.placeholder')}
+                      required
+                      className="w-full bg-white/10 border border-white/20 rounded-full px-6 py-4 text-white placeholder-white/50 focus:outline-none focus:border-white transition-colors"
+                      autoFocus
+                    />
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-white text-black rounded-full px-6 py-4 font-medium hover:bg-white/90 transition-colors flex items-center justify-center gap-2"
+                    >
+                      {loading ? t('newsletter.subscribing') : t('newsletter.subscribe')}
+                      {!loading && <FiArrowRight />}
+                    </button>
+                    {errorMessage && <p className="text-red-400 text-sm ml-4">{errorMessage}</p>}
+                  </form>
+                </div>
+              )}
+
+              {newsletterState === 'success' && (
+                <div className="w-full max-w-md animate-fadeIn text-center md:text-left">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 text-green-400 mb-6 border border-green-500/30">
+                    <FiCheck className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-light text-white mb-2">{t('newsletter.success')}</h3>
+                  <p className="text-white/70 font-light">{t('newsletter.welcome')}.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Card de SHADED MOVEMENT */}
+      {/* Card de SHADED MOVEMENT */}
       <div className="relative z-10 px-4 pb-8 md:pb-12 mt-8 md:mt-10">
-        <div 
+        <div
           ref={movementCardRef}
           className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl mx-auto"
         >
-          <div className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] p-12 md:p-16 lg:p-20">
-            <div className="flex flex-col items-center space-y-8 md:space-y-10">
-              {/* Título con diseño mejorado */}
-              <div className="text-center max-w-4xl">
-                <div ref={movementTitleRef1} className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-light text-white leading-[1.1] mb-4 md:mb-6" style={{ letterSpacing: '-0.03em' }}>
-                  SHADED is more than just an Athleisure Brand
-                </div>
-                <div className="w-16 h-px bg-white/30 mx-auto mb-4 md:mb-6"></div>
-                <div ref={movementTitleRef2} className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-light text-white leading-[1.1]" style={{ letterSpacing: '-0.03em' }}>
-                  IT'S A MOVEMENT
-                </div>
+          <div className="relative bg-black rounded-[60px] lg:rounded-[40px] overflow-hidden aspect-[4/5] md:aspect-[2/1]">
+            {/* Background Image */}
+            {/* Background Image */}
+            <Image
+              src={trendingProducts?.[0]?.featuredImage?.url || '/logo.png'}
+              alt="Shaded Movement"
+              fill
+              className="object-cover opacity-60 mix-blend-screen"
+              sizes="100vw"
+              loader={shopifyLoader}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 md:p-12 text-center">
+              {/* Logo */}
+              <div className="relative w-32 h-12 md:w-40 md:h-16 mb-4 opacity-90">
+                <Image
+                  src="/logo.png"
+                  alt="Shaded Logo"
+                  fill
+                  className="object-contain"
+                />
               </div>
-              
-              {/* Descripción con mejor formato */}
-              <div className="text-center max-w-2xl pt-4 md:pt-6 border-t border-white/10">
-                <p className="text-sm md:text-base lg:text-lg font-extralight text-white/60 leading-relaxed" style={{ letterSpacing: '-0.01em' }}>
+
+              <span className="text-white/80 uppercase tracking-[0.2em] text-xs md:text-sm font-medium mb-6">
+                is more than just an Athleisure Brand
+              </span>
+
+              <h2 className="text-5xl md:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 tracking-tighter mb-8" style={{ fontFamily: 'var(--font-heading)' }}>
+                IT'S A MOVEMENT
+              </h2>
+
+              <div className="max-w-xl mx-auto relative">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
+                <p className="text-lg md:text-xl font-light text-white/90 leading-relaxed">
                   {t('home.movementDescription')}
                 </p>
               </div>

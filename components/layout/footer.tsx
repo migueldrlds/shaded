@@ -1,7 +1,6 @@
-import LinkWithTransition from 'components/link-with-transition';
 
-import FooterMenu from 'components/layout/footer-menu';
 import FooterLogo from 'components/layout/footer-logo';
+import FooterMenu from 'components/layout/footer-menu';
 import { getMenu } from 'lib/shopify';
 import { Suspense } from 'react';
 

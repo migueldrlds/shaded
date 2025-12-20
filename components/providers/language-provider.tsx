@@ -54,6 +54,11 @@ const translations: Record<Language, Record<string, string>> = {
     'collections.title': 'COLLECTIONS',
     'collections.description': 'Discover our selection of essential garments',
     'collections.comingSoon': 'COMING SOON',
+    'collection.product': 'Product',
+    'collection.products': 'Products',
+    'collection.items': 'Items',
+    'collection.viewAll': 'View All',
+    'collection.tag': 'COLLECTION',
     'returnPolicy.title': 'Return and Exchange Policy',
     'returnPolicy.lastUpdated': 'Last updated:',
     'returnPolicy.returnPolicy': 'Return Policy',
@@ -146,6 +151,7 @@ const translations: Record<Language, Record<string, string>> = {
     'contact.successMessage': 'Thank you for your message! We will get back to you within 24-48 hours.',
     'product.shipping': 'Shipping',
     'product.shippingCalculated': 'calculated at checkout',
+    'product.selected': 'Selected',
     'product.color': 'COLOR',
     'product.size': 'SIZE',
     'product.quantity': 'Quantity',
@@ -164,7 +170,11 @@ const translations: Record<Language, Record<string, string>> = {
     'newsletter.subscribe': 'Subscribe',
     'newsletter.subscribing': 'Subscribing...',
     'newsletter.success': 'Thank you for subscribing!',
-    'newsletter.error': 'An error occurred. Please try again.'
+    'newsletter.error': 'An error occurred. Please try again.',
+    'newsletter.joinCommunity': 'Join the Community',
+    'newsletter.placeholder': 'Enter your email',
+    'newsletter.welcome': 'Welcome to the movement',
+    'newsletter.tooManyAttempts': 'Too many attempts. Please try again later.'
   },
   es: {
     'header.shopNow': 'Comprar Ahora',
@@ -206,6 +216,11 @@ const translations: Record<Language, Record<string, string>> = {
     'collections.title': 'COLECCIONES',
     'collections.description': 'Descubre nuestra selección de prendas esenciales',
     'collections.comingSoon': 'PRÓXIMAMENTE',
+    'collection.product': 'Producto',
+    'collection.products': 'Productos',
+    'collection.items': 'Artículos',
+    'collection.viewAll': 'Ver Todo',
+    'collection.tag': 'COLECCIÓN',
     'returnPolicy.title': 'Política de Devoluciones y Cambios',
     'returnPolicy.lastUpdated': 'Última actualización:',
     'returnPolicy.returnPolicy': 'Política de Devoluciones',
@@ -298,6 +313,7 @@ const translations: Record<Language, Record<string, string>> = {
     'contact.successMessage': '¡Gracias por tu mensaje! Te responderemos en un plazo de 24-48 horas.',
     'product.shipping': 'Envío',
     'product.shippingCalculated': 'calculado en el checkout',
+    'product.selected': 'Seleccionado',
     'product.color': 'COLOR',
     'product.size': 'TALLA',
     'product.quantity': 'Cantidad',
@@ -316,7 +332,11 @@ const translations: Record<Language, Record<string, string>> = {
     'newsletter.subscribe': 'Suscribirse',
     'newsletter.subscribing': 'Suscribiendo...',
     'newsletter.success': '¡Gracias por suscribirte!',
-    'newsletter.error': 'Ocurrió un error. Por favor, intenta de nuevo.'
+    'newsletter.error': 'Ocurrió un error. Por favor, intenta de nuevo.',
+    'newsletter.joinCommunity': 'Únete a la Comunidad',
+    'newsletter.placeholder': 'Ingresa tu correo electrónico',
+    'newsletter.welcome': 'Bienvenido al movimiento',
+    'newsletter.tooManyAttempts': 'Demasiados intentos. Por favor intenta más tarde.'
   }
 };
 
@@ -325,32 +345,32 @@ function getLanguageFromCookie(): Language {
   if (typeof document === 'undefined') {
     return 'en';
   }
-  
+
   // Try to get from cookie first (for SSR compatibility)
   const cookieValue = document.cookie
     .split('; ')
     .find(row => row.startsWith('locale='))
     ?.split('=')[1];
-  
+
   if (cookieValue === 'en' || cookieValue === 'es') {
     return cookieValue;
   }
-  
+
   // Fallback to localStorage
-    if (typeof window !== 'undefined') {
-      const savedLanguage = localStorage.getItem('language') as Language;
-      if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'es')) {
+  if (typeof window !== 'undefined') {
+    const savedLanguage = localStorage.getItem('language') as Language;
+    if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'es')) {
       return savedLanguage;
     }
   }
-  
+
   return 'en';
 }
 
-export function LanguageProvider({ 
-  children, 
-  initialLanguage 
-}: { 
+export function LanguageProvider({
+  children,
+  initialLanguage
+}: {
   children: ReactNode;
   initialLanguage?: Language;
 }) {
@@ -360,12 +380,12 @@ export function LanguageProvider({
     if (initialLanguage && (initialLanguage === 'en' || initialLanguage === 'es')) {
       return initialLanguage;
     }
-    
+
     // On client, try to get from cookie/localStorage immediately (fallback)
     if (typeof window !== 'undefined') {
       return getLanguageFromCookie();
     }
-    
+
     return 'en';
   });
 
@@ -376,7 +396,7 @@ export function LanguageProvider({
       localStorage.setItem('language', lang);
       // Set cookie for server-side access
       document.cookie = `locale=${lang}; path=/; max-age=31536000; SameSite=Lax`; // 1 year
-      
+
       // Update HTML lang attribute immediately
       document.documentElement.lang = lang;
     }
@@ -391,14 +411,14 @@ export function LanguageProvider({
 
   const t = (key: string, params?: Record<string, string | number>): string => {
     let text = translations[language]?.[key] || key;
-    
+
     // Replace placeholders like {year} with actual values
     if (params) {
       Object.entries(params).forEach(([paramKey, value]) => {
         text = text.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(value));
       });
     }
-    
+
     return text;
   };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import LinkWithTransition from 'components/link-with-transition';
+import shopifyLoader from 'lib/image-loader';
 import Image from 'next/image';
 
 interface DesktopProductCardProps {
@@ -20,6 +21,9 @@ interface DesktopProductCardProps {
         name: string;
         value: string;
       }>;
+      image?: {
+        url: string;
+      };
     }>;
     priceRange?: {
       maxVariantPrice: {
@@ -68,7 +72,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
               className="object-contain group-hover:scale-105 transition-transform duration-300"
               sizes="300px"
               priority={false}
-              unoptimized={true}
+              loader={shopifyLoader}
             />
             <Image
               src={product.featuredImage?.url || '/img1.jpg'}
@@ -77,7 +81,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
               className="object-contain group-hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100 absolute inset-0"
               sizes="300px"
               priority={false}
-              unoptimized={true}
+              loader={shopifyLoader}
             />
           </div>
         </LinkWithTransition>
@@ -86,30 +90,39 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
         <div className="mt-3 space-y-2">
           {/* Colores disponibles */}
           <div className="flex gap-2">
-            {Array.from(new Set(product.variants?.map(v => v.selectedOptions?.find(o => o.name === 'Color')?.value).filter(Boolean))).slice(0, 4).map((color, index) => (
-              <LinkWithTransition
-                key={index}
-                href={`/product/${product.handle}?color=${encodeURIComponent(color || '')}`}
-                className="inline-flex items-center justify-center w-6 h-6 rounded-full transition-all duration-300 hover:scale-110 cursor-pointer"
-              >
-                <div 
-                  className="w-5 h-5 rounded-full border border-white/30"
-                  style={{ backgroundColor: color?.toLowerCase() === 'black' ? '#000000' : color?.toLowerCase() === 'white' ? '#ffffff' : color?.toLowerCase() === 'gray' ? '#808080' : '#000000' }}
-                ></div>
-              </LinkWithTransition>
-            ))}
+            {Array.from(new Set(product.variants?.map(v => v.selectedOptions?.find(o => o.name === 'Color' || o.name === 'Colour')?.value).filter(Boolean))).slice(0, 4).map((color, index) => {
+              // Encontrar la variante correspondiente a este color para obtener su imagen
+              const variant = product.variants?.find(v => v.selectedOptions?.some(o => (o.name === 'Color' || o.name === 'Colour') && o.value === color));
+              const variantImage = variant?.image?.url || product.featuredImage?.url;
+
+              return (
+                <LinkWithTransition
+                  key={index}
+                  href={`/product/${product.handle}?color=${encodeURIComponent(color || '')}`}
+                  className="relative inline-flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-110 cursor-pointer overflow-hidden border border-white/30"
+                >
+                  <Image
+                    src={variantImage || '/img1.jpg'}
+                    alt={color || 'Color variant'}
+                    fill
+                    className="object-cover"
+                    sizes="32px"
+                    loader={shopifyLoader}
+                  />
+                </LinkWithTransition>
+              );
+            })}
           </div>
-          
+
           {/* Tallas disponibles */}
           <div className="flex gap-1.5 flex-wrap">
             {Array.from(new Set(product.variants?.map(v => v.selectedOptions?.find(o => o.name === 'Size')?.value).filter(Boolean))).slice(0, 5).map((size, index) => (
               <span
                 key={index}
-                className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-light transition-all duration-300 ${
-                  product.variants?.some(v => v.selectedOptions?.find(o => o.name === 'Size')?.value === size && v.availableForSale)
-                    ? 'bg-white/30 backdrop-blur-sm text-black' 
-                    : 'bg-white/15 backdrop-blur-sm text-black/40'
-                }`}
+                className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-light transition-all duration-300 ${product.variants?.some(v => v.selectedOptions?.find(o => o.name === 'Size')?.value === size && v.availableForSale)
+                  ? 'bg-white/30 backdrop-blur-sm text-black'
+                  : 'bg-white/15 backdrop-blur-sm text-black/40'
+                  }`}
               >
                 {size}
               </span>
@@ -130,7 +143,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
               className="object-cover group-hover:scale-105 transition-transform duration-300"
               sizes="900px"
               priority={false}
-              unoptimized={true}
+              loader={shopifyLoader}
             />
           </div>
 

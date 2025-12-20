@@ -33,6 +33,7 @@ import {
 } from './queries/collection';
 import { getCustomerOrdersQuery, getCustomerQuery } from './queries/customer';
 import { getMenuQuery } from './queries/menu';
+import { getMetaobjectsQuery } from './queries/metaobject';
 import { getPageQuery, getPagesQuery } from './queries/page';
 import {
   getProductQuery,
@@ -46,6 +47,7 @@ import {
   Customer,
   Image,
   Menu,
+  Metaobject,
   Page,
   Product,
   ShopifyAddToCartOperation,
@@ -131,6 +133,34 @@ export async function shopifyFetch<T>({
       query
     };
   }
+}
+
+export async function getMetaobjects(type: string = 'color'): Promise<Metaobject[]> {
+  const res = await shopifyFetch<any>({
+    query: getMetaobjectsQuery,
+    variables: {
+      type,
+      first: 100
+    }
+  });
+
+  const metaobjects = removeEdgesAndNodes(res.body?.data?.metaobjects || { edges: [] });
+
+  return metaobjects.map((obj: any) => {
+    const fields: Record<string, any> = {};
+    obj.fields.forEach((field: any) => {
+      if (field.reference?.image) {
+        fields[field.key] = field.reference.image;
+      } else {
+        fields[field.key] = field.value;
+      }
+    });
+
+    return {
+      handle: obj.handle,
+      ...fields
+    };
+  }) as Metaobject[];
 }
 
 const removeEdgesAndNodes = <T>(array: Connection<T>): T[] => {
@@ -687,7 +717,7 @@ export async function getCustomerOrders(first: number = 10): Promise<any[]> {
     });
 
     const customer = (res.body as any).data?.customer;
-    
+
     if (!customer?.orders?.edges) {
       return [];
     }
@@ -700,8 +730,8 @@ export async function getCustomerOrders(first: number = 10): Promise<any[]> {
 }
 
 export async function customerActivate(
-  customerId: string, 
-  activationToken: string, 
+  customerId: string,
+  activationToken: string,
   password: string
 ): Promise<{ accessToken?: string; customer?: Customer; errors?: string[] }> {
   try {
