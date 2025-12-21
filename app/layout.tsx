@@ -1,3 +1,4 @@
+import ShopifyAnalytics from 'components/analytics/shopify-analytics';
 import { AuthProvider } from 'components/auth/auth-context';
 import { CartProvider } from 'components/cart/cart-context';
 import { CartModalProvider } from 'components/cart/cart-modal-context';
@@ -88,6 +89,7 @@ export default async function RootLayout({
                     </main>
                     <FooterController />
                     <CartModal />
+                    <ShopifyAnalytics />
                   </CartModalProvider>
                 </CartProvider>
               </AuthProvider>
