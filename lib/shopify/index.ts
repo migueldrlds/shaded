@@ -213,14 +213,40 @@ const reshapeCollections = (collections: ShopifyCollection[]) => {
 const reshapeImages = (images: Connection<Image>, productTitle: string) => {
   const flattened = removeEdgesAndNodes(images);
 
-  return flattened.map((image) => {
-    const filename = image.url.match(/.*\/(.*)\..*/)?.[1];
+  // Helper to extract clean filename from URL
+  const getFilename = (url: string) => {
+    try {
+      // Handle relative URLs by providing a base if needed
+      const validUrl = url.startsWith('http') ? url : `https://example.com${url.startsWith('/') ? '' : '/'}${url}`;
+      const pathname = new URL(validUrl).pathname;
+      const fullname = pathname.split('/').pop() || ''; // Get "file.jpg"
+      const name = fullname.split('.').slice(0, -1).join('.'); // Remove extension "file"
+      return name;
+    } catch {
+      return '';
+    }
+  };
+
+  // Parse filename and sort alphabetically/numerically
+  const sorted = flattened.sort((a, b) => {
+    const filenameA = getFilename(a.url);
+    const filenameB = getFilename(b.url);
+
+    // Debug log to Server Console (visible in "npm run dev" terminal)
+    // console.log(`Comparing: ${filenameA} vs ${filenameB}`);
+
+    return filenameA.localeCompare(filenameB, undefined, { numeric: true, sensitivity: 'base' });
+  });
+
+  return sorted.map((image) => {
+    const filename = getFilename(image.url);
     return {
       ...image,
       altText: image.altText || `${productTitle} - ${filename}`
     };
   });
 };
+
 
 const reshapeProduct = (
   product: ShopifyProduct,
@@ -235,9 +261,14 @@ const reshapeProduct = (
 
   const { images, variants, ...rest } = product;
 
+  // Primero ordenamos las imágenes
+  const sortedImages = reshapeImages(images, product.title);
+
   return {
     ...rest,
-    images: reshapeImages(images, product.title),
+    images: sortedImages,
+    // Forzamos que la featuredImage sea la primera después de ordenar
+    featuredImage: sortedImages[0] || product.featuredImage,
     variants: removeEdgesAndNodes(variants)
   };
 };

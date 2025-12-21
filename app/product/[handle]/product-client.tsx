@@ -1180,17 +1180,12 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                             onMouseEnter={() => setHoveredColor(colorInfo.nombre)}
                             onMouseLeave={() => setHoveredColor(null)}
                             disabled={!colorInfo.disponible}
-                            className={`relative w-10 h-14 rounded-lg border border-white/20 mr-2 overflow-hidden transition-all duration-300 ${!colorInfo.disponible ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:border-white/60'
-                              } ${selectedColor === colorInfo.nombre ? 'ring-2 ring-white ring-offset-1 ring-offset-black' : ''}`}
+                            className={`relative w-8 h-8 rounded-full border border-white/20 mr-2 overflow-hidden transition-all duration-300 ${!colorInfo.disponible ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:scale-110'
+                              } ${selectedColor === colorInfo.nombre ? 'ring-2 ring-white ring-offset-2 ring-offset-black' : ''}`}
+                            style={{ backgroundColor: colorInfo.codigo }}
+                            title={colorInfo.nombre}
                           >
-                            <Image
-                              src={colorInfo.imagen || '/img1.jpg'}
-                              alt={colorInfo.nombre}
-                              fill
-                              className="object-cover"
-                              sizes="48px"
-                              loader={shopifyLoader}
-                            />
+                            <span className="sr-only">{colorInfo.nombre}</span>
                           </button>
                         ))}
 

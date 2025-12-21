@@ -91,24 +91,35 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
           {/* Colores disponibles */}
           <div className="flex gap-2">
             {Array.from(new Set(product.variants?.map(v => v.selectedOptions?.find(o => o.name === 'Color' || o.name === 'Colour')?.value).filter(Boolean))).slice(0, 4).map((color, index) => {
-              // Encontrar la variante correspondiente a este color para obtener su imagen
-              const variant = product.variants?.find(v => v.selectedOptions?.some(o => (o.name === 'Color' || o.name === 'Colour') && o.value === color));
-              const variantImage = variant?.image?.url || product.featuredImage?.url;
+              // Basic color mapping
+              const colorMap: Record<string, string> = {
+                'Black': '#000000',
+                'White': '#ffffff',
+                'Grey': '#808080',
+                'Gray': '#808080',
+                'Heather Grey': '#a9a9a9',
+                'Navy': '#000080',
+                'Blue': '#0000ff',
+                'Red': '#ff0000',
+                'Green': '#008000',
+                'Beige': '#f5f5dc',
+                'Cream': '#fffdd0',
+                'Brown': '#a52a2a',
+                // Add more as needed
+              };
+
+              const backgroundColor = colorMap[color || ''] || '#cccccc'; // Default to light grey
+              const isWhite = color?.toLowerCase() === 'white' || backgroundColor === '#ffffff';
 
               return (
                 <LinkWithTransition
                   key={index}
                   href={`/product/${product.handle}?color=${encodeURIComponent(color || '')}`}
-                  className="relative inline-flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-110 cursor-pointer overflow-hidden border border-white/30"
+                  className={`relative inline-flex items-center justify-center w-6 h-6 rounded-full transition-all duration-300 hover:scale-110 cursor-pointer overflow-hidden border ${isWhite ? 'border-gray-200' : 'border-transparent'}`}
+                  style={{ backgroundColor }}
+                  title={color}
                 >
-                  <Image
-                    src={variantImage || '/img1.jpg'}
-                    alt={color || 'Color variant'}
-                    fill
-                    className="object-cover"
-                    sizes="32px"
-                    loader={shopifyLoader}
-                  />
+                  <span className="sr-only">{color}</span>
                 </LinkWithTransition>
               );
             })}
@@ -161,13 +172,13 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
             <div className="flex items-center">
               <div className="bg-black/50 text-white rounded-full px-4 py-2.5 backdrop-blur-sm flex items-center gap-6">
                 <div className="flex flex-col items-start gap-0.5">
-                  <span className="text-xs">{product?.title}</span>
+                  <span className="text-sm font-medium">{product?.title}</span>
                   {collectionName && (
-                    <span className="text-[9px] font-thin opacity-75 leading-tight">{collectionName}</span>
+                    <span className="text-[10px] font-thin opacity-75 leading-tight">{collectionName}</span>
                   )}
                 </div>
                 <div className="flex items-center">
-                  <span className="text-xs font-light">{formatPrice(product?.priceRange?.maxVariantPrice)}</span>
+                  <span className="text-xs font-thin tracking-wide">{formatPrice(product?.priceRange?.maxVariantPrice)}</span>
                 </div>
               </div>
               <button className="ml-0 rounded-full bg-black/50 text-white backdrop-blur-sm flex items-center justify-center px-2.5 py-2.5">
