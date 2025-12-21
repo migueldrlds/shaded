@@ -7,6 +7,7 @@ import { useLanguage } from 'components/providers/language-provider';
 import gsap from 'gsap';
 import CustomEase from 'gsap/CustomEase';
 import { DEFAULT_OPTION } from 'lib/constants';
+import shopifyLoader from 'lib/image-loader';
 import { createUrl } from 'lib/utils';
 import Image from 'next/image';
 import { useCallback, useEffect, useRef } from 'react';
@@ -27,13 +28,13 @@ type MerchandiseSearchParams = {
 export default function CartModal() {
   const cartRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
-  
+
   const cartContext = useCart();
   const { isOpen, openCart, closeCart } = useCartModal();
   const { t } = useLanguage();
-  
+
   const { cart, updateCartItem } = cartContext;
-  
+
   const quantityRef = useRef(cart?.totalQuantity);
 
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function CartModal() {
 
   const handleClose = useCallback(() => {
     if (!cartRef.current) return;
-    
+
     const tl = gsap.timeline({
       onComplete: () => {
         closeCart();
@@ -141,7 +142,7 @@ export default function CartModal() {
       setTimeout(() => {
         // Recolectar todos los elementos que deben animarse con stagger
         const allRevealerElements: HTMLElement[] = [];
-        
+
         // Agregar párrafos dentro de cart-items
         const revealerParagraphs = cartRef.current?.querySelectorAll('.cart-item .revealer p');
         if (revealerParagraphs && revealerParagraphs.length > 0) {
@@ -193,7 +194,7 @@ export default function CartModal() {
         x: '100%',
         pointerEvents: 'none',
       });
-      
+
       // Resetear posición de los elementos revealer (solo dentro de cart-items)
       const revealerElements = cartRef.current.querySelectorAll('.cart-item .revealer p, .cart-item .revealer span');
       if (revealerElements && revealerElements.length > 0) {
@@ -228,7 +229,7 @@ export default function CartModal() {
     }
   }, [isOpen]);
 
-  
+
   return (
     <>
       <div className="cart-overlay" ref={overlayRef} />
@@ -244,71 +245,72 @@ export default function CartModal() {
           >
             <p>{t('cart.close')}</p>
           </div>
-               </div>
+        </div>
 
         <div className="cart-items" data-lenis-prevent={true}>
-              {!cart || cart.lines.length === 0 ? (
+          {!cart || cart.lines.length === 0 ? (
             <div className="empty-cart">
               <p>{t('cart.emptyBag')}</p>
-                </div>
-              ) : (
+            </div>
+          ) : (
             cart.lines
-                      .sort((a, b) =>
-                        a.merchandise.product.title.localeCompare(
-                          b.merchandise.product.title
-                        )
-                      )
-                      .map((item, i) => {
-                        const merchandiseSearchParams =
-                          {} as MerchandiseSearchParams;
+              .sort((a, b) =>
+                a.merchandise.product.title.localeCompare(
+                  b.merchandise.product.title
+                )
+              )
+              .map((item, i) => {
+                const merchandiseSearchParams =
+                  {} as MerchandiseSearchParams;
 
-                        item.merchandise.selectedOptions.forEach(
-                          ({ name, value }) => {
-                            if (value !== DEFAULT_OPTION) {
+                item.merchandise.selectedOptions.forEach(
+                  ({ name, value }) => {
+                    if (value !== DEFAULT_OPTION) {
                       merchandiseSearchParams[name.toLowerCase()] = value;
-                            }
-                          }
-                        );
+                    }
+                  }
+                );
 
-                        const merchandiseUrl = createUrl(
+                const merchandiseUrl = createUrl(
                   `/product/${item.merchandise.product.handle || ''}`,
-                          new URLSearchParams(merchandiseSearchParams)
-                        );
+                  new URLSearchParams(merchandiseSearchParams)
+                );
 
-                        return (
+                return (
                   <div className="cart-item" key={i}>
-                    <LinkWithTransition 
+                    <LinkWithTransition
                       href={merchandiseUrl}
                       onClick={handleClose}
                       className="cart-item-img"
                       style={{ display: 'block', cursor: 'pointer' }}
                     >
-                                  <Image
-                                    className="h-full w-full object-cover"
+                      <Image
+                        className="h-full w-full object-cover"
                         width={200}
                         height={200}
-                                    alt={
+                        alt={
                           item.merchandise.product.featuredImage.altText ||
-                                      item.merchandise.product.title
-                                    }
+                          item.merchandise.product.title
+                        }
                         src={item.merchandise.product.featuredImage.url}
-                                  />
-                                </LinkWithTransition>
+                        loader={shopifyLoader}
+                      />
+                    </LinkWithTransition>
                     <div className="cart-item-info">
                       <div className="cart-item-info-row">
-                        <LinkWithTransition 
-                                  href={merchandiseUrl}
+                        <LinkWithTransition
+                          href={merchandiseUrl}
                           onClick={handleClose}
                           className="revealer cart-item-product-name"
                           style={{ cursor: 'pointer' }}
                         >
                           <p>{item.merchandise.product.title}</p>
-                                  </LinkWithTransition>
+                        </LinkWithTransition>
                         <div className="revealer cart-item-product-price">
-                                <Price
-                                  amount={item.cost.totalAmount.amount}
+                          <Price
+                            amount={item.cost.totalAmount.amount}
                             currencyCode={item.cost.totalAmount.currencyCode || 'USD'}
-                                />
+                          />
                         </div>
                       </div>
                       <div className="cart-item-info-row" style={{ marginTop: '0.5em' }}>
@@ -337,19 +339,19 @@ export default function CartModal() {
                       </div>
                       <div className="cart-item-info-row">
                         <div className="revealer" style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-                                  <EditItemQuantityButton
-                                    item={item}
-                                    type="minus"
-                                    optimisticUpdate={updateCartItem}
-                                  />
+                          <EditItemQuantityButton
+                            item={item}
+                            type="minus"
+                            optimisticUpdate={updateCartItem}
+                          />
                           <span style={{ color: '#fff' }}>
-                                      {item.quantity}
-                                    </span>
-                                  <EditItemQuantityButton
-                                    item={item}
-                                    type="plus"
-                                    optimisticUpdate={updateCartItem}
-                                  />
+                            {item.quantity}
+                          </span>
+                          <EditItemQuantityButton
+                            item={item}
+                            type="plus"
+                            optimisticUpdate={updateCartItem}
+                          />
                         </div>
                         <div className="revealer cart-item-remove-btn">
                           <DeleteItemButton
@@ -357,13 +359,13 @@ export default function CartModal() {
                             optimisticUpdate={updateCartItem}
                           />
                         </div>
-                                </div>
-                              </div>
-                            </div>
-                        );
+                      </div>
+                    </div>
+                  </div>
+                );
               })
-                       )}
-                     </div>
+          )}
+        </div>
         {cart && cart.lines.length > 0 && (
           <div className="cart-summary">
             <div className="cart-summary-row">
@@ -377,14 +379,14 @@ export default function CartModal() {
             <div className="cart-summary-row">
               <div className="revealer">
                 <p>{t('cart.subtotal')}</p>
-                     </div>
+              </div>
               <div className="revealer">
-                       <Price
-                         amount={cart.cost.totalAmount.amount}
+                <Price
+                  amount={cart.cost.totalAmount.amount}
                   currencyCode={cart.cost.totalAmount.currencyCode || 'USD'}
-                       />
-                     </div>
-                   </div>
+                />
+              </div>
+            </div>
             <div className="cart-summary-row">
               <form action={redirectToCheckout} style={{ width: '100%' }}>
                 <button type="submit" className="checkout-btn">
@@ -392,11 +394,11 @@ export default function CartModal() {
                     <p>{t('cart.checkout')}</p>
                   </div>
                 </button>
-                  </form>
+              </form>
             </div>
-                </div>
-              )}
-              </div>
+          </div>
+        )}
+      </div>
     </>
   );
 }

@@ -1,8 +1,31 @@
 import { getMetaobjects, getProduct, getProductRecommendations, getProducts } from 'lib/shopify';
+import { Metadata } from 'next';
 import ProductClient from './product-client';
 
 interface ProductPageProps {
   params: Promise<{ handle: string }>;
+}
+
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const resolvedParams = await params;
+  const product = await getProduct(resolvedParams.handle);
+
+  if (!product) return { title: 'Product Not Found' };
+
+  return {
+    title: product.seo?.title || product.title,
+    description: product.seo?.description || product.description,
+    openGraph: {
+      images: [
+        {
+          url: product.featuredImage?.url || '',
+          width: 800,
+          height: 600,
+          alt: product.title,
+        },
+      ],
+    },
+  };
 }
 
 export default async function ProductoDetalle({ params }: ProductPageProps) {

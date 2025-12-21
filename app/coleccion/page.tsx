@@ -1,13 +1,19 @@
 import { getCollections } from 'lib/shopify';
+import { Metadata } from 'next';
 import ColeccionClient from '../../components/coleccion-client';
+
+export const metadata: Metadata = {
+  title: 'Our Collections',
+  description: 'Explore our latest collections and find your perfect fit.'
+};
 
 export default async function Coleccion() {
   // Obtener colecciones de Shopify
   const allCollections = await getCollections();
-  
+
   // Filtrar colecciones - excluir "ALL" y otras colecciones no deseadas
-  const collections = allCollections.filter(collection => 
-    collection.title !== 'ALL' && 
+  const collections = allCollections.filter(collection =>
+    collection.title !== 'ALL' &&
     !collection.title.toLowerCase().includes('all') &&
     collection.title !== 'Home page' &&
     collection.title !== 'Featured products'

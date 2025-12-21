@@ -3,6 +3,7 @@
 import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { GridTileImage } from 'components/grid/tile';
 import { useProduct, useUpdateURL } from 'components/product/product-context';
+import shopifyLoader from 'lib/image-loader';
 import Image from 'next/image';
 import { useRef } from 'react';
 
@@ -104,6 +105,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
             alt={images[imageIndex]?.altText as string}
             src={images[imageIndex]?.src as string}
             priority={true}
+            loader={shopifyLoader}
           />
         )}
 
@@ -157,6 +159,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                     width={80}
                     height={80}
                     active={isActive}
+                    loader={shopifyLoader}
                   />
                 </button>
               </li>

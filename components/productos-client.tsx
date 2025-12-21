@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useLenis } from 'lenis/react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useLayoutEffect } from 'react';
 
 interface ProductosClientProps {
   children: React.ReactNode;
@@ -15,11 +17,13 @@ interface ProductosClientProps {
 }
 
 export default function ProductosClient({ children, products }: ProductosClientProps) {
-  // Limpiar preloads no utilizados (Next.js Image maneja el preload automáticamente)
+  const searchParams = useSearchParams();
+  const lenis = useLenis();
+
+  // Limpiar preloads no utilizados
   useEffect(() => {
     if (typeof window === 'undefined' || !products || products.length === 0) return;
 
-    // Obtener todas las URLs de imágenes de productos
     const productImageUrls = new Set<string>();
     products.forEach(product => {
       if (product.featuredImage?.url) {
@@ -33,18 +37,13 @@ export default function ProductosClient({ children, products }: ProductosClientP
         });
       }
     });
-    
-    // Solo mantener el preload de la primera imagen visible
-    // Next.js Image con priority puede manejar el preload de la imagen principal
+
     const firstProductImageUrl = products[0]?.featuredImage?.url;
 
-    // Limpiar preloads que corresponden a estos productos excepto la primera imagen
-    // Usar setTimeout para ejecutar después de que Next.js haya procesado los preloads
     setTimeout(() => {
       const allPreloads = document.querySelectorAll('link[rel="preload"][as="image"]');
       allPreloads.forEach((link) => {
         const href = link.getAttribute('href');
-        // Si es una imagen de estos productos y no es la primera, eliminarla
         if (href && productImageUrls.has(href) && href !== firstProductImageUrl) {
           link.remove();
         }
@@ -52,6 +51,42 @@ export default function ProductosClient({ children, products }: ProductosClientP
     }, 100);
   }, [products]);
 
+  // Aggressive scroll reset with Lenis support
+  const handleScrollReset = () => {
+    if (typeof window !== 'undefined') {
+      const originalRestoration = window.history.scrollRestoration;
+      window.history.scrollRestoration = 'manual';
+
+      const reset = () => {
+        // Native reset
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+
+        // Lenis reset
+        if (lenis) {
+          lenis.scrollTo(0, { immediate: true, force: true });
+        }
+      };
+
+      // Sequence
+      reset();
+      setTimeout(reset, 10);
+      setTimeout(reset, 50);
+      setTimeout(reset, 150);
+
+      const timer = setTimeout(() => {
+        reset();
+        window.history.scrollRestoration = originalRestoration;
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  };
+
+  useLayoutEffect(() => {
+    handleScrollReset();
+  }, [searchParams, products, lenis]);
+
   return <>{children}</>;
 }
-

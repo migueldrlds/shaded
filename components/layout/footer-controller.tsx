@@ -32,12 +32,13 @@ export default function FooterController() {
 
 
 
-  // Detectar si estamos en la página de colecciones para usar estilos oscuros
-  const isColeccionPage = pathname === '/coleccion';
+  // Detectar si estamos en páginas claras (Colección, Contacto, Soporte, Políticas) O en producto móvil (fondo blanco)
+  const isProductPageMobile = pathname?.startsWith('/product/') && isMobile;
+  const isLightPage = pathname === '/coleccion' || pathname === '/contact' || pathname === '/support' || pathname === '/terms' || pathname === '/shipping-policy' || pathname === '/return-policy' || isProductPageMobile;
 
   return (
     <div style={{ zIndex: 20 }}>
-      <FooterNew isDarkMode={isColeccionPage} />
+      <FooterNew isDarkMode={isLightPage} />
     </div>
   );
 }

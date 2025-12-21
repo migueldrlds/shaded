@@ -1,4 +1,5 @@
 import { getCollection, getCollectionProducts, getProducts } from 'lib/shopify';
+import { Metadata } from 'next';
 import Image from 'next/image';
 import CollectionHero from '../../components/collection-hero';
 import DesktopProductCard from '../../components/DesktopProductCard';
@@ -7,6 +8,24 @@ import ProductosClient from '../../components/productos-client';
 
 interface ProductosPageProps {
   searchParams: Promise<{ coleccion?: string }>;
+}
+
+export async function generateMetadata({ searchParams }: ProductosPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const coleccion = params.coleccion || 'all';
+
+  if (coleccion === 'all') {
+    return {
+      title: 'All Products',
+      description: 'Explore our full range of premium athleisure wear.',
+    };
+  }
+
+  const collection = await getCollection(coleccion);
+  return {
+    title: collection?.seo?.title || collection?.title || 'Collection',
+    description: collection?.seo?.description || collection?.description || `Explore our ${collection?.title} collection.`,
+  };
 }
 
 export default async function Productos({ searchParams }: ProductosPageProps) {

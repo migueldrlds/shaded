@@ -151,6 +151,25 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
       currentProductId.current = producto.id;
       hasAnimatedImage.current = false;
       hasAnimatedPanel.current = false;
+
+      // Force scroll to top on product change with delay to beat browser restoration
+      if (typeof window !== 'undefined') {
+        const originalRestoration = window.history.scrollRestoration;
+        window.history.scrollRestoration = 'manual';
+
+        // Immediate reset
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+
+        // Delayed reset for transition finish
+        const timer = setTimeout(() => {
+          window.scrollTo(0, 0);
+          window.history.scrollRestoration = originalRestoration; // Restore preference
+        }, 100);
+
+        return () => clearTimeout(timer);
+      }
     }
   }, [producto?.id]);
 
@@ -779,7 +798,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
 
   return (
     <div
-      className="min-h-screen relative"
+      className="min-h-screen relative bg-white md:bg-transparent"
     >
       {/* Video de fondo - Solo en escritorio */}
       <div className="hidden md:block fixed inset-0" style={{ zIndex: -1 }}>

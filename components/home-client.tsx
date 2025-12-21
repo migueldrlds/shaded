@@ -4,6 +4,7 @@ import LinkWithTransition from "components/link-with-transition";
 import { useLanguage } from "components/providers/language-provider";
 import SplitText from "components/SplitText";
 import { gsap } from 'gsap';
+import { useLenis } from 'lenis/react';
 import shopifyLoader from "lib/image-loader";
 import { subscribeToNewsletter } from "lib/shopify/actions";
 import { Product } from "lib/shopify/types";
@@ -24,7 +25,40 @@ interface HomeClientProps {
 export default function HomeClient({ latestCollection, trendingProducts }: HomeClientProps) {
   console.log('HomeClient trendingProducts:', trendingProducts?.length, trendingProducts);
   const { t } = useLanguage();
+  const lenis = useLenis();
 
+  // Aggressive scroll reset for Bento Grid / Home
+  useIsomorphicLayoutEffect(() => {
+    if (typeof window !== 'undefined') {
+      const originalRestoration = window.history.scrollRestoration;
+      window.history.scrollRestoration = 'manual';
+
+      const resetScroll = () => {
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+
+        if (lenis) {
+          lenis.scrollTo(0, { immediate: true, force: true });
+        }
+      };
+
+      // Immediate
+      resetScroll();
+
+      // Sequence
+      setTimeout(resetScroll, 10);
+      setTimeout(resetScroll, 50);
+      setTimeout(resetScroll, 150);
+
+      const timer = setTimeout(() => {
+        resetScroll();
+        window.history.scrollRestoration = originalRestoration;
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [lenis]);
 
 
   const backgroundVideoRef = useRef<HTMLVideoElement>(null);
@@ -45,6 +79,12 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Community Newsletter State
+  const [communityNewsletterState, setCommunityNewsletterState] = useState<'idle' | 'interacting' | 'success' | 'error'>('idle');
+  const [communityEmail, setCommunityEmail] = useState('');
+  const [communityLoading, setCommunityLoading] = useState(false);
+  const [communityErrorMessage, setCommunityErrorMessage] = useState('');
 
   const handleDiscountClick = () => {
     if (newsletterState === 'idle') {
@@ -75,51 +115,111 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
     }
   };
 
+  const handleCommunityClick = () => {
+    if (communityNewsletterState === 'idle') {
+      setCommunityNewsletterState('interacting');
+    }
+  };
+
+  const handleCommunityNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (communityLoading) return;
+
+    setCommunityLoading(true);
+    setCommunityErrorMessage('');
+
+    try {
+      const result = await subscribeToNewsletter(communityEmail);
+      if (result.success) {
+        setCommunityNewsletterState('success');
+      } else {
+        setCommunityErrorMessage(result.error || 'Something went wrong');
+      }
+    } catch (err) {
+      setCommunityErrorMessage('Network error');
+    } finally {
+      setCommunityLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let syncInterval: NodeJS.Timeout;
-    let isSyncing = false;
+    let animationFrameId: number;
 
+    // Master: Background Video
+    // Slave: Collection Video (Card)
     const syncVideos = () => {
-      if (backgroundVideoRef.current && collectionVideoRef.current && !isSyncing) {
-        isSyncing = true;
+      if (backgroundVideoRef.current && collectionVideoRef.current) {
+        const bgVideo = backgroundVideoRef.current;
+        const cardVideo = collectionVideoRef.current;
 
-        const bgTime = backgroundVideoRef.current.currentTime;
-        const collectionTime = collectionVideoRef.current.currentTime;
-        const timeDiff = Math.abs(bgTime - collectionTime);
+        // Only sync if both are playing and have data
+        if (!bgVideo.paused && !cardVideo.paused && bgVideo.readyState >= 3 && cardVideo.readyState >= 3) {
+          const timeDiff = Math.abs(bgVideo.currentTime - cardVideo.currentTime);
 
-        // Si hay diferencia de más de 0.05 segundos, sincronizar
-        if (timeDiff > 0.05) {
-          // Usar el video de fondo como referencia principal
-          collectionVideoRef.current.currentTime = bgTime;
+          // If drift is significant (> 0.1s), snap card video to background
+          // We use a slightly larger threshold to prevent constant jittering
+          if (timeDiff > 0.1) {
+            cardVideo.currentTime = bgVideo.currentTime;
+          }
         }
 
-        isSyncing = false;
+        animationFrameId = requestAnimationFrame(syncVideos);
       }
     };
 
-    const initializeSync = () => {
+    const handleMasterPlay = () => {
+      collectionVideoRef.current?.play().catch(() => { });
+      animationFrameId = requestAnimationFrame(syncVideos);
+    };
+
+    const handleMasterPause = () => {
+      collectionVideoRef.current?.pause();
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+
+    const handleMasterWaiting = () => {
+      collectionVideoRef.current?.pause();
+    };
+
+    const handleMasterPlaying = () => {
+      collectionVideoRef.current?.play().catch(() => { });
+    };
+
+    // Ensure initial sync once metadata is loaded
+    const handleLoadedMetadata = () => {
       if (backgroundVideoRef.current && collectionVideoRef.current) {
-        // Esperar un poco más para que los videos estén completamente cargados
-        setTimeout(() => {
-          // Sincronizar inmediatamente
-          if (backgroundVideoRef.current && collectionVideoRef.current) {
-            const bgTime = backgroundVideoRef.current.currentTime;
-            collectionVideoRef.current.currentTime = bgTime;
-
-            // Iniciar sincronización continua cada 50ms para mayor precisión
-            syncInterval = setInterval(syncVideos, 50);
-          }
-        }, 500);
+        collectionVideoRef.current.currentTime = backgroundVideoRef.current.currentTime;
       }
     };
 
-    // Inicializar cuando el componente se monte
-    const timer = setTimeout(initializeSync, 100);
+    const bgVideo = backgroundVideoRef.current;
+
+    if (bgVideo) {
+      bgVideo.addEventListener('play', handleMasterPlay);
+      bgVideo.addEventListener('pause', handleMasterPause);
+      bgVideo.addEventListener('waiting', handleMasterWaiting);
+      bgVideo.addEventListener('playing', handleMasterPlaying);
+      // Also listen on the card video to ensure it's ready
+      if (collectionVideoRef.current) {
+        collectionVideoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata);
+      }
+
+      // Start loop if already playing
+      if (!bgVideo.paused) {
+        handleMasterPlay();
+      }
+    }
 
     return () => {
-      clearTimeout(timer);
-      if (syncInterval) {
-        clearInterval(syncInterval);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (bgVideo) {
+        bgVideo.removeEventListener('play', handleMasterPlay);
+        bgVideo.removeEventListener('pause', handleMasterPause);
+        bgVideo.removeEventListener('waiting', handleMasterWaiting);
+        bgVideo.removeEventListener('playing', handleMasterPlaying);
+      }
+      if (collectionVideoRef.current) {
+        collectionVideoRef.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
       }
     };
   }, []);
@@ -302,7 +402,7 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
             <video
               ref={collectionVideoRef}
               className="absolute inset-0 w-full h-full object-cover"
-              src="/videoloop2.mp4"
+              src="/Card.mp4"
               autoPlay
               muted
               loop
@@ -443,9 +543,49 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
       {/* SOCIAL PROOF / COMMUNITY */}
       <div ref={socialProofRef} className="relative z-10 px-4 mb-8 md:mb-12">
         <div className="w-full max-w-5xl mx-auto bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-6 md:p-8">
-          <div className="text-center mb-10">
-            <h3 className="text-2xl md:text-3xl font-light text-white mb-3 tracking-tight">Join the Movement</h3>
-            <p className="text-white/60 font-extralight">Tag @shadedthebrand to be featured</p>
+          <div className="text-center mb-10 cursor-pointer" onClick={handleCommunityClick}>
+            {communityNewsletterState === 'idle' && (
+              <>
+                <h3 className="text-2xl md:text-3xl font-light text-white mb-3 tracking-tight group-hover:text-white/80 transition-colors">Join the Movement</h3>
+                <p className="text-white/60 font-extralight group-hover:text-white/80 transition-colors">Tag @shadedthebrand to be featured</p>
+              </>
+            )}
+
+            {communityNewsletterState === 'interacting' && (
+              <div className="w-full max-w-md mx-auto animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-2xl md:text-3xl font-light text-white mb-6">Join the Movement</h3>
+                <form onSubmit={handleCommunityNewsletterSubmit} className="flex flex-col gap-4">
+                  <input
+                    type="email"
+                    value={communityEmail}
+                    onChange={(e) => setCommunityEmail(e.target.value)}
+                    placeholder={t('newsletter.placeholder')}
+                    required
+                    className="w-full bg-white/10 border border-white/20 rounded-full px-6 py-4 text-white placeholder-white/50 focus:outline-none focus:border-white transition-colors"
+                    autoFocus
+                  />
+                  <button
+                    type="submit"
+                    disabled={communityLoading}
+                    className="w-full bg-white text-black rounded-full px-6 py-4 font-medium hover:bg-white/90 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {communityLoading ? t('newsletter.subscribing') : t('newsletter.subscribe')}
+                    {!communityLoading && <FiArrowRight />}
+                  </button>
+                  {communityErrorMessage && <p className="text-red-400 text-sm">{communityErrorMessage}</p>}
+                </form>
+              </div>
+            )}
+
+            {communityNewsletterState === 'success' && (
+              <div className="w-full max-w-md mx-auto animate-fadeIn">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 text-green-400 mb-6 border border-green-500/30">
+                  <FiCheck className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-light text-white mb-2">{t('newsletter.success')}</h3>
+                <p className="text-white/70 font-light">{t('newsletter.welcome')}.</p>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
@@ -604,4 +744,3 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
     </div>
   );
 }
-

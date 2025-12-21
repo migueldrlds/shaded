@@ -23,10 +23,10 @@ const { SITE_NAME } = process.env;
 export const metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'Shaded | A New Era of Everyday Comfort',
+    default: 'Shaded | Embrace comfort, experience quality',
     template: `%s | Shaded`
   },
-  description: 'SHADED is more than just an Athleisure Brand—IT’S A MOVEMENT. We totally get it—life is all about movement! Each piece is designed to help you feel confident and comfortable.',
+  description: 'Embrace comfort, experience quality.',
   robots: {
     follow: true,
     index: true
