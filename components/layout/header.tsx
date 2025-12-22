@@ -40,13 +40,13 @@ export default function Header({ transparent = false, latestCollection }: Header
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Solo aplicar el comportamiento de scroll en la página principal o cuando no es transparente
+
       if (pathname === '/' || !transparent) {
         if (currentScrollY > lastScrollY && currentScrollY > 100) {
-          // Scrolling down - hide header
+
           setIsHeaderVisible(false);
         } else {
-          // Scrolling up or at top - show header
+
           setIsHeaderVisible(true);
         }
       }
@@ -84,7 +84,7 @@ export default function Header({ transparent = false, latestCollection }: Header
     }
   };
 
-  // Detectar si estamos en móvil
+
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -96,8 +96,7 @@ export default function Header({ transparent = false, latestCollection }: Header
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Determinar si debe usar estilo negro (fondo claro)
-  // En móvil, siempre usar modo oscuro en páginas de producto
+
   const isDarkHeader = pathname === '/collections' || pathname === '/products' || pathname.startsWith('/productos-alt') || (isMobile && pathname.startsWith('/product/'));
 
   const navigationItems = [
@@ -122,7 +121,7 @@ export default function Header({ transparent = false, latestCollection }: Header
       }}
     >
       <div className="max-w-7xl mx-auto">
-        {/* Header principal con estilo frosted glass */}
+
         <div className="relative">
           <div className="absolute inset-0 backdrop-blur-md rounded-full" style={{
             backgroundColor: isDarkHeader ? 'rgba(210, 213, 211, 0.7)' : 'rgba(255, 255, 255, 0.2)',
@@ -132,7 +131,7 @@ export default function Header({ transparent = false, latestCollection }: Header
           }}></div>
           <div className="relative flex items-center justify-between px-6 py-4">
 
-            {/* Logo izquierdo */}
+
             <div className="flex items-center ml-2">
               {pathname === '/' ? (
                 <div className="inline-flex items-center cursor-default">
@@ -159,7 +158,7 @@ export default function Header({ transparent = false, latestCollection }: Header
               )}
             </div>
 
-            {/* Navegación central */}
+
             <nav className="hidden md:flex items-center space-x-8">
               <LinkWithTransition
                 href="/products?collection=all"
@@ -195,7 +194,7 @@ export default function Header({ transparent = false, latestCollection }: Header
               })}
             </nav>
 
-            {/* Sección derecha */}
+
             <div className="flex items-center space-x-3">
               <UserMenu iconColor={isDarkHeader ? '#2E2E2C' : 'white'} />
               <button
@@ -221,7 +220,7 @@ export default function Header({ transparent = false, latestCollection }: Header
                 ) : null}
               </button>
 
-              {/* Botón de menú móvil */}
+
               <button
                 className="md:hidden p-2 rounded-full transition-all duration-200"
                 style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
@@ -241,7 +240,7 @@ export default function Header({ transparent = false, latestCollection }: Header
           </div>
         </div>
 
-        {/* Menú móvil */}
+
         {isMenuOpen && (
           <div ref={menuRef} className="mt-4 backdrop-blur-md rounded-2xl overflow-hidden" style={{
             backgroundColor: isDarkHeader ? 'rgba(210, 213, 211, 0.3)' : 'rgba(255, 255, 255, 0.2)',
@@ -250,7 +249,7 @@ export default function Header({ transparent = false, latestCollection }: Header
             borderStyle: 'solid'
           }}>
             <div className="px-6 py-4">
-              {/* Navegación móvil */}
+
               <nav className="space-y-2">
                 <LinkWithTransition
                   href="/products?collection=all"

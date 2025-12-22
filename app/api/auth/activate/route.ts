@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validar que el código sea de 6 dígitos
+
     if (activationToken.length !== 6 || !/^\d{6}$/.test(activationToken)) {
       return NextResponse.json(
         { error: 'Activation token must be 6 digits' },
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       customer: result.customer
     });

@@ -2,7 +2,7 @@ import { shopifyFetch } from 'lib/shopify';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Query GraphQL más detallado para una orden específica
+
 const getOrderDetailQuery = /* GraphQL */ `
   query getOrderDetail($customerAccessToken: String!) {
     customer(customerAccessToken: $customerAccessToken) {
@@ -78,9 +78,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Await params (Next.js 15 requirement)
+
     const resolvedParams = await params;
-    
+
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('customerAccessToken')?.value;
 
@@ -99,7 +99,7 @@ export async function GET(
     });
 
     const customer = (res.body as any).data?.customer;
-    
+
     if (!customer?.orders?.edges) {
       return NextResponse.json(
         { error: 'No orders found' },
@@ -107,10 +107,10 @@ export async function GET(
       );
     }
 
-    // Buscar la orden específica
+
     const order = customer.orders.edges
       .map((edge: any) => edge.node)
-      .find((order: any) => 
+      .find((order: any) =>
         order.orderNumber.toString() === resolvedParams.id ||
         order.id.includes(resolvedParams.id)
       );

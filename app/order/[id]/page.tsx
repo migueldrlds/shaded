@@ -2,6 +2,7 @@
 
 import { useAuth } from 'components/auth/auth-context';
 import LinkWithTransition from 'components/link-with-transition';
+import { useLanguage } from 'components/providers/language-provider';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -65,14 +66,15 @@ interface OrderDetail {
   };
 }
 
-export default function OrdenDetalle({ params }: { params: Promise<{ id: string }> }) {
+export default function OrderDetail({ params }: { params: Promise<{ id: string }> }) {
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [orderId, setOrderId] = useState<string | null>(null);
   const { customer, isLoading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
 
-  // Resolve params first
+
   useEffect(() => {
     const getParams = async () => {
       const resolvedParams = await params;
@@ -95,19 +97,19 @@ export default function OrdenDetalle({ params }: { params: Promise<{ id: string 
   const fetchOrderDetail = async (orderId: string) => {
     try {
       setIsLoading(true);
-      
+
       const response = await fetch(`/api/customer/orders/${orderId}`);
       const data = await response.json();
-      
+
       if (response.ok) {
         setOrder(data.order);
       } else {
         console.error('Error fetching order detail:', data.error);
-        router.push('/mis-ordenes');
+        router.push('/orders');
       }
     } catch (error) {
       console.error('Error fetching order detail:', error);
-      router.push('/mis-ordenes');
+      router.push('/orders');
     } finally {
       setIsLoading(false);
     }
@@ -124,14 +126,14 @@ export default function OrdenDetalle({ params }: { params: Promise<{ id: string 
   const formatPrice = (amount: string | null | undefined, currencyCode: string | null | undefined) => {
     const currency = currencyCode || 'USD';
     const numericAmount = amount ? parseFloat(amount) : 0;
-    
+
     try {
       const formatted = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: currency
       }).format(numericAmount);
-      
-      // Formato: USD $0.00
+
+
       return `${currency} ${formatted}`;
     } catch (error) {
       console.warn('Error formatting price:', error);
@@ -155,13 +157,13 @@ export default function OrdenDetalle({ params }: { params: Promise<{ id: string 
   const getStatusText = (status: string) => {
     switch (status.toLowerCase()) {
       case 'fulfilled':
-        return 'Completado';
+        return t('orders.statusFulfilled');
       case 'partial':
-        return 'Parcialmente enviado';
+        return t('orders.statusPartial');
       case 'unfulfilled':
-        return 'Pendiente';
+        return t('orders.statusPending');
       default:
-        return 'Confirmado';
+        return t('orders.statusConfirmed');
     }
   };
 
@@ -190,13 +192,13 @@ export default function OrdenDetalle({ params }: { params: Promise<{ id: string 
         <div className="relative z-10 pt-40 px-4 pb-8">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-2xl font-bold mb-4" style={{ color: '#2E2E2C' }}>
-              Orden no encontrada
+              {t('order.notFound')}
             </h1>
-            <LinkWithTransition 
-              href="/mis-ordenes"
+            <LinkWithTransition
+              href="/orders"
               className="inline-block bg-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors duration-200"
             >
-              Volver a Mis Órdenes
+              {t('order.backToOrders')}
             </LinkWithTransition>
           </div>
         </div>
@@ -206,31 +208,31 @@ export default function OrdenDetalle({ params }: { params: Promise<{ id: string 
 
   return (
     <div className="min-h-screen relative" style={{ backgroundColor: '#d2d5d3' }}>
-      {/* Contenido principal */}
+
       <div className="relative z-10 pt-40 px-4 pb-8">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
+
           <div className="flex items-center mb-8">
-            <LinkWithTransition 
-              href="/mis-ordenes"
+            <LinkWithTransition
+              href="/orders"
               className="mr-4 p-2 hover:bg-black/5 rounded-full transition-colors duration-200"
             >
               <FiArrowLeft className="h-6 w-6" style={{ color: '#2E2E2C' }} />
             </LinkWithTransition>
             <div>
               <h1 className="text-4xl font-bold uppercase" style={{ color: '#2E2E2C' }}>
-                Orden #{order.orderNumber}
+                {t('orders.orderNumber', { number: order.orderNumber })}
               </h1>
               <p className="text-sm opacity-80 mt-1" style={{ color: '#2E2E2C' }}>
-                Confirmado el {formatDate(order.processedAt)}
+                {t('orders.confirmedAt', { date: formatDate(order.processedAt) })}
               </p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Columna principal */}
+
             <div className="lg:col-span-2 space-y-6">
-              {/* Estado de la orden */}
+
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
                 <div className="flex items-center mb-4">
                   {getStatusIcon(order.fulfillmentStatus || 'confirmed')}
@@ -243,15 +245,15 @@ export default function OrdenDetalle({ params }: { params: Promise<{ id: string 
                 </p>
               </div>
 
-              {/* Productos */}
+
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
                 <h3 className="text-xl font-medium mb-4" style={{ color: '#2E2E2C' }}>
-                  Productos ({order.lineItems.edges.length})
+                  {t('order.products', { count: order.lineItems.edges.length })}
                 </h3>
                 <div className="space-y-4">
                   {order.lineItems.edges.map(({ node: item }, index) => (
                     <div key={index} className="flex items-center space-x-4 bg-white/5 rounded-lg p-4">
-                      {/* Imagen del producto */}
+
                       <div className="w-16 h-16 bg-white rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
                         {item.variant?.image?.url ? (
                           <Image
@@ -275,7 +277,7 @@ export default function OrdenDetalle({ params }: { params: Promise<{ id: string 
                           </p>
                         )}
                         <p className="text-sm opacity-80" style={{ color: '#2E2E2C' }}>
-                          Cantidad: {item.quantity}
+                          {t('orders.quantity', { quantity: item.quantity })}
                         </p>
                       </div>
                       <div className="text-right">
@@ -288,11 +290,11 @@ export default function OrdenDetalle({ params }: { params: Promise<{ id: string 
                 </div>
               </div>
 
-              {/* Dirección de envío */}
+
               {order.shippingAddress && (
                 <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
                   <h3 className="text-xl font-medium mb-4" style={{ color: '#2E2E2C' }}>
-                    Dirección de Envío
+                    {t('order.shippingAddress')}
                   </h3>
                   <div className="text-sm" style={{ color: '#2E2E2C' }}>
                     <p>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
@@ -305,25 +307,25 @@ export default function OrdenDetalle({ params }: { params: Promise<{ id: string 
               )}
             </div>
 
-            {/* Sidebar - Resumen */}
+
             <div className="space-y-6">
-              {/* Resumen de pago */}
+
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
                 <h3 className="text-xl font-medium mb-4" style={{ color: '#2E2E2C' }}>
-                  Resumen
+                  {t('order.summary')}
                 </h3>
-                  <div className="space-y-3 text-sm">
+                <div className="space-y-3 text-sm">
                   <div className="flex justify-between" style={{ color: '#2E2E2C' }}>
-                    <span>Subtotal</span>
+                    <span>{t('order.subtotal')}</span>
                     <span>
                       {formatPrice(
-                        order.subtotalPrice?.amount || order.totalPrice?.amount, 
+                        order.subtotalPrice?.amount || order.totalPrice?.amount,
                         order.totalPrice?.currencyCode || 'USD'
                       )}
                     </span>
                   </div>
                   <div className="flex justify-between" style={{ color: '#2E2E2C' }}>
-                    <span>Envío</span>
+                    <span>{t('order.shipping')}</span>
                     <span>
                       {order.totalShippingPrice?.amount && parseFloat(order.totalShippingPrice.amount) > 0
                         ? formatPrice(order.totalShippingPrice.amount, order.totalPrice?.currencyCode || 'USD')
@@ -333,13 +335,13 @@ export default function OrdenDetalle({ params }: { params: Promise<{ id: string 
                   </div>
                   {order.totalTax?.amount && parseFloat(order.totalTax.amount) > 0 && (
                     <div className="flex justify-between" style={{ color: '#2E2E2C' }}>
-                      <span>Impuestos</span>
+                      <span>{t('order.tax')}</span>
                       <span>{formatPrice(order.totalTax.amount, order.totalPrice?.currencyCode || 'USD')}</span>
                     </div>
                   )}
                   <div className="border-t border-white/20 pt-3">
                     <div className="flex justify-between font-bold text-lg" style={{ color: '#2E2E2C' }}>
-                      <span>Total</span>
+                      <span>{t('order.total')}</span>
                       <span>
                         {formatPrice(order.totalPrice?.amount, order.totalPrice?.currencyCode || 'USD')}
                       </span>
@@ -348,14 +350,14 @@ export default function OrdenDetalle({ params }: { params: Promise<{ id: string 
                 </div>
               </div>
 
-              {/* Acciones */}
+
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
                 <div className="space-y-3">
                   <LinkWithTransition
-                    href={`/devolucion/${order.orderNumber}`}
+                    href={`/returns/${order.orderNumber}`}
                     className="block w-full bg-black text-white text-center py-3 rounded-full font-medium hover:bg-gray-800 transition-colors duration-200"
                   >
-                    Solicitar devolución
+                    {t('order.returnRequest')}
                   </LinkWithTransition>
                   <a
                     href={order.statusUrl}
@@ -364,10 +366,10 @@ export default function OrdenDetalle({ params }: { params: Promise<{ id: string 
                     className="block w-full border border-black/20 text-center py-3 rounded-full font-medium hover:bg-black/5 transition-colors duration-200"
                     style={{ color: '#2E2E2C' }}
                   >
-                    Ver en Shopify
+                    {t('order.viewInShopify')}
                   </a>
                   <button className="block w-full border border-black/20 text-center py-3 rounded-full font-medium hover:bg-black/5 transition-colors duration-200" style={{ color: '#2E2E2C' }}>
-                    Comprar de nuevo
+                    {t('order.buyAgain')}
                   </button>
                 </div>
               </div>

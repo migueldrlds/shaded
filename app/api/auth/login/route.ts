@@ -1,9 +1,9 @@
 import {
-    buildAuthorizationUrl,
-    generateCodeChallenge,
-    generateCodeVerifier,
-    generateNonce,
-    generateState
+  buildAuthorizationUrl,
+  generateCodeChallenge,
+  generateCodeVerifier,
+  generateNonce,
+  generateState
 } from 'lib/shopify/customer-account-api';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
@@ -19,40 +19,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate PKCE values
+
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = generateCodeChallenge(codeVerifier);
     const state = generateState();
     const nonce = generateNonce();
 
-    // Store PKCE values and state in cookies for later verification
+
     const cookieStore = await cookies();
     cookieStore.set('oauth_code_verifier', codeVerifier, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 600 // 10 minutes
+      maxAge: 600
     });
     cookieStore.set('oauth_state', state, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 600 // 10 minutes
+      maxAge: 600
     });
     cookieStore.set('oauth_nonce', nonce, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 600 // 10 minutes
+      maxAge: 600
     });
     cookieStore.set('oauth_email', email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 600 // 10 minutes
+      maxAge: 600
     });
 
-    // Build authorization URL
+
     const redirectUri = `${req.nextUrl.origin}/api/auth/callback`;
     const authorizationUrl = await buildAuthorizationUrl({
       redirectUri,

@@ -45,24 +45,22 @@ const FlowingMenu: React.FC<FlowingMenuProps> = ({ items = [] }) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   }, [expandedIndex]);
 
-  // Limpiar preloads no utilizados (Next.js Image maneja el preload automáticamente)
+
   React.useEffect(() => {
     if (typeof window === 'undefined' || items.length === 0) return;
 
-    // Obtener todas las URLs de imágenes de las colecciones
+
     const collectionImageUrls = new Set(items.map(item => item.image).filter(Boolean));
 
-    // Solo mantener el preload de la primera imagen visible
-    // Next.js Image con priority puede manejar el preload de la imagen principal
+
     const firstImageUrl = items[0]?.image;
 
-    // Limpiar preloads que corresponden a estas colecciones excepto la primera
-    // Usar setTimeout para ejecutar después de que Next.js haya procesado los preloads
+
     setTimeout(() => {
       const allPreloads = document.querySelectorAll('link[rel="preload"][as="image"]');
       allPreloads.forEach((link) => {
         const href = link.getAttribute('href');
-        // Si es una imagen de estas colecciones y no es la primera, eliminarla
+
         if (href && collectionImageUrls.has(href) && href !== firstImageUrl) {
           link.remove();
         }
@@ -74,7 +72,7 @@ const FlowingMenu: React.FC<FlowingMenuProps> = ({ items = [] }) => {
 
   return (
     <>
-      {/* Versión Desktop - con hover y expansión horizontal */}
+
       <div className="hidden md:block w-full h-full overflow-hidden">
         <div className="flex relative" style={{ gap: 0 }}>
           {items.map((item, idx) => (
@@ -94,7 +92,7 @@ const FlowingMenu: React.FC<FlowingMenuProps> = ({ items = [] }) => {
         </div>
       </div>
 
-      {/* Versión Móvil - lista vertical con tap para expandir */}
+
       <div className="md:hidden w-full">
         <div className="flex flex-col gap-4">
           {items.map((item, idx) => (
@@ -120,10 +118,10 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
   const initialTextRef = useRef<HTMLDivElement>(null);
   const widthRef = useRef<HTMLDivElement>(null);
 
-  // Detectar si es "Coming Soon" - no clickeable
+
   const isComingSoon = link === '#' || text.toUpperCase().includes('COMING SOON') || text.toUpperCase().includes('PRÓXIMAMENTE');
 
-  // Calcular anchos dinámicamente
+
   const baseWidth = `${100 / totalItems}%`;
   const expandedWidth = totalItems === 2 ? '70%' : `${(100 / totalItems) * 1.4}%`;
   const contractedWidth = totalItems === 2 ? '30%' : `${(100 / totalItems) * 0.6}%`;
@@ -131,12 +129,12 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
   const handleMouseEnter = () => {
     if (!itemRef.current || !imageRef.current || !textRef.current || !overlayRef.current || !widthRef.current) return;
 
-    // Notificar al padre que este item está en hover (inmediato)
+
     onHover(index);
 
     const tl = gsap.timeline({ defaults: { ease: 'power2.out', overwrite: true } });
 
-    // Expandir el ancho del item (suave y fluido)
+
     tl.to(widthRef.current, {
       width: expandedWidth,
       duration: 0.4,
@@ -144,21 +142,21 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
       overwrite: true,
       immediateRender: false
     })
-      // Ocultar texto inicial (suave)
+
       .to(initialTextRef.current, {
         opacity: 0,
         duration: 0.25,
         ease: 'power2.out',
         overwrite: true
       }, 0)
-      // Mostrar overlay con el texto (suave)
+
       .to(overlayRef.current, {
         opacity: 1,
         duration: 0.3,
         ease: 'power2.out',
         overwrite: true
       }, 0.1)
-      // Animar el texto (suave y elegante)
+
       .fromTo(textRef.current,
         {
           y: 15,
@@ -178,12 +176,12 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
   const handleMouseLeave = () => {
     if (!itemRef.current || !imageRef.current || !textRef.current || !overlayRef.current || !widthRef.current) return;
 
-    // Notificar al padre que ningún item está en hover
+
     onHover(null);
 
     const tl = gsap.timeline({ defaults: { ease: 'power2.in', overwrite: true } });
 
-    // Revertir todas las animaciones (suave)
+
     tl.to(overlayRef.current, {
       opacity: 0,
       duration: 0.2,
@@ -205,7 +203,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
         immediateRender: false
       }, 0.05);
 
-    // Mostrar texto inicial nuevamente (suave)
+
     if (initialTextRef.current) {
       tl.to(initialTextRef.current, {
         opacity: 1,
@@ -216,12 +214,12 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
     }
   };
 
-  // Efecto para animar cuando otro item hace hover (este se achica)
+
   React.useEffect(() => {
     if (!widthRef.current) return;
 
     if (isOtherHovered && !isHovered) {
-      // Este item se achica cuando otro está en hover (suave)
+
       gsap.to(widthRef.current, {
         width: contractedWidth,
         duration: 0.4,
@@ -230,7 +228,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
         immediateRender: false
       });
     } else if (!isHovered && !isOtherHovered) {
-      // Volver al tamaño normal si ningún item está en hover (suave)
+
       gsap.to(widthRef.current, {
         width: baseWidth,
         duration: 0.4,
@@ -259,7 +257,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
             ref={itemRef}
             className="relative w-full h-full"
           >
-            {/* Imagen de fondo */}
+
             <div
               ref={imageRef}
               className="absolute inset-0 w-full h-full"
@@ -276,7 +274,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
               />
             </div>
 
-            {/* Overlay con texto */}
+
             <div
               ref={overlayRef}
               className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 flex items-center justify-center"
@@ -291,7 +289,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
               </div>
             </div>
 
-            {/* Texto inicial (visible cuando no hay hover) */}
+
             <div className="absolute bottom-6 left-6 right-6 z-10" ref={initialTextRef}>
               <div className="text-white text-xl md:text-2xl font-medium"
                 style={{ letterSpacing: '-0.01em' }}>
@@ -306,7 +304,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
             ref={itemRef}
             className="relative w-full h-full"
           >
-            {/* Imagen de fondo */}
+
             <div
               ref={imageRef}
               className="absolute inset-0 w-full h-full"
@@ -323,7 +321,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
               />
             </div>
 
-            {/* Overlay con texto */}
+
             <div
               ref={overlayRef}
               className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 flex items-center justify-center"
@@ -338,7 +336,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
               </div>
             </div>
 
-            {/* Texto inicial (visible cuando no hay hover) */}
+
             <div className="absolute bottom-6 left-6 right-6 z-10" ref={initialTextRef}>
               <div className="text-white text-xl md:text-2xl font-medium"
                 style={{ letterSpacing: '-0.01em' }}>
@@ -352,7 +350,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image, index, isFirst, 
   );
 };
 
-// Componente para móvil con animación de expansión vertical
+
 const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, index, isExpanded, onTap }) => {
   const itemRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -360,15 +358,15 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
   const textRef = useRef<HTMLDivElement>(null);
   const initialTextRef = useRef<HTMLDivElement>(null);
 
-  // Animar expansión/contracción cuando cambia isExpanded
+
   React.useEffect(() => {
     if (!itemRef.current || !overlayRef.current || !textRef.current || !initialTextRef.current) return;
 
     if (isExpanded) {
-      // Habilitar pointer events en el overlay cuando se expande
+
       overlayRef.current.style.pointerEvents = 'auto';
 
-      // Expandir el item
+
       const tl = gsap.timeline({ defaults: { ease: 'power2.out', overwrite: true } });
 
       tl.to(itemRef.current, {
@@ -400,12 +398,12 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
           0.15
         );
     } else {
-      // Deshabilitar pointer events cuando se contrae
+
       if (overlayRef.current) {
         overlayRef.current.style.pointerEvents = 'none';
       }
 
-      // Contraer el item
+
       const tl = gsap.timeline({ defaults: { ease: 'power2.in', overwrite: true } });
 
       tl.to(overlayRef.current, {
@@ -433,7 +431,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
   }, [isExpanded]);
 
   const handleContainerClick = (e: React.MouseEvent) => {
-    // Si no está expandido, expandir
+
     if (!isExpanded) {
       e.preventDefault();
       onTap(index);
@@ -451,7 +449,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
         href={link}
         className="block w-full h-full"
         onClick={(e) => {
-          // Si no está expandido, prevenir la navegación para permitir la expansión
+
           if (!isExpanded) {
             e.preventDefault();
           }
@@ -461,7 +459,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
           ref={contentRef}
           className="relative w-full h-full"
         >
-          {/* Imagen de fondo */}
+
           <div className="absolute inset-0 w-full h-full">
             <Image
               src={image}
@@ -474,16 +472,14 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
             />
           </div>
 
-          {/* Overlay con texto (se muestra cuando está expandido) */}
+
           <div
             ref={overlayRef}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 flex items-center justify-center pointer-events-none"
             style={{ willChange: 'opacity' }}
             onClick={(e) => {
               if (isExpanded) {
-                // Cuando está expandido y se toca el overlay, navegar
-                e.stopPropagation();
-                // La navegación se manejará a través del LinkWithTransition
+
               }
             }}
           >
@@ -496,7 +492,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
             </div>
           </div>
 
-          {/* Texto inicial (visible cuando no está expandido) */}
+
           <div className="absolute bottom-6 left-6 right-6 z-10" ref={initialTextRef}>
             <div className="text-white text-xl font-medium"
               style={{ letterSpacing: '-0.01em' }}>
@@ -504,7 +500,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
             </div>
           </div>
 
-          {/* Indicador de tap (flecha o icono) - solo visible cuando no está expandido */}
+
           {!isExpanded && (
             <div className="absolute top-4 right-4 z-10">
               <div className="w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
@@ -515,7 +511,7 @@ const MobileMenuItem: React.FC<MobileMenuItemProps> = ({ link, text, image, inde
             </div>
           )}
 
-          {/* Botón de cerrar cuando está expandido */}
+
           {isExpanded && (
             <div
               className="absolute top-4 right-4 z-20"

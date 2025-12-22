@@ -21,14 +21,14 @@ export default function Contact() {
     comment: ''
   });
 
-  // Apply global gray background to body for this page to Ensure full coverage
+
   useEffect(() => {
     const originalBg = document.body.style.backgroundColor;
     document.body.style.backgroundColor = '#d2d5d3';
     return () => { document.body.style.backgroundColor = originalBg; };
   }, []);
 
-  // Effect to clear form on success and show alert
+
   useEffect(() => {
     if (state.success) {
       setFormData({ name: '', email: '', phone: '', comment: '' });

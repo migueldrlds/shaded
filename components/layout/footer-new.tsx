@@ -13,7 +13,7 @@ interface FooterNewProps {
 export default function FooterNew({ isDarkMode = false }: FooterNewProps) {
   const { t } = useLanguage();
 
-  // Colores según el modo
+
   const textColor = isDarkMode ? 'text-black' : 'text-white';
   const textColorMuted = isDarkMode ? 'text-black/70' : 'text-white/70';
   const textColorHover = isDarkMode ? 'hover:text-black' : 'hover:text-white';
@@ -34,7 +34,7 @@ export default function FooterNew({ isDarkMode = false }: FooterNewProps) {
           <div className="relative py-12 px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 
-              {/* Logo y marca */}
+
               <div className="lg:col-span-1">
                 <div className="flex items-center mb-6">
                   <Image
@@ -51,7 +51,7 @@ export default function FooterNew({ isDarkMode = false }: FooterNewProps) {
                 </p>
               </div>
 
-              {/* Políticas y soporte */}
+
               <div>
                 <h3 className={`${textColor} font-semibold mb-4`}>{t('footer.customerService')}</h3>
                 <ul className="space-y-3">
@@ -83,7 +83,7 @@ export default function FooterNew({ isDarkMode = false }: FooterNewProps) {
                 </ul>
               </div>
 
-              {/* Colecciones */}
+
               <div>
                 <h3 className={`${textColor} font-semibold mb-4`}>{t('footer.collections')}</h3>
                 <ul className="space-y-3">
@@ -100,7 +100,7 @@ export default function FooterNew({ isDarkMode = false }: FooterNewProps) {
                 </ul>
               </div>
 
-              {/* Redes sociales */}
+
               <div>
                 <h3 className={`${textColor} font-semibold mb-4`}>{t('footer.connectWithUs')}</h3>
                 <div className="flex space-x-4">
@@ -135,7 +135,7 @@ export default function FooterNew({ isDarkMode = false }: FooterNewProps) {
               </div>
             </div>
 
-            {/* Línea divisoria y copyright */}
+
             <div className={`border-t ${borderColor} mt-8 pt-8`}>
               <div className="flex flex-col md:flex-row justify-between items-center">
                 <p className={`${textColorMoreMuted} text-sm`}>

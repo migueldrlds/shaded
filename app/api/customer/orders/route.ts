@@ -3,8 +3,8 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const orders = await getCustomerOrders(20); // Obtener últimas 20 órdenes
-    
+    const orders = await getCustomerOrders(20);
+
     return NextResponse.json({ orders });
   } catch (error) {
     console.error('Get customer orders API error:', error);

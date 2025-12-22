@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate that all return items have reasons
+
     const itemsWithoutReason = returnItems.filter((item: any) => !item.reason || item.quantity <= 0);
     if (itemsWithoutReason.length > 0) {
       return NextResponse.json(
@@ -34,33 +34,33 @@ export async function POST(req: NextRequest) {
 
 
     try {
-      // Create a note on the order in Shopify Admin
+
       const returnNote = `🔄 SOLICITUD DE DEVOLUCIÓN
       
 Orden: #${orderNumber}
 Fecha: ${new Date().toLocaleDateString('es-ES')}
 
 Productos a devolver:
-${returnItems.map((item: any) => 
-  `• ${item.title} (Cantidad: ${item.quantity})
+${returnItems.map((item: any) =>
+        `• ${item.title} (Cantidad: ${item.quantity})
     Razón: ${item.reason}`
-).join('\n')}
+      ).join('\n')}
 
 Estado: Pendiente de revisión
 Solicitado por: Cliente vía web`;
 
       const noteResult = await addOrderNote(orderId, returnNote) as any;
-      
+
       if (noteResult?.data?.orderUpdate?.userErrors?.length > 0) {
-        // Shopify note errors
+
       }
 
     } catch (shopifyError) {
-      // Could not add note to Shopify, but return request logged
-      // Continue even if Shopify integration fails
+
+
     }
 
-    // Simulate processing time
+
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     return NextResponse.json({

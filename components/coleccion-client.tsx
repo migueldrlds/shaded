@@ -15,7 +15,7 @@ interface ColeccionClientProps {
 export default function ColeccionClient({ menuItems }: ColeccionClientProps) {
   const { t } = useLanguage();
 
-  // Traducir el texto "COMING SOON" en los menuItems
+
   const translatedMenuItems = menuItems.map(item => ({
     ...item,
     text: item.text === 'COMING SOON' ? t('collections.comingSoon') : item.text
@@ -23,14 +23,14 @@ export default function ColeccionClient({ menuItems }: ColeccionClientProps) {
 
   return (
     <>
-      {/* Fondo que cubre toda la pantalla */}
+
       <div className="fixed inset-0 w-full h-full -z-10" style={{ backgroundColor: '#d2d5d3' }}></div>
-      
-      {/* Contenido principal */}
+
+
       <div className="relative z-10 min-h-screen w-full">
         <div className="pt-32 px-4 pb-8">
           <div className="max-w-7xl mx-auto">
-            {/* Card con título y descripción */}
+
             <div className="mb-12 relative overflow-hidden rounded-[40px]" style={{ height: '400px' }}>
               <div className="absolute inset-0">
                 <Image
@@ -41,11 +41,11 @@ export default function ColeccionClient({ menuItems }: ColeccionClientProps) {
                   sizes="(min-width: 1280px) 80rem, 100vw"
                   priority
                 />
-                {/* Overlay sutil */}
+
                 <div className="absolute inset-0 bg-black/30"></div>
               </div>
-              
-              {/* Contenido del card */}
+
+
               <div className="relative h-full flex flex-col justify-center items-start px-8 md:px-12 lg:px-16">
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium mb-4 text-white" style={{ letterSpacing: '-0.02em' }}>
                   {t('collections.title')}
@@ -56,7 +56,7 @@ export default function ColeccionClient({ menuItems }: ColeccionClientProps) {
               </div>
             </div>
 
-            {/* FlowingMenu de colecciones */}
+
             <div className="max-w-7xl mx-auto">
               <FlowingMenu items={translatedMenuItems} />
             </div>

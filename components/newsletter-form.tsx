@@ -15,12 +15,11 @@ export default function NewsletterForm() {
     setMessage('');
 
     try {
-      // Aquí puedes agregar la lógica para enviar el email a tu servicio de newsletter
-      // Por ejemplo, Mailchimp, SendGrid, etc.
-      
-      // Simulación de envío
+
+
+
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       setMessage(t('newsletter.success'));
       setEmail('');
     } catch (error) {

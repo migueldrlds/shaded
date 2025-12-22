@@ -4,10 +4,7 @@ import { slideInOut } from 'lib/view-transitions';
 import { useTransitionRouter } from 'next-view-transitions';
 import { useState } from 'react';
 
-/**
- * Hook personalizado para manejar navegación con view transitions
- * @param delay - Delay opcional antes de navegar (útil si el carrito está abierto)
- */
+
 export function useViewTransition(delay: number = 0) {
   const router = useTransitionRouter();
   const [isAnimating, setIsAnimating] = useState(false);

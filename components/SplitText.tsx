@@ -46,7 +46,7 @@ export default function SplitText({
   useEffect(() => {
     if (!containerRef.current || animatedRef.current) return;
 
-    // Intersection Observer para animar cuando el elemento sea visible
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -72,7 +72,7 @@ export default function SplitText({
     };
   }, [threshold, rootMargin]);
 
-  // Registrar el plugin SplitText una vez
+
   useEffect(() => {
     if (typeof window !== 'undefined' && GSAPSplitText) {
       gsap.registerPlugin(GSAPSplitText);
@@ -84,25 +84,25 @@ export default function SplitText({
 
     const titleElement = containerRef.current;
 
-    // Verificar que SplitText esté disponible
+
     if (!GSAPSplitText || !GSAPSplitText.create) {
       console.warn('GSAP SplitText plugin not available');
       return;
     }
 
-    // Revertir SplitText anterior si existe
+
     if (splitInstanceRef.current) {
       splitInstanceRef.current.revert();
     }
 
-    // Limpiar animaciones previas
+
     if (elementsToAnimateRef.current.length > 0) {
       gsap.killTweensOf(elementsToAnimateRef.current);
     }
 
-    // Crear SplitText usando el plugin oficial de GSAP
+
     let splitInstance: ReturnType<typeof GSAPSplitText.create> | null = null;
-    
+
     try {
       if (splitType === 'words') {
         splitInstance = GSAPSplitText.create(titleElement, {
@@ -118,7 +118,7 @@ export default function SplitText({
           reduceWhiteSpace: false
         });
       } else {
-        // chars
+
         splitInstance = GSAPSplitText.create(titleElement, {
           type: 'chars',
           charsClass: 'char'
@@ -133,44 +133,44 @@ export default function SplitText({
 
     splitInstanceRef.current = splitInstance;
 
-    // Seleccionar elementos a animar basado en el tipo
-    const elementsToAnimate = (splitType === 'words' 
-      ? splitInstance.words 
+
+    const elementsToAnimate = (splitType === 'words'
+      ? splitInstance.words
       : splitType === 'lines'
-      ? splitInstance.lines
-      : splitInstance.chars) as HTMLElement[];
-    
+        ? splitInstance.lines
+        : splitInstance.chars) as HTMLElement[];
+
     if (!elementsToAnimate || elementsToAnimate.length === 0) return;
-    
+
     elementsToAnimateRef.current = elementsToAnimate;
 
-    // Asegurar que el contenedor sea visible justo antes de animar
+
     gsap.set(titleElement, {
       opacity: 1,
       visibility: 'visible'
     });
 
-    // Forzar opacity inicial con inline style (como en el portfolio)
+
     elementsToAnimate.forEach(el => {
       if (el instanceof HTMLElement) {
         el.style.setProperty('opacity', '0', 'important');
       }
     });
 
-    // Configurar posición inicial: y: "100%" (como en el portfolio)
+
     gsap.set(elementsToAnimate, {
       y: '100%',
     });
 
-    // Esperar un poco antes de animar (como en el portfolio)
+
     const timeoutId = setTimeout(() => {
-      // Animar elementos: y: "0%", opacity: 1, con stagger fijo (como en el portfolio)
+
       gsap.to(elementsToAnimate, {
         y: '0%',
         opacity: 1,
         duration,
         ease,
-        stagger: 0.1, // Stagger fijo como en el portfolio
+        stagger: 0.1,
         delay: delay / 1000,
         onComplete: () => {
           if (onLetterAnimationComplete) {
@@ -180,7 +180,7 @@ export default function SplitText({
       });
     }, 100);
 
-    // Cleanup
+
     return () => {
       clearTimeout(timeoutId);
       if (elementsToAnimateRef.current.length > 0) {

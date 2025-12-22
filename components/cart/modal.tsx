@@ -74,7 +74,7 @@ export default function CartModal() {
     });
   }, [closeCart]);
 
-  // Manejar clicks fuera del carrito
+
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
       if (
@@ -95,10 +95,10 @@ export default function CartModal() {
     };
   }, [isOpen, handleClose]);
 
-  // Animación GSAP para abrir el carrito y animar los elementos revealer
+
   useGSAP(() => {
     if (isOpen && cartRef.current) {
-      // Configurar posición inicial de los elementos revealer (solo dentro de cart-items, excluyendo cart-nav y cart-summary)
+
       const revealerElements = cartRef.current.querySelectorAll('.cart-item .revealer p, .cart-item .revealer span');
       if (revealerElements && revealerElements.length > 0) {
         gsap.set(revealerElements, {
@@ -106,7 +106,7 @@ export default function CartModal() {
         });
       }
 
-      // Configurar posición inicial del precio del subtotal (solo el precio, no el texto "Subtotal")
+
       const subtotalPrice = cartRef.current.querySelectorAll('.cart-summary .cart-summary-row:nth-child(2) .revealer:last-child p');
       if (subtotalPrice && subtotalPrice.length > 0) {
         gsap.set(subtotalPrice, {
@@ -114,7 +114,7 @@ export default function CartModal() {
         });
       }
 
-      // Configurar posición inicial del texto del botón Checkout
+
       const checkoutButtonText = cartRef.current.querySelectorAll('.checkout-btn .revealer p');
       if (checkoutButtonText && checkoutButtonText.length > 0) {
         gsap.set(checkoutButtonText, {
@@ -122,7 +122,7 @@ export default function CartModal() {
         });
       }
 
-      // Configurar posición inicial de las imágenes de los productos
+
       const productImages = cartRef.current.querySelectorAll('.cart-item-img');
       if (productImages && productImages.length > 0) {
         gsap.set(productImages, {
@@ -130,7 +130,7 @@ export default function CartModal() {
         });
       }
 
-      // Animar el sidebar
+
       const sidebarTween = gsap.to(cartRef.current, {
         x: '0%',
         duration: 1,
@@ -138,36 +138,36 @@ export default function CartModal() {
         pointerEvents: 'all',
       });
 
-      // Animar los elementos revealer con stagger, empezando después de un pequeño delay
+
       setTimeout(() => {
-        // Recolectar todos los elementos que deben animarse con stagger
+
         const allRevealerElements: HTMLElement[] = [];
 
-        // Agregar párrafos dentro de cart-items
+
         const revealerParagraphs = cartRef.current?.querySelectorAll('.cart-item .revealer p');
         if (revealerParagraphs && revealerParagraphs.length > 0) {
           revealerParagraphs.forEach(el => allRevealerElements.push(el as HTMLElement));
         }
 
-        // Agregar spans dentro de cart-items (talla, color, cantidad)
+
         const revealerSpans = cartRef.current?.querySelectorAll('.cart-item .revealer span');
         if (revealerSpans && revealerSpans.length > 0) {
           revealerSpans.forEach(el => allRevealerElements.push(el as HTMLElement));
         }
 
-        // Agregar el precio del subtotal
+
         const subtotalPrice = cartRef.current?.querySelectorAll('.cart-summary .cart-summary-row:nth-child(2) .revealer:last-child p');
         if (subtotalPrice && subtotalPrice.length > 0) {
           subtotalPrice.forEach(el => allRevealerElements.push(el as HTMLElement));
         }
 
-        // Agregar el texto del botón Checkout
+
         const checkoutButtonText = cartRef.current?.querySelectorAll('.checkout-btn .revealer p');
         if (checkoutButtonText && checkoutButtonText.length > 0) {
           checkoutButtonText.forEach(el => allRevealerElements.push(el as HTMLElement));
         }
 
-        // Animar todos los elementos con stagger
+
         if (allRevealerElements.length > 0) {
           gsap.to(allRevealerElements, {
             y: '0%',
@@ -177,7 +177,7 @@ export default function CartModal() {
           });
         }
 
-        // Animar las imágenes de los productos con fade
+
         const productImagesAfter = cartRef.current?.querySelectorAll('.cart-item-img');
         if (productImagesAfter && productImagesAfter.length > 0) {
           gsap.to(productImagesAfter, {
@@ -187,15 +187,15 @@ export default function CartModal() {
             stagger: 0.08,
           });
         }
-      }, 300); // Empezar la animación después de 300ms (mientras el sidebar se está abriendo)
+      }, 300);
     } else if (!isOpen && cartRef.current) {
-      // Asegurar que el carrito esté fuera de la pantalla cuando está cerrado
+
       gsap.set(cartRef.current, {
         x: '100%',
         pointerEvents: 'none',
       });
 
-      // Resetear posición de los elementos revealer (solo dentro de cart-items)
+
       const revealerElements = cartRef.current.querySelectorAll('.cart-item .revealer p, .cart-item .revealer span');
       if (revealerElements && revealerElements.length > 0) {
         gsap.set(revealerElements, {
@@ -203,7 +203,7 @@ export default function CartModal() {
         });
       }
 
-      // Resetear posición del precio del subtotal
+
       const subtotalPrice = cartRef.current.querySelectorAll('.cart-summary .cart-summary-row:nth-child(2) .revealer:last-child p');
       if (subtotalPrice && subtotalPrice.length > 0) {
         gsap.set(subtotalPrice, {
@@ -211,7 +211,7 @@ export default function CartModal() {
         });
       }
 
-      // Resetear posición del texto del botón Checkout
+
       const checkoutButtonText = cartRef.current.querySelectorAll('.checkout-btn .revealer p');
       if (checkoutButtonText && checkoutButtonText.length > 0) {
         gsap.set(checkoutButtonText, {
@@ -219,7 +219,7 @@ export default function CartModal() {
         });
       }
 
-      // Resetear opacidad de las imágenes
+
       const productImages = cartRef.current.querySelectorAll('.cart-item-img');
       if (productImages && productImages.length > 0) {
         gsap.set(productImages, {

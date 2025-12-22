@@ -24,7 +24,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
   const router = useRouter();
   const { addCartItem } = useCart();
   const { t } = useLanguage();
-  // Estados para la galería de imágenes
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
@@ -36,7 +36,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
   const [zoomLevel, setZoomLevel] = useState(1);
   const [lastPinchDistance, setLastPinchDistance] = useState(0);
 
-  // Función para obtener código de color basado en el nombre
+
   const getColorCode = (colorName: string) => {
     const colorMap: Record<string, string> = {
       'black': '#000000',
@@ -68,7 +68,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     return colorMap[colorName.toLowerCase()] || '#808080';
   };
 
-  // Extraer colores únicos de las variantes
+
   const getAvailableColors = () => {
     if (!producto?.variants) return [];
 
@@ -83,7 +83,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
         const colorName = colorOption.value;
         const isAvailable = variant.availableForSale;
 
-        // 1. Intentar buscar en Metaobjetos
+
         let variantImage = null;
         if (colorsMetaobjects?.length) {
           const metaobject = colorsMetaobjects.find(m =>
@@ -95,12 +95,12 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
           }
         }
 
-        // 2. Si no hay en Metaobjetos, usar lógica anterior (Variant Image)
+
         if (!variantImage) {
           variantImage = variant.image?.url;
         }
 
-        // 3. Fallback: buscar por Alt Text en las imágenes del producto
+
         if (!variantImage && producto.images) {
           const colorImage = producto.images.find(img =>
             img.altText?.toLowerCase() === colorName.toLowerCase() ||
@@ -111,7 +111,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
           }
         }
 
-        // 4. Fallback final: imagen principal
+
         variantImage = variantImage || producto.featuredImage?.url;
 
         if (!colorMap.has(colorName)) {
@@ -122,12 +122,11 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
             disponible: isAvailable
           });
         } else {
-          // Si ya existe, actualizar disponibilidad (si alguna variante está disponible)
+
           const existing = colorMap.get(colorName);
           if (isAvailable) {
             existing.disponible = true;
-            // Si esta variante disponible tiene imagen (y la existente no, o es peor), actualizarla
-            // Priorizamos: Metaobjeto > Variante especifica > Alt text > General
+
             if (variant.image?.url && !colorsMetaobjects?.some(m => m.label?.toLowerCase() === colorName.toLowerCase())) {
               existing.imagen = variant.image.url;
             }
@@ -139,7 +138,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     return Array.from(colorMap.values());
   };
 
-  // Extraer tallas únicas de las variantes
+
   const getAvailableSizes = () => {
     if (!producto?.variants) return [];
 
@@ -160,7 +159,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
             disponible: isAvailable
           });
         } else {
-          // Si ya existe, actualizar disponibilidad
+
           const existing = sizeMap.get(sizeName);
           if (isAvailable) {
             existing.disponible = true;
@@ -172,7 +171,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     return Array.from(sizeMap.values());
   };
 
-  // Estados para el producto (Inicialización lazy para evitar flash)
+
   const [selectedVariant, setSelectedVariant] = useState<any>(() => {
     return producto?.variants?.[0] || null;
   });
@@ -189,42 +188,41 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
   const [quantity, setQuantity] = useState(1);
   const [showFullDetails, setShowFullDetails] = useState(false);
 
-  // Estados para dropdowns personalizados
+
   const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState(false);
   const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
-  // Header sync state
+
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [showScrollIndicator, setShowScrollIndicator] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
   const lastScrollY = useRef(0);
   const galleryGridRef = useRef<HTMLDivElement>(null);
 
-  // Sync sidebar with header visibility & Scroll Indicator
+
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Calculate progress based on Gallery Grid position
+
       if (galleryGridRef.current) {
         const rect = galleryGridRef.current.getBoundingClientRect();
         const windowHeight = window.innerHeight;
         const totalScrollable = rect.height - windowHeight;
 
         if (totalScrollable > 0) {
-          // Adjust Start: Start counting when top of grid is near top of screen (e.g., 100px buffer)
-          // Adjust End: End when bottom of grid hits bottom of screen
-          const scrolled = -rect.top + 100; // Adding offset to start slightly earlier/smoother
+
+          const scrolled = -rect.top + 100;
           const percentage = (scrolled / totalScrollable) * 100;
           setScrollProgress(Math.min(100, Math.max(0, percentage)));
         } else {
-          setScrollProgress(100); // If grid is smaller than screen, always full
+          setScrollProgress(100);
         }
       }
 
-      // Hide scroll indicator immediately on scroll
+
       if (currentScrollY > 100) {
         setShowScrollIndicator(false);
       } else {
@@ -232,10 +230,10 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
       }
 
       if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        // Scrolling down & past threshold -> Header hides -> Sidebar moves up
+
         setIsHeaderVisible(false);
       } else {
-        // Scrolling up -> Header shows -> Sidebar moves down
+
         setIsHeaderVisible(true);
       }
 
@@ -246,7 +244,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Filtrar imágenes basado en el color seleccionado (Rubik Variant manual)
+
   const galleryImages = useMemo(() => {
     if (!producto?.images) return [];
     if (!selectedColor) return producto.images;
@@ -259,18 +257,18 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     return matchingImages.length > 0 ? matchingImages : producto.images;
   }, [producto?.images, selectedColor]);
 
-  // Resetear índice de imagen cuando cambia el color (y por tanto la galería)
+
   useEffect(() => {
     setCurrentImageIndex(0);
   }, [selectedColor]);
 
-  // Refs para dropdowns animados
+
   const sizeDropdownRef = useRef<HTMLDivElement>(null);
   const colorDropdownRef = useRef<HTMLDivElement>(null);
   const descriptionAccordionRef = useRef<HTMLDivElement>(null);
   const descriptionDesktopRef = useRef<HTMLDivElement>(null);
 
-  // Refs para animación staggered del panel derecho
+
   const rightPanelRef = useRef<HTMLDivElement>(null);
   const priceRef = useRef<HTMLDivElement>(null);
   const shippingRef = useRef<HTMLParagraphElement>(null);
@@ -285,33 +283,32 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
   const shareButtonRef = useRef<HTMLButtonElement>(null);
   const productImageRef = useRef<HTMLDivElement>(null);
 
-  // Refs para evitar que las animaciones se ejecuten múltiples veces
-  // Usamos sessionStorage para persistir entre re-renders causados por revalidateTag
+
   const hasAnimatedImage = useRef(false);
   const hasAnimatedPanel = useRef(false);
   const currentProductId = useRef<string | null>(null);
 
-  // Resetear refs cuando cambia el producto (navegación a otro producto)
+
   useEffect(() => {
     if (producto?.id && currentProductId.current !== producto.id) {
       currentProductId.current = producto.id;
       hasAnimatedImage.current = false;
       hasAnimatedPanel.current = false;
 
-      // Force scroll to top on product change with delay to beat browser restoration
+
       if (typeof window !== 'undefined') {
         const originalRestoration = window.history.scrollRestoration;
         window.history.scrollRestoration = 'manual';
 
-        // Immediate reset
+
         window.scrollTo(0, 0);
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
 
-        // Delayed reset for transition finish
+
         const timer = setTimeout(() => {
           window.scrollTo(0, 0);
-          window.history.scrollRestoration = originalRestoration; // Restore preference
+          window.history.scrollRestoration = originalRestoration;
         }, 100);
 
         return () => clearTimeout(timer);
@@ -321,25 +318,21 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
 
 
 
-  // Resetear estado si el producto cambia completamente (navegación)
+
   useEffect(() => {
     if (producto?.id && currentProductId.current !== producto.id) {
-      // Si cambiamos de producto, podríamos necesitar resetear estados si no se desmonta el componente
-      // Pero Next.js suele desmontar/remontar en navegación de rutas dinámicas.
-      // Dejamos esto limpio por si acaso.
+
     }
   }, [producto?.id]);
 
-  // Preload programático usando `new Image()` para evitar warnings de "unused preload"
-  // y llenar la caché del navegador silenciosamente.
+
   useEffect(() => {
     if (!galleryImages || galleryImages.length === 0 || typeof window === 'undefined') return;
 
     const preloadImage = (img: any) => {
       if (!img?.url) return;
       const image = new window.Image();
-      // Generar srcset simplificado para cubrir la mayoría de casos sin complejidad excesiva
-      // Usamos el loader para obtener URLs válidas
+
       const widths = [640, 750, 828, 1080, 1200, 1920, 2048];
       const srcSet = widths
         .map(w => `${shopifyLoader({ src: img.url, width: w, quality: 75 })} ${w}w`)
@@ -347,14 +340,14 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
 
       image.srcset = srcSet;
       image.sizes = window.innerWidth >= 768 ? '50vw' : '100vw';
-      // Fallback src
+
       image.src = shopifyLoader({ src: img.url, width: 1080, quality: 75 });
     };
 
-    // 1. Preload imagen actual
+
     preloadImage(galleryImages[currentImageIndex]);
 
-    // 2. Preload siguiente imagen (predicción)
+
     const nextIndex = currentImageIndex + 1 < galleryImages.length ? currentImageIndex + 1 : 0;
     const nextImg = galleryImages[nextIndex];
     if (nextImg?.url && nextImg.url !== galleryImages[currentImageIndex]?.url) {
@@ -362,22 +355,22 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     }
   }, [galleryImages, currentImageIndex]);
 
-  // Animación de la imagen del producto (solo desktop)
+
   useEffect(() => {
     if (typeof window === 'undefined' || !producto?.id) return;
     const isDesktop = window.innerWidth >= 768;
     if (!isDesktop || !productImageRef.current) return;
 
-    // Verificar si ya se animó en esta sesión (solo evitar si ya se ejecutó en este render)
+
     if (hasAnimatedImage.current) return;
 
-    // Configurar estado inicial: slide desde la izquierda con fade
+
     gsap.set(productImageRef.current, {
       opacity: 0,
       y: 100,
     });
 
-    // Animar: slide in con fade
+
     gsap.to(productImageRef.current, {
       opacity: 1,
       y: 0,
@@ -399,13 +392,13 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     };
   }, [producto?.id]);
 
-  // Animación staggered del panel derecho (solo desktop)
+
   useEffect(() => {
     if (typeof window === 'undefined' || !producto?.id) return;
     const isDesktop = window.innerWidth >= 768;
     if (!isDesktop) return;
 
-    // Verificar si ya se animó en esta sesión (solo evitar si ya se ejecutó en este render)
+
     if (hasAnimatedPanel.current) return;
 
     const elements = [
@@ -424,14 +417,14 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
 
     if (elements.length === 0) return;
 
-    // Configurar estado inicial
+
     gsap.set(elements, {
       opacity: 0,
       y: 30,
     });
 
-    // Animar con stagger
-    const tl = gsap.timeline({ delay: 0.8 }); // Delay para que aparezca después del título
+
+    const tl = gsap.timeline({ delay: 0.8 });
     tl.to(elements, {
       opacity: 1,
       y: 0,
@@ -451,7 +444,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     };
   }, [producto?.id]);
 
-  // Navegación con teclado
+
   useEffect(() => {
     if (!galleryImages) return;
 
@@ -472,7 +465,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
   }, [galleryImages]);
 
 
-  // Animaciones GSAP para dropdown de tallas
+
   useEffect(() => {
     if (!isSizeDropdownOpen || !sizeDropdownRef.current) return;
     const dropdown = sizeDropdownRef.current;
@@ -499,7 +492,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     }
   }, [isSizeDropdownOpen]);
 
-  // Animaciones GSAP para dropdown de colores
+
   useEffect(() => {
     if (!isColorDropdownOpen || !colorDropdownRef.current) return;
     const dropdown = colorDropdownRef.current;
@@ -526,13 +519,13 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     }
   }, [isColorDropdownOpen]);
 
-  // Animaciones GSAP para acordeón de descripción
+
   useEffect(() => {
     const accordionRef = descriptionDesktopRef.current || descriptionAccordionRef.current;
     if (!accordionRef) return;
 
     if (isDescriptionOpen) {
-      // Abrir acordeón
+
       gsap.set(accordionRef, { height: 0, opacity: 0, overflow: 'hidden' });
       const height = accordionRef.scrollHeight;
       gsap.to(accordionRef, {
@@ -545,7 +538,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
         }
       });
     } else {
-      // Cerrar acordeón
+
       const height = accordionRef.scrollHeight;
       gsap.set(accordionRef, { height: height, overflow: 'hidden' });
       gsap.to(accordionRef, {
@@ -558,7 +551,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
   }, [isDescriptionOpen]);
 
 
-  // Ocultar completamente el scrollbar nativo
+
   useEffect(() => {
     const style = document.createElement('style');
     style.id = 'hide-native-scrollbar';
@@ -597,7 +590,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     };
   }, []);
 
-  // Cerrar dropdowns al hacer clic fuera
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
@@ -612,7 +605,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
   }, []);
 
 
-  // Funciones para cerrar dropdowns con animación
+
   const closeSizeDropdown = () => {
     if (sizeDropdownRef.current) {
       gsap.to(sizeDropdownRef.current, {
@@ -643,9 +636,9 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     }
   };
 
-  // Prevenir scroll en el body
+
   useEffect(() => {
-    // Solo bloquear el scroll cuando esté en fullscreen
+
     if (isFullscreen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -666,18 +659,18 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     };
 
     try {
-      // Intentar usar la Web Share API si está disponible
+
       if (navigator.share && navigator.canShare(shareData)) {
         await navigator.share(shareData);
       } else {
-        // Fallback: copiar al portapapeles
+
         await navigator.clipboard.writeText(url);
         alert('Link copiado al portapapeles!');
       }
     } catch (error: any) {
-      // Si el usuario cancela, no hacer nada
+
       if (error.name !== 'AbortError') {
-        // Si falla, intentar copiar al portapapeles como fallback
+
         try {
           await navigator.clipboard.writeText(url);
           alert('Link copiado al portapapeles!');
@@ -693,7 +686,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
       return;
     }
 
-    // Buscar la variante que coincida con la talla y color seleccionados
+
     const selectedVariant = producto.variants.find(variant => {
       const sizeOption = variant.selectedOptions?.find(option =>
         option.name.toLowerCase().includes('size') ||
@@ -715,9 +708,9 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
       return;
     }
 
-    // Agregar al carrito
+
     try {
-      // Override variant image with the currently displayed one (Rubik filtered)
+
       const variantWithImage = {
         ...selectedVariant,
         image: galleryImages[0] ? {
@@ -728,7 +721,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
         } : selectedVariant.image
       };
 
-      // Agregar la cantidad seleccionada al carrito de una vez
+
       await addCartItem(variantWithImage, producto, quantity);
     } catch (error) {
       console.error('❌ Error agregando producto al carrito:', error);
@@ -736,7 +729,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
   };
 
 
-  // Funciones para gestos nativos (Pinch & Zoom en fullscreen)
+
   const handleFullscreenTouchStart = (e: React.TouchEvent) => {
     if (!isFullscreen) return;
 
@@ -818,14 +811,14 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
         onError={(e) => console.error('Video error:', e)}
       />
 
-      {/* Overlay Escritorio */}
+
       <div className="fixed inset-0 bg-black/20 -z-1 hidden md:block"></div>
 
-      {/* LAYOUT MÓVIL (Scrollable) */}
+
       {!isFullscreen && (
         <div className="md:hidden w-full bg-white pb-10 pt-24">
 
-          {/* 1. GALERÍA SWIPE CUSTOM (STRICT ONE-BY-ONE) */}
+
           <div
             className="relative w-full aspect-[3/4] bg-white overflow-hidden"
             style={{ touchAction: 'pan-y' }}
@@ -844,7 +837,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                   const deltaX = touch.clientX - touchStart.x;
                   const deltaY = touch.clientY - touchStart.y;
 
-                  // Solo prevenir scroll si el movimiento es predominantemente horizontal
+
                   if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
                     e.preventDefault();
                   }
@@ -859,27 +852,27 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                   const deltaY = touch.clientY - touchStart.y;
                   const swipeThreshold = 50;
 
-                  // Determinar si es swipe horizontal
+
                   if (Math.abs(deltaX) > swipeThreshold && Math.abs(deltaX) > Math.abs(deltaY)) {
                     setIsTransitioning(true);
 
                     if (deltaX < 0) {
-                      // Swipe izquierda - siguiente imagen
+
                       setCurrentImageIndex((prev) => {
                         const nextIndex = prev + 1;
-                        // Si es infinito, cuando llega al final vuelve a 0 sin animación visible
+
                         return nextIndex >= (galleryImages.length || 0) ? 0 : nextIndex;
                       });
                     } else {
-                      // Swipe derecha - imagen anterior
+
                       setCurrentImageIndex((prev) => {
                         const prevIndex = prev - 1;
-                        // Si es infinito, cuando llega al inicio va al final sin animación visible
+
                         return prevIndex < 0 ? (galleryImages.length || 0) - 1 : prevIndex;
                       });
                     }
 
-                    // Reset de transición después de un breve delay
+
                     setTimeout(() => setIsTransitioning(false), 300);
                   }
                 }
@@ -914,7 +907,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
               ))}
             </div>
 
-            {/* Indicadores sobre la imagen */}
+
             {galleryImages && galleryImages.length > 1 && (
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10 bg-black/20 backdrop-blur-md px-3 py-2 rounded-full border border-white/10">
                 {galleryImages.map((_, index) => (
@@ -930,9 +923,9 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
             )}
           </div>
 
-          {/* 2. INFO DEL PRODUCTO */}
+
           <div className="px-6 py-8">
-            {/* Header: Título y Share */}
+
             <div className="flex justify-between items-start mb-4">
               <h1 className="text-2xl font-bold text-black uppercase tracking-tight leading-tight">
                 {producto?.title}
@@ -945,14 +938,14 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
               </button>
             </div>
 
-            {/* Precio */}
+
             <div className="text-xl font-medium text-black/80 mb-8">
               {formatPrice(producto?.priceRange?.maxVariantPrice)}
             </div>
 
-            {/* Selectores */}
+
             <div className="space-y-6 mb-8">
-              {/* Talla */}
+
               <div>
                 <label className="block text-xs font-bold text-black/40 uppercase tracking-widest mb-3">
                   {t('product.size')}
@@ -976,7 +969,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                 </div>
               </div>
 
-              {/* Color */}
+
               <div>
                 <label className="block text-xs font-bold text-black/40 uppercase tracking-widest mb-3">
                   {t('product.color')}
@@ -1005,7 +998,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                 )}
               </div>
 
-              {/* Quantity */}
+
               <div>
                 <label className="block text-xs font-bold text-black/40 uppercase tracking-widest mb-3">
                   {t('product.quantity')}
@@ -1030,7 +1023,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
               </div>
             </div>
 
-            {/* Add to Cart */}
+
             <button
               onClick={handleAddToCart}
               disabled={!selectedSize || !selectedColor}
@@ -1040,7 +1033,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
               <FiShoppingCart className="w-5 h-5" />
             </button>
 
-            {/* Detalles / Descripción */}
+
             <div className="border-t border-black/5 pt-6">
               <button
                 onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
@@ -1062,7 +1055,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
             </div>
           </div>
 
-          {/* 3. RECOMENDACIONES (Visible en Móvil ahora) */}
+
           <div className="border-t border-black/5 pt-10 pb-8 px-6">
             <h3 className="text-lg font-bold text-black uppercase tracking-wider mb-6 text-center">
               {t('product.youMayAlsoLove')}
@@ -1094,13 +1087,13 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
         </div>
       )}
 
-      {/* Card de producto - Solo en escritorio */}
+
       <div className="hidden md:flex relative z-10 items-start justify-center p-8 pt-28 min-h-screen px-4">
         <div className="w-full max-w-7xl mx-auto bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20">
           <div className="flex items-start">
-            {/* Columna izquierda - Bento Grid de Imágenes + Barra de Progreso Flotante */}
+
             <div className="w-[60%] relative p-4">
-              {/* Barra de Progreso (Overlay) */}
+
               <div className="absolute left-8 top-0 h-full w-12 z-[60] pointer-events-none flex flex-col items-center">
                 <div className="sticky top-1/2 -translate-y-1/2 pointer-events-auto flex flex-col items-center gap-4">
                   <button
@@ -1126,7 +1119,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                 </div>
               </div>
 
-              {/* Grid */}
+
               <div ref={galleryGridRef} className="w-full grid grid-cols-2 gap-3">
                 {galleryImages.map((img: any, index: number) => (
                   <div
@@ -1147,15 +1140,15 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                       priority={index < 3}
                       loader={shopifyLoader}
                     />
-                    {/* Badge de índice opcional para debug o estilo */}
+
                   </div>
                 ))}
 
               </div>
             </div>
 
-            {/* Columna derecha - Controles (Sticky Centered) */}
-            {/* Columna derecha - Controles (Sticky Compact Dynamic) */}
+
+
             <div
               ref={rightPanelRef}
               className={`w-[40%] sticky h-fit z-50 transition-all duration-300 ease-in-out ${isHeaderVisible ? 'top-24' : 'top-4'
@@ -1190,7 +1183,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                   </div>
 
                   <div className="space-y-4 flex flex-col items-center">
-                    {/* Selectores de color - Compact */}
+
                     <div className="max-w-xs w-full">
                       <label ref={colorLabelRef} className="block text-white/90 text-xs font-semibold mb-2 uppercase tracking-wider text-left">{t('product.color')}</label>
                       <div ref={colorButtonsRef} className="flex relative justify-start">
@@ -1218,7 +1211,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                       )}
                     </div>
 
-                    {/* Selector de talla - Compact */}
+
                     <div className="max-w-xs w-full">
                       <label ref={sizeLabelRef} className="block text-white/90 text-xs font-semibold mb-2 uppercase tracking-wider text-left">{t('product.size')}</label>
                       <div ref={sizeButtonsRef} className="flex space-x-2 justify-start">
@@ -1238,7 +1231,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                       </div>
                     </div>
 
-                    {/* Selector de cantidad - Compact */}
+
                     <div className="max-w-xs w-full">
                       <label ref={quantityLabelRef} className="block text-white/90 text-xs font-semibold mb-2 uppercase tracking-wider text-left">{t('product.quantity')}</label>
                       <div ref={quantityControlsRef} className="flex items-center justify-start gap-3">
@@ -1262,7 +1255,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                   </div>
                 </div>
 
-                {/* Botón agregar al carrito - Compact */}
+
                 <div ref={addToCartRef} className="flex justify-center mt-5">
                   <div className="max-w-xs w-full">
                     <button
@@ -1276,7 +1269,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                   </div>
                 </div>
 
-                {/* Acordeón de descripción - Escritorio */}
+
                 <div className="flex justify-center mt-6">
                   <div className="max-w-xs w-full">
                     <button
@@ -1299,7 +1292,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                       </p>
                     </div>
 
-                    {/* Botón Share */}
+
                     <button
                       ref={shareButtonRef}
                       onClick={handleShare}
@@ -1319,11 +1312,11 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
         </div>
       </div>
 
-      {/* Modal de Product Details - Pantalla completa */}
+
       {isDetailsModalOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-black">
           <div className="h-full flex flex-col">
-            {/* Header del modal */}
+
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <h2 className="text-xl font-bold text-white uppercase tracking-wider">
                 {t('product.detailsMobile')}
@@ -1337,7 +1330,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
               </button>
             </div>
 
-            {/* Contenido del modal */}
+
             <div className="flex-1 overflow-y-auto p-6">
               <div className="text-white/90 text-base leading-relaxed whitespace-pre-wrap">
                 {producto?.description || t('product.descriptionNotAvailable')}
@@ -1347,7 +1340,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
         </div>
       )}
 
-      {/* Modo fullscreen */}
+
       {isFullscreen && (
         <div
           className="fixed inset-0 z-50 bg-black select-none"
@@ -1356,7 +1349,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
           onTouchMove={handleFullscreenTouchMove}
           onTouchEnd={handleFullscreenTouchEnd}
         >
-          {/* Imagen con zoom */}
+
           <div className="relative w-full h-full flex items-center justify-center">
             {galleryImages[currentImageIndex] && (
               <Image
@@ -1375,7 +1368,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
             )}
           </div>
 
-          {/* Controles de navegación en fullscreen */}
+
           {galleryImages.length > 1 && (
             <>
               <button
@@ -1399,7 +1392,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
             </>
           )}
 
-          {/* Indicadores en fullscreen */}
+
           {galleryImages.length > 1 && (
             <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
               {galleryImages.map((_: any, index: number) => (
@@ -1418,7 +1411,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
         </div>
       )}
 
-      {/* Botón salir fullscreen */}
+
       {isFullscreen && (
         <div className="fixed top-4 right-4 z-50">
           <button
@@ -1436,18 +1429,18 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
         </div>
       )}
 
-      {/* Carruseles de productos recomendados - Solo en escritorio */}
+
       {!isFullscreen && (
         <div className="hidden md:flex w-full justify-center items-center py-8 px-4 md:px-8">
           <div className="w-full max-w-7xl mx-auto bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-6 md:p-8">
-            {/* Título "You may also love" */}
+
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center md:text-left uppercase tracking-wider">
               {t('product.youMayAlsoLove')}
             </h2>
 
-            {/* Layout de dos columnas: productos a la izquierda, newsletter a la derecha */}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:items-start">
-              {/* Columna izquierda: Carrusel de productos */}
+
               {recommendedProducts && recommendedProducts.length > 0 && (
                 <div className="md:col-span-2">
                   <div className="w-full flex justify-center">
@@ -1460,18 +1453,18 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                           : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4 justify-items-center'
                       }`}>
                       {recommendedProducts.slice(0, 4).map((product, index) => {
-                        // Logic: User wants the SECOND image as the main image.
-                        // And the THIRD image as the hover image.
+
+
                         const featuredImageUrl = product.featuredImage?.url;
                         const secondImageUrl = product.images?.[1]?.url;
                         const thirdImageUrl = product.images?.[2]?.url;
 
-                        // Main display: Second image (fallback to featured)
+
                         const displayImage = secondImageUrl || featuredImageUrl;
-                        // Hover display: Third image (fallback to featured)
+
                         const hoverImage = thirdImageUrl || featuredImageUrl;
 
-                        // Extraer colores únicos para este producto recomendado
+
                         const productColors = (() => {
                           if (!product.variants) return [];
                           const colorMap = new Map();
@@ -1498,7 +1491,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                             <div className="relative aspect-square bg-white/5 rounded-[20px] overflow-hidden mb-4 w-full border border-white/10 group-hover:border-white/30 transition-colors">
                               {displayImage && (
                                 <>
-                                  {/* Imagen principal (Ahora es la segunda foto) */}
+
                                   <Image
                                     src={displayImage}
                                     alt={product.title}
@@ -1506,7 +1499,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                                     sizes="(min-width: 768px) 25vw, 50vw"
                                   />
-                                  {/* Imagen hover (Ahora es la primera foto) */}
+
                                   {hoverImage && (
                                     <Image
                                       src={hoverImage}
@@ -1519,7 +1512,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                                 </>
                               )}
 
-                              {/* Tag de "New" o similar si se quisiera agregar */}
+
                             </div>
 
                             <div className="flex flex-col items-center">
@@ -1530,7 +1523,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                                 {formatPrice(product.priceRange?.maxVariantPrice)}
                               </p>
 
-                              {/* Swatches de colores */}
+
                               {productColors.length > 0 && (
                                 <div className="flex justify-center gap-2 items-center">
                                   {productColors.slice(0, 5).map((color: any) => (
@@ -1555,7 +1548,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                 </div>
               )}
 
-              {/* Columna derecha: Newsletter */}
+
               <div className="md:col-span-1 flex flex-col justify-start md:self-start">
                 <div className="text-center md:text-left">
                   <h3 className="text-xl md:text-2xl font-bold text-white mb-3 uppercase tracking-wider">

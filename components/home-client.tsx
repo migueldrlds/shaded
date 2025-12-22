@@ -27,7 +27,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
   const { t } = useLanguage();
   const lenis = useLenis();
 
-  // Aggressive scroll reset for Bento Grid / Home
   useIsomorphicLayoutEffect(() => {
     if (typeof window !== 'undefined') {
       const originalRestoration = window.history.scrollRestoration;
@@ -43,10 +42,8 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
         }
       };
 
-      // Immediate
       resetScroll();
 
-      // Sequence
       setTimeout(resetScroll, 10);
       setTimeout(resetScroll, 50);
       setTimeout(resetScroll, 150);
@@ -74,25 +71,22 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
   const featuredProductsRef = useRef<HTMLDivElement>(null);
   const socialProofRef = useRef<HTMLDivElement>(null);
 
-  // Newsletter State
   const [newsletterState, setNewsletterState] = useState<'idle' | 'interacting' | 'success' | 'error'>('idle');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Community Newsletter State
   const [communityNewsletterState, setCommunityNewsletterState] = useState<'idle' | 'interacting' | 'success' | 'error'>('idle');
   const [communityEmail, setCommunityEmail] = useState('');
   const [communityLoading, setCommunityLoading] = useState(false);
   const [communityErrorMessage, setCommunityErrorMessage] = useState('');
 
-  // Trending Now Image State
   const [activeTrendingIndex, setActiveTrendingIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveTrendingIndex((prev) => (prev === 0 ? 1 : 0));
-    }, 6000); // 6 seconds for the fade
+    }, 6000);
     return () => clearInterval(interval);
   }, []);
 
@@ -104,7 +98,7 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loading) return; // Prevent double submission
+    if (loading) return;
 
     setLoading(true);
     setErrorMessage('');
@@ -115,8 +109,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
         setNewsletterState('success');
       } else {
         setErrorMessage(result.error || 'Something went wrong');
-        // Mantener el estado en 'interacting' para que el usuario pueda intentar de nuevo
-        // setNewsletterState('error'); 
       }
     } catch (err) {
       setErrorMessage('Network error');
@@ -155,19 +147,14 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
   useEffect(() => {
     let animationFrameId: number;
 
-    // Master: Background Video
-    // Slave: Collection Video (Card)
     const syncVideos = () => {
       if (backgroundVideoRef.current && collectionVideoRef.current) {
         const bgVideo = backgroundVideoRef.current;
         const cardVideo = collectionVideoRef.current;
 
-        // Only sync if both are playing and have data
         if (!bgVideo.paused && !cardVideo.paused && bgVideo.readyState >= 3 && cardVideo.readyState >= 3) {
           const timeDiff = Math.abs(bgVideo.currentTime - cardVideo.currentTime);
 
-          // If drift is significant (> 0.1s), snap card video to background
-          // We use a slightly larger threshold to prevent constant jittering
           if (timeDiff > 0.1) {
             cardVideo.currentTime = bgVideo.currentTime;
           }
@@ -195,7 +182,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
       collectionVideoRef.current?.play().catch(() => { });
     };
 
-    // Ensure initial sync once metadata is loaded
     const handleLoadedMetadata = () => {
       if (backgroundVideoRef.current && collectionVideoRef.current) {
         collectionVideoRef.current.currentTime = backgroundVideoRef.current.currentTime;
@@ -209,12 +195,10 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
       bgVideo.addEventListener('pause', handleMasterPause);
       bgVideo.addEventListener('waiting', handleMasterWaiting);
       bgVideo.addEventListener('playing', handleMasterPlaying);
-      // Also listen on the card video to ensure it's ready
       if (collectionVideoRef.current) {
         collectionVideoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata);
       }
 
-      // Start loop if already playing
       if (!bgVideo.paused) {
         handleMasterPlay();
       }
@@ -234,9 +218,7 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
     };
   }, []);
 
-  // Animación de cards
   useIsomorphicLayoutEffect(() => {
-    // Esperar a que todos los refs estén listos
     if (!containerRef.current || !mainCardRef.current || !secondCardRef.current) {
       return;
     }
@@ -249,12 +231,10 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
     let secondCardPaddingBottom = 0;
     let secondCardWrapperMarginTop = 0;
 
-    // Calcular alturas naturales ANTES de establecerlas a 0
     const container = containerRef.current;
     const mainCard = mainCardRef.current;
     const secondCard = secondCardRef.current;
 
-    // Obtener alturas naturales mientras los elementos están en su estado natural
     containerNaturalHeight = container.offsetHeight || container.scrollHeight;
     mainCardNaturalHeight = mainCard.offsetHeight || 448;
     secondCardNaturalHeight = secondCard.offsetHeight || 256;
@@ -270,7 +250,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
       gsap.set(secondCardWrapper, { marginTop: 0 });
     }
 
-    // Establecer alturas iniciales a 0
     gsap.set(container, {
       height: 0,
       overflow: 'hidden',
@@ -290,11 +269,9 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
       overflow: 'hidden'
     });
 
-    // Esperar un momento para que el DOM se renderice completamente
     const timeoutId = setTimeout(() => {
       tl = gsap.timeline({ delay: 0.25 });
 
-      // PASO 1: Contenedor principal se expande a la altura completa de ambos cards
       if (containerRef.current && tl && containerNaturalHeight > 0) {
         const container = containerRef.current;
 
@@ -305,7 +282,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
         });
       }
 
-      // PASO 2: Card "Introducing" se expande a su 100% de altura
       if (mainCardRef.current && mainCardNaturalHeight > 0) {
         const mainCard = mainCardRef.current;
 
@@ -318,10 +294,9 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
               overflow: 'hidden'
             });
           }
-        }, '-=.9'); // Empieza antes de que termine la expansión del contenedor
+        }, '-=.9');
       }
 
-      // PASO 3: Card "See all of our collections" se expande desde altura 0
       if (secondCardRef.current && secondCardNaturalHeight > 0) {
         const secondCard = secondCardRef.current;
         const secondCardWrapper = secondCardWrapperRef.current;
@@ -344,7 +319,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
             gsap.set(secondCard, {
               overflow: 'hidden'
             });
-            // Cuando el segundo card termina, el contenedor puede cambiar a altura auto
             if (containerRef.current) {
               gsap.set(containerRef.current, {
                 height: 'auto',
@@ -356,7 +330,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
       }
 
 
-      // Animación del botón "View collection" (fade simple)
       if (viewCollectionButtonRef.current) {
         gsap.set(viewCollectionButtonRef.current, {
           opacity: 0
@@ -366,7 +339,7 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
           opacity: 1,
           duration: 0.6,
           ease: 'sine.out'
-        }, '-=0.35'); // Empieza después de que el card principal se haya expandido un poco
+        }, '-=0.35');
       }
 
 
@@ -385,7 +358,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
 
   return (
     <div className="relative min-h-screen">
-      {/* Video de fondo */}
       <video
         ref={backgroundVideoRef}
         className="fixed inset-0 w-full h-full object-cover z-0"
@@ -396,19 +368,16 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
         playsInline
       />
 
-      {/* Cards principales */}
       <div className="relative z-10 flex items-start justify-center min-h-screen pt-25 px-4 pb-0 md:pb-auto">
         <div
           ref={containerRef}
           className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl"
           style={{ opacity: 0 }}
         >
-          {/* Card de Colección - Ocupa toda la fila */}
           <div
             ref={mainCardRef}
             className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] w-full flex flex-col h-[28rem] relative overflow-hidden"
           >
-            {/* Video de fondo */}
             <video
               ref={collectionVideoRef}
               className="absolute inset-0 w-full h-full object-cover"
@@ -419,10 +388,8 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
               playsInline
             />
 
-            {/* Overlay negro sutil */}
             <div className="absolute inset-0 bg-black/30"></div>
 
-            {/* Texto centrado verticalmente y alineado a la izquierda */}
             <div className="relative z-10 flex flex-col justify-center h-full px-8 space-y-4" style={{ overflow: 'visible', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}>
               <div className="slide-title" style={{ overflow: 'visible', lineHeight: '1.2', paddingTop: '0.2rem', paddingBottom: '0.2rem' }}>
                 <SplitText
@@ -449,7 +416,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
             </div>
           </div>
 
-          {/* Nueva fila: Card de texto que ocupa toda la fila */}
           <div ref={secondCardWrapperRef} className="mt-4">
             <LinkWithTransition href="/collections" className="block group" aria-label="Explore collections">
               <div
@@ -474,11 +440,9 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
         </div>
       </div>
 
-      {/* BENEFITS BAR */}
       <div ref={benefitsRef} className="relative z-10 px-4 mt-4 mb-8 md:mb-12">
         <div className="bg-black/30 backdrop-blur-md rounded-[30px] border border-white/10 p-6 md:p-8 w-full max-w-5xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {/* Benefit 1 */}
             <div className="flex flex-col items-center text-center space-y-3">
               <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-1">
                 <FiTruck className="w-5 h-5 text-white/80" />
@@ -487,7 +451,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
               <p className="text-white/50 text-sm font-extralight max-w-[200px]">Delivery within 3-5 business days depending on your location.</p>
             </div>
 
-            {/* Benefit 2 */}
             <div className="flex flex-col items-center text-center space-y-3">
               <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-1">
                 <FiRefreshCw className="w-5 h-5 text-white/80" />
@@ -496,7 +459,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
               <p className="text-white/50 text-sm font-extralight max-w-[200px]">Hassle-free returns within 30 days of purchase.</p>
             </div>
 
-            {/* Benefit 3 */}
             <div className="flex flex-col items-center text-center space-y-3">
               <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-1">
                 <FiShield className="w-5 h-5 text-white/80" />
@@ -508,7 +470,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
         </div>
       </div>
 
-      {/* FEATURED PRODUCTS (Gymshark style) */}
       <div ref={featuredProductsRef} className="relative z-10 px-4 mb-8 md:mb-12">
         <div className="w-full max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-8 px-2">
@@ -542,7 +503,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
                 href={item.product ? `/product/${item.product.handle}` : '/collections'}
                 className="group relative bg-black/30 backdrop-blur-md rounded-[40px] border border-white/10 overflow-hidden aspect-[4/5] md:aspect-[3/4] block cursor-pointer"
               >
-                {/* Image pairs with fade */}
                 {item.images.map((imgUrl, imgIndex) => (
                   <Image
                     key={imgUrl}
@@ -575,7 +535,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
         </div>
       </div>
 
-      {/* SOCIAL PROOF / COMMUNITY */}
       <div ref={socialProofRef} className="relative z-10 px-4 mb-8 md:mb-12">
         <div className="w-full max-w-5xl mx-auto bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-6 md:p-8">
           <div className="text-center mb-10 cursor-pointer" onClick={handleCommunityClick}>
@@ -726,15 +685,12 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
         </div>
       </div>
 
-      {/* Card de SHADED MOVEMENT */}
-      {/* Card de SHADED MOVEMENT */}
       <div className="relative z-10 px-4 pb-8 md:pb-12 mt-8 md:mt-10">
         <div
           ref={movementCardRef}
           className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl mx-auto"
         >
           <div className="relative bg-black rounded-[60px] lg:rounded-[40px] overflow-hidden min-h-[600px] md:min-h-[500px] flex items-center justify-center">
-            {/* Background Image */}
             <Image
               src="https://cdn.shopify.com/s/files/1/0703/4562/1751/files/Movement.webp?v=1766375294"
               alt="Shaded Movement"
@@ -746,7 +702,6 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
 
             <div className="relative z-10 flex flex-col items-center justify-center p-8 md:p-12 text-center w-full">
-              {/* Logo */}
               <div className="relative w-32 h-12 md:w-40 md:h-16 mb-4 opacity-90 block shrink-0">
                 <Image
                   src="/logo.png"

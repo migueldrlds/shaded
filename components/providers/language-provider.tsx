@@ -12,7 +12,7 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-// Translations
+
 const translations: Record<Language, Record<string, string>> = {
   en: {
     'header.shopNow': 'Shop Now',
@@ -176,7 +176,81 @@ const translations: Record<Language, Record<string, string>> = {
     'newsletter.joinCommunity': 'Join the Community',
     'newsletter.placeholder': 'Enter your email',
     'newsletter.welcome': 'Welcome to the movement',
-    'newsletter.tooManyAttempts': 'Too many attempts. Please try again later.'
+    'newsletter.tooManyAttempts': 'Too many attempts. Please try again later.',
+    'orders.title': 'My Orders',
+    'orders.welcome': 'Welcome, {name}',
+    'orders.history': 'Here you can view your order history',
+    'orders.empty': 'You have no orders yet',
+    'orders.firstPurchase': 'When you place your first order, it will appear here',
+    'orders.explore': 'Explore Products',
+    'orders.orderNumber': 'Order #{number}',
+    'orders.viewStatus': 'View Status',
+    'orders.quantity': 'Quantity: {quantity}',
+    'order.notFound': 'Order not found',
+    'order.backToOrders': 'Back to My Orders',
+    'order.confirmedOn': 'Confirmed on {date}',
+    'order.status.fulfilled': 'Fulfilled',
+    'order.status.partial': 'Partially Shipped',
+    'order.status.unfulfilled': 'Unfulfilled',
+    'order.status.confirmed': 'Confirmed',
+    'order.products': 'Products ({count})',
+    'order.shippingAddress': 'Shipping Address',
+    'order.summary': 'Summary',
+    'order.subtotal': 'Subtotal',
+    'order.shipping': 'Shipping',
+    'order.tax': 'Tax',
+    'order.total': 'Total',
+    'order.requestReturn': 'Request Return',
+    'order.viewOnShopify': 'View on Shopify',
+    'order.buyAgain': 'Buy Again',
+    'returns.title': 'Request Return',
+    'returns.orderNumber': 'Order #{number}',
+    'returns.productToReturn': 'Product to Return',
+    'returns.noProducts': 'No products available for return',
+    'returns.notEligible': 'This order may no longer be eligible for returns',
+    'returns.whyReturn': 'Why do you want to return it?',
+    'returns.selectReason': 'Select Reason',
+    'returns.return': 'Return',
+    'returns.eligibilityNote': 'Return and refund eligibility will be based on our return policy.',
+    'returns.submit': 'Submit Return',
+    'returns.processing': 'Processing...',
+    'returns.cancel': 'Cancel',
+    'returns.successTitle': 'Request Sent!',
+    'returns.successMessage': 'Your return request has been submitted. We will contact you shortly with the next steps.',
+    'returns.errorReason': 'Please select a reason for the return',
+    'returns.errorSubmit': 'Error processing return request',
+    'verify.title': 'Enter Code',
+    'verify.sentTo': 'Sent to {email}',
+    'verify.codeLabel': '6-digit code',
+    'verify.submit': 'Verify Code',
+    'verify.verifying': 'Verifying...',
+    'verify.resendQuestion': 'Didn\'t receive the code?',
+    'verify.resendAction': 'Resend Code',
+    'verify.signInOther': 'Sign in with another email',
+    'verify.privacy': 'Privacy Policy',
+    'verify.terms': 'Terms of Service',
+    'verify.errorComplete': 'Please enter the complete 6-digit code',
+    'verify.errorSession': 'Missing session info. Please try logging in again.',
+    'verify.resendSuccess': 'Code resent to your email',
+    'auth.welcomeBack': 'Welcome Back',
+    'auth.loginSubtitle': 'Login to your account',
+    'auth.emailPlaceholder': 'Enter your email',
+    'auth.codeSent': 'You will receive a verification code slightly',
+    'auth.loginButton': 'Login',
+    'auth.loggingIn': 'Logging in...',
+    'auth.backToHome': 'Back to home',
+    'auth.createAccount': 'CREATE ACCOUNT',
+    'auth.joinCommunity': 'Join the Shaded community',
+    'auth.firstName': 'First name',
+    'auth.lastName': 'Last name',
+    'auth.createPassword': 'Create password',
+    'auth.confirmPassword': 'Confirm password',
+    'auth.alreadyHaveAccount': 'Already have an account?',
+    'auth.registrationDisabled': 'Registration Disabled',
+    'auth.registrationTempDisabled': 'Registration is temporarily disabled',
+    'userMenu.myOrders': 'My Orders',
+    'userMenu.logout': 'Logout',
+
   },
   es: {
     'header.shopNow': 'Comprar Ahora',
@@ -340,17 +414,91 @@ const translations: Record<Language, Record<string, string>> = {
     'newsletter.joinCommunity': 'Únete a la Comunidad',
     'newsletter.placeholder': 'Ingresa tu correo electrónico',
     'newsletter.welcome': 'Bienvenido al movimiento',
-    'newsletter.tooManyAttempts': 'Demasiados intentos. Por favor intenta más tarde.'
+    'newsletter.tooManyAttempts': 'Demasiados intentos. Por favor intenta más tarde.',
+    'orders.title': 'Mis Órdenes',
+    'orders.welcome': 'Bienvenido, {name}',
+    'orders.history': 'Aquí puedes ver el historial de tus pedidos',
+    'orders.empty': 'No tienes órdenes aún',
+    'orders.firstPurchase': 'Cuando realices tu primera compra, aparecerá aquí',
+    'orders.explore': 'Explorar Productos',
+    'orders.orderNumber': 'Orden #{number}',
+    'orders.viewStatus': 'Ver estado',
+    'orders.quantity': 'Cantidad: {quantity}',
+    'order.notFound': 'Orden no encontrada',
+    'order.backToOrders': 'Volver a Mis Órdenes',
+    'order.confirmedOn': 'Confirmado el {date}',
+    'order.status.fulfilled': 'Completado',
+    'order.status.partial': 'Parcialmente enviado',
+    'order.status.unfulfilled': 'Pendiente',
+    'order.status.confirmed': 'Confirmado',
+    'order.products': 'Productos ({count})',
+    'order.shippingAddress': 'Dirección de Envío',
+    'order.summary': 'Resumen',
+    'order.subtotal': 'Subtotal',
+    'order.shipping': 'Envío',
+    'order.tax': 'Impuestos',
+    'order.total': 'Total',
+    'order.requestReturn': 'Solicitar devolución',
+    'order.viewOnShopify': 'Ver en Shopify',
+    'order.buyAgain': 'Comprar de nuevo',
+    'returns.title': 'Solicitar devolución',
+    'returns.orderNumber': 'Orden #{number}',
+    'returns.productToReturn': 'Producto a devolver',
+    'returns.noProducts': 'No hay productos disponibles para devolver',
+    'returns.notEligible': 'Esta orden puede que ya no sea elegible para devoluciones',
+    'returns.whyReturn': '¿Por qué lo quieres devolver?',
+    'returns.selectReason': 'Seleccionar razón',
+    'returns.return': 'Devolución',
+    'returns.eligibilityNote': 'La elegibilidad de devolución y reembolso se basará en nuestra política de devoluciones.',
+    'returns.submit': 'Solicitar devolución',
+    'returns.processing': 'Procesando...',
+    'returns.cancel': 'Cancelar',
+    'returns.successTitle': '¡Solicitud enviada!',
+    'returns.successMessage': 'Tu solicitud de devolución ha sido enviada. Te contactaremos pronto con los siguientes pasos.',
+    'returns.errorReason': 'Por favor selecciona una razón para la devolución',
+    'returns.errorSubmit': 'Error al procesar la solicitud de devolución',
+    'verify.title': 'Ingresa el código',
+    'verify.sentTo': 'Enviado a {email}',
+    'verify.codeLabel': 'Código de 6 dígitos',
+    'verify.submit': 'Verificar código',
+    'verify.verifying': 'Verificando...',
+    'verify.resendQuestion': '¿No recibiste el código?',
+    'verify.resendAction': 'Reenviar código',
+    'verify.signInOther': 'Iniciar sesión con otro email',
+    'verify.privacy': 'Política de privacidad',
+    'verify.terms': 'Términos de servicio',
+    'verify.errorComplete': 'Por favor ingresa el código completo de 6 dígitos',
+    'verify.errorSession': 'Información de sesión faltante. Por favor intenta el login nuevamente.',
+    'verify.resendSuccess': 'Código reenviado a tu email',
+    'auth.welcomeBack': 'Bienvenido de nuevo',
+    'auth.loginSubtitle': 'Inicia sesión en tu cuenta',
+    'auth.emailPlaceholder': 'Ingresa tu email',
+    'auth.codeSent': 'Recibirás un código de verificación en tu correo electrónico',
+    'auth.loginButton': 'Entrar',
+    'auth.loggingIn': 'Entrando...',
+    'auth.backToHome': 'Volver al inicio',
+    'auth.createAccount': 'CREAR CUENTA',
+    'auth.joinCommunity': 'Únete a la comunidad Shaded',
+    'auth.firstName': 'Nombre',
+    'auth.lastName': 'Apellido',
+    'auth.createPassword': 'Crear contraseña',
+    'auth.confirmPassword': 'Confirmar contraseña',
+    'auth.alreadyHaveAccount': '¿Ya tienes una cuenta?',
+    'auth.registrationDisabled': 'Registro Deshabilitado',
+    'auth.registrationTempDisabled': 'El registro está temporalmente deshabilitado',
+    'userMenu.myOrders': 'Mis Órdenes',
+    'userMenu.logout': 'Cerrar Sesión',
+
   }
 };
 
-// Helper function to get language from cookie (works on client and server)
+
 function getLanguageFromCookie(): Language {
   if (typeof document === 'undefined') {
     return 'en';
   }
 
-  // Try to get from cookie first (for SSR compatibility)
+
   const cookieValue = document.cookie
     .split('; ')
     .find(row => row.startsWith('locale='))
@@ -360,7 +508,7 @@ function getLanguageFromCookie(): Language {
     return cookieValue;
   }
 
-  // Fallback to localStorage
+
   if (typeof window !== 'undefined') {
     const savedLanguage = localStorage.getItem('language') as Language;
     if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'es')) {
@@ -378,14 +526,14 @@ export function LanguageProvider({
   children: ReactNode;
   initialLanguage?: Language;
 }) {
-  // Initialize with server-provided language or get from cookie/localStorage
+
   const [language, setLanguageState] = useState<Language>(() => {
-    // Prioritize server-provided language
+
     if (initialLanguage && (initialLanguage === 'en' || initialLanguage === 'es')) {
       return initialLanguage;
     }
 
-    // On client, try to get from cookie/localStorage immediately (fallback)
+
     if (typeof window !== 'undefined') {
       return getLanguageFromCookie();
     }
@@ -396,17 +544,17 @@ export function LanguageProvider({
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     if (typeof window !== 'undefined') {
-      // Update both localStorage and cookie
-      localStorage.setItem('language', lang);
-      // Set cookie for server-side access
-      document.cookie = `locale=${lang}; path=/; max-age=31536000; SameSite=Lax`; // 1 year
 
-      // Update HTML lang attribute immediately
+      localStorage.setItem('language', lang);
+
+      document.cookie = `locale=${lang}; path=/; max-age=31536000; SameSite=Lax`;
+
+
       document.documentElement.lang = lang;
     }
   };
 
-  // Ensure HTML lang attribute is always in sync with language state
+
   useEffect(() => {
     if (typeof document !== 'undefined') {
       document.documentElement.lang = language;
@@ -416,7 +564,7 @@ export function LanguageProvider({
   const t = (key: string, params?: Record<string, string | number>): string => {
     let text = translations[language]?.[key] || key;
 
-    // Replace placeholders like {year} with actual values
+
     if (params) {
       Object.entries(params).forEach(([paramKey, value]) => {
         text = text.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(value));

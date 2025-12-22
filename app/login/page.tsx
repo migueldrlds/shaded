@@ -12,36 +12,36 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const { login, customer, isLoading } = useAuth();
   const router = useRouter();
 
-  // Refs para animaciones GSAP
+
   const mobileCardRef = useRef<HTMLDivElement>(null);
   const mobileTitleRef = useRef<HTMLDivElement>(null);
   const mobileFormRef = useRef<HTMLFormElement>(null);
   const mobileLinkRef = useRef<HTMLDivElement>(null);
-  
+
   const desktopGridRef = useRef<HTMLDivElement>(null);
   const desktopFormCardRef = useRef<HTMLDivElement>(null);
   const desktopNewCollectionCardRef = useRef<HTMLDivElement>(null);
   const desktopJoinCardRef = useRef<HTMLDivElement>(null);
 
-  // Animaciones GSAP
+
   useEffect(() => {
     let ctx = gsap.context(() => {
-      // Detectar si es móvil o desktop
+
       const isMobile = window.innerWidth < 768;
-      
+
       if (isMobile && mobileCardRef.current) {
-        // Animación móvil - expandir altura de abajo a arriba
+
         const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
         const mobileCard = mobileCardRef.current;
-        
-        // Obtener altura natural del card
+
+
         const cardNaturalHeight = mobileCard.offsetHeight || mobileCard.scrollHeight;
-        
-        // Establecer altura inicial a 0 y posición desde más abajo
+
+
         gsap.set(mobileCard, {
           height: 0,
           y: 500,
@@ -49,8 +49,8 @@ export default function Login() {
           opacity: 0,
           transformOrigin: 'bottom center'
         });
-        
-        // Expandir altura del card de abajo hacia arriba mientras sube
+
+
         tl.to(mobileCard, {
           height: cardNaturalHeight,
           y: 0,
@@ -58,7 +58,7 @@ export default function Login() {
           duration: 0.9,
           ease: 'power3.out',
           onComplete: () => {
-            // Cuando termina, cambiar a altura auto
+
             if (mobileCard) {
               gsap.set(mobileCard, {
                 height: 'auto',
@@ -67,8 +67,8 @@ export default function Login() {
             }
           }
         });
-        
-        // Animar título, formulario y link TODOS A LA VEZ (después del card)
+
+
         if (mobileTitleRef.current) {
           gsap.set(mobileTitleRef.current.children, { opacity: 0, y: 20 });
           tl.to(mobileTitleRef.current.children, {
@@ -76,9 +76,9 @@ export default function Login() {
             y: 0,
             stagger: 0.15,
             duration: 0.6
-          }, '-=0.5'); // Comienza un poco antes de que termine el card
+          }, '-=0.5');
         }
-        
+
         if (mobileFormRef.current) {
           const formChildren = Array.from(mobileFormRef.current.children);
           gsap.set(formChildren, { opacity: 0, y: 15 });
@@ -87,25 +87,25 @@ export default function Login() {
             y: 0,
             stagger: 0.08,
             duration: 0.5
-          }, '-=0.5'); // Comienza al mismo tiempo
+          }, '-=0.5');
         }
-        
+
         if (mobileLinkRef.current) {
           gsap.set(mobileLinkRef.current, { opacity: 0, y: 10 });
           tl.to(mobileLinkRef.current, {
             opacity: 1,
             y: 0,
             duration: 0.4
-          }, '-=0.4'); // Comienza un poco antes
+          }, '-=0.4');
         }
       } else if (!isMobile && desktopGridRef.current) {
-        // Animación desktop - todos los cards a la vez
+
         const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-        
-        // Todos los cards se animan simultáneamente (mismo tiempo base)
+
+
         const startTime = 0;
-        
-        // Card del formulario - desde la izquierda
+
+
         if (desktopFormCardRef.current) {
           gsap.set(desktopFormCardRef.current, { opacity: 0, x: -80, scale: 0.95 });
           tl.to(desktopFormCardRef.current, {
@@ -115,8 +115,8 @@ export default function Login() {
             duration: 0.8,
             ease: 'power3.out'
           }, startTime);
-          
-          // Animar elementos internos del formulario con stagger
+
+
           const formElements = desktopFormCardRef.current.querySelectorAll('input, button, a, p, h1, h2, div');
           gsap.set(formElements, { opacity: 0, y: 10 });
           tl.to(formElements, {
@@ -124,10 +124,10 @@ export default function Login() {
             y: 0,
             stagger: 0.05,
             duration: 0.4
-          }, startTime + 0.3); // Empieza un poco después del card
+          }, startTime + 0.3);
         }
-        
-        // Card New Collection - desde abajo (mismo tiempo)
+
+
         if (desktopNewCollectionCardRef.current) {
           gsap.set(desktopNewCollectionCardRef.current, { opacity: 0, y: 50, scale: 0.95 });
           tl.to(desktopNewCollectionCardRef.current, {
@@ -136,9 +136,9 @@ export default function Login() {
             scale: 1,
             duration: 0.7,
             ease: 'power3.out'
-          }, startTime); // Mismo tiempo de inicio
-        
-          // Animar contenido del card con stagger
+          }, startTime);
+
+
           const collectionElements = desktopNewCollectionCardRef.current.querySelectorAll('h2, p, a');
           gsap.set(collectionElements, { opacity: 0, y: 15 });
           tl.to(collectionElements, {
@@ -148,10 +148,10 @@ export default function Login() {
             duration: 0.5
           }, startTime + 0.3);
         }
-        
-        // Card Join - desde la derecha (mismo tiempo)
+
+
         if (desktopJoinCardRef.current) {
-          // Animar la imagen de fondo (mismo tiempo)
+
           const backgroundImage = desktopJoinCardRef.current.querySelector('img');
           if (backgroundImage) {
             gsap.set(backgroundImage, { opacity: 0, scale: 1.2 });
@@ -160,10 +160,10 @@ export default function Login() {
               scale: 1,
               duration: 1.0,
               ease: 'power2.out'
-            }, startTime); // Mismo tiempo de inicio
+            }, startTime);
           }
-          
-          // Animar el card completo (mismo tiempo)
+
+
           gsap.set(desktopJoinCardRef.current, { opacity: 0, x: 80, scale: 0.95 });
           tl.to(desktopJoinCardRef.current, {
             opacity: 1,
@@ -171,9 +171,9 @@ export default function Login() {
             scale: 1,
             duration: 0.9,
             ease: 'power3.out'
-          }, startTime); // Mismo tiempo de inicio
-          
-          // Animar contenido interno con stagger
+          }, startTime);
+
+
           const joinContent = desktopJoinCardRef.current.querySelector('.relative.z-10');
           if (joinContent) {
             const joinElements = joinContent.querySelectorAll('h2, p, div');
@@ -183,7 +183,7 @@ export default function Login() {
               y: 0,
               stagger: 0.08,
               duration: 0.5
-            }, startTime + 0.3); // Empieza un poco después del card
+            }, startTime + 0.3);
           }
         }
       }
@@ -192,20 +192,20 @@ export default function Login() {
     return () => ctx.revert();
   }, []);
 
-  // Redirect if already logged in
+
   useEffect(() => {
     if (customer && !isLoading) {
       router.push('/');
     }
   }, [customer, isLoading, router]);
 
-  // Check for OAuth callback errors
+
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const error = searchParams.get('error');
     if (error) {
       setErrors([`Error de autenticación: ${decodeURIComponent(error)}`]);
-      // Clean URL
+
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
@@ -216,7 +216,7 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      // Use Customer Account API with OAuth 2.0
+
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -228,9 +228,9 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok && data.success && data.authorizationUrl) {
-        // Redirect to Shopify OAuth authorization page
-        // Shopify will handle email verification and code sending
-        // User will enter the verification code on Shopify's page
+
+
+
         window.location.href = data.authorizationUrl;
       } else {
         setErrors(data.errors || [data.error || 'Error al iniciar sesión']);
@@ -245,7 +245,7 @@ export default function Login() {
 
   return (
     <div className="relative h-screen overflow-hidden">
-      {/* Video de fondo (fijo, debajo de todo) */}
+
       <video
         className="fixed inset-0 w-full h-full object-cover -z-20"
         src="/shadedbg.mp4"
@@ -255,17 +255,17 @@ export default function Login() {
         playsInline
       />
 
-      {/* Overlay sutil (fijo, sobre el video) */}
+
       <div className="fixed inset-0 bg-black/20 -z-10"></div>
-      
-      {/* Contenido principal */}
+
+
       <div className="relative z-10 flex items-end md:items-center justify-center min-h-screen">
-        {/* Layout móvil: card único */}
-        <div 
+
+        <div
           ref={mobileCardRef}
           className="bg-white/30 backdrop-blur-2xl rounded-t-[60px] md:hidden border border-white/10 border-b-0 p-8 w-full"
         >
-          {/* Formulario de login móvil */}
+
           <div ref={mobileTitleRef} className="text-center mb-8">
             <h1 className="text-3xl font-medium text-black mb-2">
               Welcome Back
@@ -273,7 +273,7 @@ export default function Login() {
             <p className="text-sm text-black/70">Login to your account</p>
           </div>
 
-          {/* Error messages */}
+
           {errors.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
               <div className="text-red-800 text-sm">
@@ -321,14 +321,14 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Layout desktop: 2 columnas x 2 filas */}
-        <div 
+
+        <div
           ref={desktopGridRef}
           className="hidden md:grid md:grid-cols-2 md:gap-6 md:w-full md:max-w-4xl md:mx-auto md:my-8"
         >
-          {/* Columna izquierda */}
+
           <div className="space-y-6">
-            {/* Fila 1: Formulario de login */}
+
             <div ref={desktopFormCardRef} className="bg-white/30 backdrop-blur-2xl rounded-[40px] border border-white/10 p-8">
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-6">
@@ -341,7 +341,7 @@ export default function Login() {
                 <p className="text-sm text-black/70">Access your account</p>
               </div>
 
-              {/* Error messages */}
+
               {errors.length > 0 && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                   <div className="text-red-800 text-sm">
@@ -382,7 +382,7 @@ export default function Login() {
 
             </div>
 
-            {/* Fila 2: Card New Collection */}
+
             <div ref={desktopNewCollectionCardRef} className="bg-black/80 backdrop-blur-2xl rounded-[40px] border border-black/40 p-8">
               <div>
                 <h2 className="text-2xl font-medium text-white mb-4">
@@ -400,9 +400,9 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Columna derecha: Card que ocupa ambas filas */}
+
           <div ref={desktopJoinCardRef} className="relative bg-white/30 backdrop-blur-2xl rounded-[40px] border border-white/10 pl-4 pr-8 py-4 flex flex-col justify-start overflow-hidden">
-            {/* Imagen de fondo */}
+
             <div className="absolute inset-0 z-0">
               <Image
                 src="/img1.jpg"
@@ -425,8 +425,8 @@ export default function Login() {
                   <div className="text-sm text-white/80">Exclusive member discounts</div>
                   <div className="text-sm text-white/80">Free shipping on all orders</div>
                 </div>
-                
-                {/* Logo en la parte inferior */}
+
+
                 <div className="mt-auto pb-4 flex justify-center">
                   <Image
                     src="/logo.png"

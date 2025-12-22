@@ -7,17 +7,17 @@ export async function GET() {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('customerAccessToken')?.value;
-    
+
     if (!accessToken) {
       return NextResponse.json({ customer: null });
     }
 
-    // Try Customer Account API first (new OAuth flow)
+
     try {
       const customer = await getCustomerFromCAAPI(accessToken);
-      
+
       if (customer) {
-        // Transform to match legacy Customer type
+
         const transformedCustomer = {
           id: customer.id,
           email: customer.emailAddress?.emailAddress || '',
@@ -25,14 +25,14 @@ export async function GET() {
           lastName: customer.lastName || '',
           phoneNumber: customer.phoneNumber?.phoneNumber || '',
         };
-        
+
         return NextResponse.json({ customer: transformedCustomer });
       }
     } catch (error) {
-      // If Customer Account API fails, try legacy API
+
     }
 
-    // Fallback to legacy API
+
     const customer = await getCustomerLegacy();
     return NextResponse.json({ customer });
   } catch (error) {

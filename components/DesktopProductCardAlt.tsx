@@ -40,17 +40,16 @@ const formatPrice = (price: { amount: string; currencyCode: string } | undefined
 const DesktopProductCardAlt: React.FC<DesktopProductCardAltProps> = ({ product }) => {
   if (!product) return null;
 
-  // Función para obtener la imagen de hover (excluyendo la segunda imagen)
+
   const getHoverImage = () => {
     if (!product.images || product.images.length <= 2) {
-      // Si hay 2 o menos imágenes, no mostrar hover
+
       return null;
     }
 
     const featuredImageUrl = product.featuredImage?.url;
 
-    // Buscar una imagen que no sea la featured ni la segunda (índice 1)
-    // Preferir la tercera imagen (índice 2) o la última
+
     for (let i = 2; i < product.images.length; i++) {
       const image = product.images[i];
       if (image?.url && image.url !== featuredImageUrl) {
@@ -58,7 +57,7 @@ const DesktopProductCardAlt: React.FC<DesktopProductCardAltProps> = ({ product }
       }
     }
 
-    // Si no encontramos una adecuada, usar la última imagen
+
     const lastImage = product.images[product.images.length - 1];
     if (lastImage?.url && lastImage.url !== featuredImageUrl && product.images.length > 2) {
       return lastImage.url;
@@ -78,7 +77,7 @@ const DesktopProductCardAlt: React.FC<DesktopProductCardAltProps> = ({ product }
           <div className="card__media">
             <div className="media media--transparent media--hover-effect">
               <a href={`/product/${product.handle}`} className="full-unstyled-link block w-full h-full">
-                {/* Primera imagen (por defecto) */}
+
                 <Image
                   src={firstImage}
                   alt={product.title}
@@ -90,7 +89,7 @@ const DesktopProductCardAlt: React.FC<DesktopProductCardAltProps> = ({ product }
                   loader={shopifyLoader}
                 />
 
-                {/* Imagen de hover (tercera o posterior, nunca la segunda) */}
+
                 {hasHoverImage && hoverImage && (
                   <Image
                     src={hoverImage}

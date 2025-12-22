@@ -12,10 +12,7 @@ type LinkProps = ComponentProps<'a'> & {
   onClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
 };
 
-/**
- * Componente Link personalizado que usa next-view-transitions
- * Reemplaza a next/link para habilitar transiciones automáticas
- */
+
 const LinkWithTransition = forwardRef<HTMLAnchorElement, LinkProps>(function LinkWithTransition({
   href,
   children,
@@ -28,7 +25,7 @@ const LinkWithTransition = forwardRef<HTMLAnchorElement, LinkProps>(function Lin
   const { isOpen: isCartOpen } = useCartModal();
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    // Si el link es externo o tiene target="_blank", usar comportamiento normal
+
     if (
       href.startsWith('http') ||
       href.startsWith('mailto:') ||
@@ -37,29 +34,29 @@ const LinkWithTransition = forwardRef<HTMLAnchorElement, LinkProps>(function Lin
       e.metaKey ||
       e.ctrlKey ||
       e.shiftKey ||
-      e.button !== 0 // No es click izquierdo
+      e.button !== 0
     ) {
-      // Si hay un onClick personalizado, ejecutarlo
+
       if (onClick) {
         onClick(e);
       }
-      return; // Dejar que el navegador maneje el link normalmente
+      return;
     }
 
-    // Prevenir el comportamiento por defecto
+
     e.preventDefault();
 
-    // Si hay un onClick personalizado, ejecutarlo después de prevenir default
+
     if (onClick) {
       onClick(e);
     }
 
-    // Si ya está animando, no hacer nada
+
     if (isAnimating) return;
 
     setIsAnimating(true);
 
-    // Si el carrito está abierto, esperar un poco antes de navegar
+
     const delay = isCartOpen ? 500 : 0;
 
     if (delay > 0) {

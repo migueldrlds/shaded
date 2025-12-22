@@ -19,12 +19,12 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // En móvil, no usar Lenis (scroll nativo)
+
   if (isMobile) {
     return <>{children}</>;
   }
 
-  // Configuración solo para desktop
+
   const scrollSettings = {
     duration: 1.2,
     easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),

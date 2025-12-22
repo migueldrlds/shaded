@@ -43,37 +43,36 @@ const formatPrice = (price: { amount: string; currencyCode: string } | undefined
 const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collectionName }) => {
   if (!product) return null;
 
-  // Función para obtener la segunda imagen disponible
-  // Función para obtener la imagen de Banner (o segunda imagen como fallback)
+
   const getBannerImage = () => {
     if (product.images && product.images.length > 0) {
-      // 1. Buscar imagen con Alt Text "Banner"
+
       const bannerImage = product.images.find(img =>
         img.altText && img.altText.toLowerCase().includes('banner')
       );
       if (bannerImage) return bannerImage.url;
 
-      // 2. Si no hay banner, buscar la segunda imagen que no sea la featuredImage
+
       if (product.images.length > 1) {
         const featuredImageUrl = product.featuredImage?.url;
         const secondImage = product.images.find(img => img.url !== featuredImageUrl);
         return secondImage?.url || product.images[1]?.url;
       }
     }
-    // 3. Fallback a featuredImage
+
     return product.featuredImage?.url;
   };
 
   return (
     <div className="flex justify-between items-start h-full pr-0">
-      {/* Card izquierdo */}
+
       <div className="relative" style={{ top: '240px', width: '300px', right: '-30px' }}>
         <LinkWithTransition
           href={`/product/${product.handle}`}
           className="bg-transparent rounded-3xl overflow-hidden transition-all duration-300 group relative w-full block cursor-pointer"
           style={{ height: '500px' }}
         >
-          {/* Imagen del producto */}
+
           <div className="relative w-full h-full">
             <Image
               src={product.featuredImage?.url || '/img1.jpg'}
@@ -98,12 +97,12 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
           </div>
         </LinkWithTransition>
 
-        {/* Colores y tallas debajo del card del carrusel */}
+
         <div className="mt-3 space-y-2">
-          {/* Colores disponibles */}
+
           <div className="flex gap-2">
             {Array.from(new Set(product.variants?.map(v => v.selectedOptions?.find(o => o.name === 'Color' || o.name === 'Colour')?.value).filter(Boolean))).slice(0, 4).map((color, index) => {
-              // Basic color mapping
+
               const colorMap: Record<string, string> = {
                 'Black': '#000000',
                 'White': '#ffffff',
@@ -117,10 +116,12 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
                 'Beige': '#f5f5dc',
                 'Cream': '#fffdd0',
                 'Brown': '#a52a2a',
-                // Add more as needed
+
               };
 
-              const backgroundColor = colorMap[color || ''] || '#cccccc'; // Default to light grey
+
+
+              const backgroundColor = colorMap[color || ''] || '#cccccc';
               const isWhite = color?.toLowerCase() === 'white' || backgroundColor === '#ffffff';
 
               return (
@@ -154,10 +155,10 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
         </div>
       </div>
 
-      {/* Card derecho */}
+
       <div className="relative mb-0 self-end" style={{ width: '900px' }}>
         <LinkWithTransition href={`/product/${product.handle}`} className="bg-transparent rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative w-full block cursor-pointer" style={{ height: '660px' }}>
-          {/* Imagen del producto derecho */}
+
           <div className="relative w-full h-full">
             <Image
               src={getBannerImage() || '/img2.jpg'}
@@ -171,7 +172,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
             />
           </div>
 
-          {/* Información del producto derecho */}
+
           <div className="absolute top-6 left-6 right-2 hidden md:block">
             <div className="flex flex-col justify-center">
               <h3 className="text-sm font-medium text-white">
@@ -180,7 +181,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
             </div>
           </div>
 
-          {/* Precio flotante centrado con botón circular pegado */}
+
           <div className="absolute right-130 top-1/2 -translate-y-1/2">
             <div className="flex items-center">
               <div className="bg-black/50 text-white rounded-full px-4 py-2.5 backdrop-blur-sm flex items-center gap-6">

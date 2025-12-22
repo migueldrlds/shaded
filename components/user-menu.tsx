@@ -2,6 +2,7 @@
 
 import { useAuth } from 'components/auth/auth-context';
 import LinkWithTransition from 'components/link-with-transition';
+import { useLanguage } from 'components/providers/language-provider';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { FiLogOut, FiPackage, FiUser } from 'react-icons/fi';
@@ -14,9 +15,10 @@ export default function UserMenu({ iconColor = 'white' }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { customer, logout, isLoading } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
 
-  // Cerrar menú al hacer click fuera
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -40,7 +42,7 @@ export default function UserMenu({ iconColor = 'white' }: UserMenuProps) {
     setIsOpen(!isOpen);
   };
 
-  // Si está cargando, mostrar ícono sin funcionalidad
+
   if (isLoading) {
     return (
       <div className="p-2 rounded-full transition-all duration-200 opacity-50">
@@ -49,7 +51,7 @@ export default function UserMenu({ iconColor = 'white' }: UserMenuProps) {
     );
   }
 
-  // Si no está autenticado, redirigir a login
+
   if (!customer) {
     return (
       <LinkWithTransition
@@ -61,7 +63,7 @@ export default function UserMenu({ iconColor = 'white' }: UserMenuProps) {
     );
   }
 
-  // Si está autenticado, mostrar menú desplegable
+
   return (
     <div className="relative" ref={menuRef}>
       <button
@@ -70,14 +72,14 @@ export default function UserMenu({ iconColor = 'white' }: UserMenuProps) {
         aria-label="User menu"
       >
         <FiUser className="h-5 w-5" style={{ color: iconColor }} />
-        {/* Indicador de usuario logueado */}
+
         <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
       </button>
 
-      {/* Menú desplegable */}
+
       {isOpen && (
         <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 animate-fadeIn">
-          {/* Header del menú */}
+
           <div className="px-4 py-3 border-b border-gray-100">
             <p className="text-sm font-medium text-gray-900">
               {customer.displayName || `${customer.firstName} ${customer.lastName}`}
@@ -85,15 +87,15 @@ export default function UserMenu({ iconColor = 'white' }: UserMenuProps) {
             <p className="text-xs text-gray-500 truncate">{customer.email}</p>
           </div>
 
-          {/* Opciones del menú */}
+
           <div className="py-1">
             <LinkWithTransition
-              href="/mis-ordenes"
+              href="/orders"
               onClick={() => setIsOpen(false)}
               className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
             >
               <FiPackage className="h-4 w-4 mr-3 text-gray-400" />
-              Mis Órdenes
+              {t('userMenu.myOrders')}
             </LinkWithTransition>
 
             <button
@@ -101,7 +103,7 @@ export default function UserMenu({ iconColor = 'white' }: UserMenuProps) {
               className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
             >
               <FiLogOut className="h-4 w-4 mr-3 text-gray-400" />
-              Cerrar Sesión
+              {t('userMenu.logout')}
             </button>
           </div>
         </div>

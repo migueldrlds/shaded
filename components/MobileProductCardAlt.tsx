@@ -60,7 +60,7 @@ const MobileProductCardAlt: React.FC<MobileProductCardAltProps> = ({ product }) 
       if (colorOption) {
         const colorName = colorOption.value;
         const isAvailable = variant.availableForSale;
-        // Obtener imagen de la variante o usar la imagen principal del producto
+
         const variantImage = variant.image?.url || product.featuredImage?.url;
 
         if (!colorMap.has(colorName)) {
@@ -73,7 +73,7 @@ const MobileProductCardAlt: React.FC<MobileProductCardAltProps> = ({ product }) 
           const existing = colorMap.get(colorName);
           if (isAvailable) {
             existing.disponible = true;
-            // Actualizar imagen si la variante disponible tiene una específica
+
             if (variant.image?.url) {
               existing.imagen = variant.image.url;
             }
@@ -121,7 +121,7 @@ const MobileProductCardAlt: React.FC<MobileProductCardAltProps> = ({ product }) 
       href={`/product/${product.handle}`}
       className="group relative block w-full h-[500px] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 hover:shadow-2xl transition-all duration-300 cursor-pointer"
     >
-      {/* Imagen del producto */}
+
       <div className="relative w-full h-full">
         <Image
           src={product.featuredImage?.url || '/img1.jpg'}
@@ -132,11 +132,11 @@ const MobileProductCardAlt: React.FC<MobileProductCardAltProps> = ({ product }) 
           loader={shopifyLoader}
         />
 
-        {/* Overlay con gradiente */}
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
       </div>
 
-      {/* Información del producto en la parte inferior */}
+
       <div className="absolute bottom-0 left-0 right-0 p-5">
         <div className="flex flex-col gap-3">
           <div>
@@ -148,13 +148,13 @@ const MobileProductCardAlt: React.FC<MobileProductCardAltProps> = ({ product }) 
             </p>
           </div>
 
-          {/* Precio y colores */}
+
           <div className="flex items-center justify-between">
             <span className="text-xl font-bold text-white">
               {formatPrice(product.priceRange?.maxVariantPrice)}
             </span>
 
-            {/* Colores disponibles */}
+
             <div className="flex gap-2">
               {getAvailableColors().slice(0, 4).map((colorInfo, index) => (
                 <div
@@ -175,7 +175,7 @@ const MobileProductCardAlt: React.FC<MobileProductCardAltProps> = ({ product }) 
             </div>
           </div>
 
-          {/* Tallas disponibles */}
+
           <div className="flex gap-1.5 flex-wrap">
             {getAvailableSizes().slice(0, 5).map((sizeInfo, index) => (
               <span
@@ -191,7 +191,7 @@ const MobileProductCardAlt: React.FC<MobileProductCardAltProps> = ({ product }) 
             ))}
           </div>
 
-          {/* Call to action */}
+
           <div className="flex items-center gap-2 text-white/90 mt-2">
             <span className="text-sm">Tap to view</span>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

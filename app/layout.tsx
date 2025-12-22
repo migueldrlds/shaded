@@ -67,10 +67,10 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
-  // Don't await the fetch, pass the Promise to the context provider
+
   const cart = getCart();
 
-  // Get language from cookie on server
+
   const cookieStore = await cookies();
   const localeCookie = cookieStore.get('locale');
   const initialLanguage = (localeCookie?.value === 'en' || localeCookie?.value === 'es')

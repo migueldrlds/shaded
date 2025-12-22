@@ -18,11 +18,11 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
   const buttonClassName =
     'h-full px-6 transition-all ease-in-out hover:scale-110 hover:text-black dark:hover:text-white flex items-center justify-center';
 
-  // Swipe handling: prefer Pointer Events with touch-action: pan-y; fallback to touch events
+
   const startXRef = useRef<number | null>(null);
   const startYRef = useRef<number | null>(null);
   const isSwipingRef = useRef(false);
-  const threshold = 50; // px to trigger swipe
+  const threshold = 50;
 
   const startGesture = (x: number, y: number) => {
     startXRef.current = x;
@@ -57,7 +57,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
     isSwipingRef.current = false;
   };
 
-  // Pointer events
+
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.pointerType !== 'touch') return;
     startGesture(e.clientX, e.clientY);
@@ -71,7 +71,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
     endGesture(e.clientX);
   };
 
-  // Touch fallback (iOS Safari older)
+
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
     if (touch) startGesture(touch.clientX, touch.clientY);

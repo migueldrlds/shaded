@@ -57,16 +57,15 @@ export default async function ProductoDetalle({ params }: ProductPageProps) {
     );
   }
 
-  // Obtener productos recomendados y todos los productos (excluyendo el actual)
-  // Tambien obtenemos los metaobjetos de color
+
   const [recommendedProducts, allProducts, colorsMetaobjects] = await Promise.all([
     getProductRecommendations(producto.id),
     getProducts({ sortKey: 'CREATED_AT', reverse: true }),
-    // Intentamos con el tipo estándar de Shopify para colores
+
     getMetaobjects('shopify--color-pattern')
   ]);
 
-  // Filtrar el producto actual de todos los productos
+
   const otherProducts = allProducts.filter(p => p.handle !== producto.handle).slice(0, 20);
 
   return (

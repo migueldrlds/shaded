@@ -24,10 +24,10 @@ export default function LanguageSelector({ isDarkMode = false }: LanguageSelecto
 
   const currentLanguage = languages.find(lang => lang.value === language) ?? languages[0]!;
 
-  // Inicializar el estado del dropdown cuando está cerrado
+
   useEffect(() => {
     if (!dropdownRef.current) return;
-    
+
     if (!isOpen) {
       gsap.set(dropdownRef.current, {
         height: 0,
@@ -43,38 +43,38 @@ export default function LanguageSelector({ isDarkMode = false }: LanguageSelecto
     const dropdown = dropdownRef.current;
 
     if (isOpen) {
-      // Primero, establecer altura auto para calcular la altura real
-      gsap.set(dropdown, { 
+
+      gsap.set(dropdown, {
         height: 'auto',
         overflow: 'hidden'
       });
-      
-      // Obtener la altura calculada
+
+
       const height = dropdown.offsetHeight;
-      
-      // Ahora animar desde 0 (altura y opacidad)
-      gsap.set(dropdown, { 
+
+
+      gsap.set(dropdown, {
         height: 0,
         opacity: 0
       });
-      
+
       gsap.to(dropdown, {
         height: height,
         opacity: 1,
         duration: 0.3,
         ease: 'power2.out',
         onComplete: () => {
-          // Mantener altura auto después de la animación
+
           gsap.set(dropdown, { height: 'auto', opacity: 1, overflow: 'visible' });
         }
       });
     } else {
-      // Animación de cierre - obtener altura actual antes de animar
+
       const currentHeight = dropdown.offsetHeight || 0;
-      
+
       if (currentHeight > 0) {
         gsap.set(dropdown, { height: currentHeight, opacity: 1, overflow: 'hidden' });
-        
+
         gsap.to(dropdown, {
           height: 0,
           opacity: 0,
@@ -82,7 +82,7 @@ export default function LanguageSelector({ isDarkMode = false }: LanguageSelecto
           ease: 'power2.in'
         });
       } else {
-        // Si ya está cerrado, solo establecer el estado
+
         gsap.set(dropdown, {
           height: 0,
           opacity: 0,
@@ -95,7 +95,7 @@ export default function LanguageSelector({ isDarkMode = false }: LanguageSelecto
   useEffect(() => {
     if (!chevronRef.current) return;
 
-    // Animar chevron cuando se abre/cierra
+
     if (isOpen) {
       gsap.to(chevronRef.current, {
         rotation: 180,
@@ -117,12 +117,12 @@ export default function LanguageSelector({ isDarkMode = false }: LanguageSelecto
 
   const handleSelect = (lang: 'en' | 'es') => {
     setLanguage(lang);
-    
-    // Animación de cierre
+
+
     if (dropdownRef.current) {
       const currentHeight = dropdownRef.current.offsetHeight || 0;
       gsap.set(dropdownRef.current, { height: currentHeight, opacity: 1, overflow: 'hidden' });
-      
+
       gsap.to(dropdownRef.current, {
         height: 0,
         opacity: 0,
@@ -135,14 +135,14 @@ export default function LanguageSelector({ isDarkMode = false }: LanguageSelecto
     }
   };
 
-  // Cerrar al hacer clic fuera
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         if (isOpen && dropdownRef.current) {
           const currentHeight = dropdownRef.current.offsetHeight || 0;
           gsap.set(dropdownRef.current, { height: currentHeight, opacity: 1, overflow: 'hidden' });
-          
+
           gsap.to(dropdownRef.current, {
             height: 0,
             opacity: 0,
@@ -163,7 +163,7 @@ export default function LanguageSelector({ isDarkMode = false }: LanguageSelecto
     };
   }, [isOpen]);
 
-  // Colores según el modo
+
   const labelColor = isDarkMode ? 'text-black/60' : 'text-white/60';
   const buttonBg = isDarkMode ? 'bg-black/10' : 'bg-white/10';
   const buttonBorder = isDarkMode ? 'border-black/30' : 'border-white/30';
@@ -249,8 +249,8 @@ export default function LanguageSelector({ isDarkMode = false }: LanguageSelecto
                     });
                   }}
                   style={{
-                    backgroundColor: lang.value === language 
-                      ? (isDarkMode ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)') 
+                    backgroundColor: lang.value === language
+                      ? (isDarkMode ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)')
                       : 'transparent'
                   }}
                 >

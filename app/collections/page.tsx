@@ -8,10 +8,10 @@ export const metadata: Metadata = {
 };
 
 export default async function Coleccion() {
-  // Obtener colecciones de Shopify
+
   const allCollections = await getCollections();
 
-  // Filtrar colecciones - excluir "ALL" y otras colecciones no deseadas
+
   const collections = allCollections.filter(collection =>
     collection.title !== 'ALL' &&
     !collection.title.toLowerCase().includes('all') &&
@@ -19,18 +19,18 @@ export default async function Coleccion() {
     collection.title !== 'Featured products'
   );
 
-  // Convertir colecciones a formato para FlowingMenu
+
   const menuItems = [
     ...collections.map(collection => ({
       link: `/products?collection=${collection.handle}`,
       text: collection.title.toUpperCase(),
-      image: collection.image?.url || '/img1.jpg' // Usar imagen de la colección o imagen por defecto
+      image: collection.image?.url || '/img1.jpg'
     })),
-    // Agregar Coming Soon como último elemento
+
     {
       link: '#',
       text: 'COMING SOON',
-      image: '/img1.jpg' // Usar imagen por defecto para Coming Soon
+      image: '/img1.jpg'
     }
   ];
 

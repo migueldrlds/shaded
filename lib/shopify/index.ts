@@ -213,27 +213,26 @@ const reshapeCollections = (collections: ShopifyCollection[]) => {
 const reshapeImages = (images: Connection<Image>, productTitle: string) => {
   const flattened = removeEdgesAndNodes(images);
 
-  // Helper to extract clean filename from URL
+
   const getFilename = (url: string) => {
     try {
-      // Handle relative URLs by providing a base if needed
+
       const validUrl = url.startsWith('http') ? url : `https://example.com${url.startsWith('/') ? '' : '/'}${url}`;
       const pathname = new URL(validUrl).pathname;
-      const fullname = pathname.split('/').pop() || ''; // Get "file.jpg"
-      const name = fullname.split('.').slice(0, -1).join('.'); // Remove extension "file"
+      const fullname = pathname.split('/').pop() || '';
+      const name = fullname.split('.').slice(0, -1).join('.');
       return name;
     } catch {
       return '';
     }
   };
 
-  // Parse filename and sort alphabetically/numerically
+
   const sorted = flattened.sort((a, b) => {
     const filenameA = getFilename(a.url);
     const filenameB = getFilename(b.url);
 
-    // Debug log to Server Console (visible in "npm run dev" terminal)
-    // console.log(`Comparing: ${filenameA} vs ${filenameB}`);
+
 
     return filenameA.localeCompare(filenameB, undefined, { numeric: true, sensitivity: 'base' });
   });
@@ -261,13 +260,13 @@ const reshapeProduct = (
 
   const { images, variants, ...rest } = product;
 
-  // Primero ordenamos las imágenes
+
   const sortedImages = reshapeImages(images, product.title);
 
   return {
     ...rest,
     images: sortedImages,
-    // Forzamos que la featuredImage sea la primera después de ordenar
+
     featuredImage: sortedImages[0] || product.featuredImage,
     variants: removeEdgesAndNodes(variants)
   };
@@ -428,8 +427,7 @@ export async function getCollections(): Promise<Collection[]> {
       path: '/search',
       updatedAt: new Date().toISOString()
     },
-    // Filter out the `hidden` collections.
-    // Collections that start with `hidden-*` need to be hidden on the search page.
+
     ...reshapeCollections(shopifyCollections).filter(
       (collection) => !collection.handle.startsWith('hidden')
     )
@@ -535,10 +533,8 @@ export async function getProducts({
   return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
 }
 
-// This is called from `app/api/revalidate.ts` so providers can control revalidation logic.
+
 export async function revalidate(req: NextRequest): Promise<NextResponse> {
-  // We always need to respond with a 200 status code to Shopify,
-  // otherwise it will continue to retry the request.
   const collectionWebhooks = [
     'collections/create',
     'collections/delete',
@@ -560,7 +556,7 @@ export async function revalidate(req: NextRequest): Promise<NextResponse> {
   }
 
   if (!isCollectionUpdate && !isProductUpdate) {
-    // We don't need to revalidate anything for any other topics.
+
     return NextResponse.json({ status: 200 });
   }
 
@@ -575,7 +571,7 @@ export async function revalidate(req: NextRequest): Promise<NextResponse> {
   return NextResponse.json({ status: 200, revalidated: true, now: Date.now() });
 }
 
-// Customer Authentication Functions
+
 export async function customerLogin(email: string, password: string): Promise<{ accessToken?: string; errors?: string[] }> {
   try {
     const res = await shopifyFetch<ShopifyCustomerAccessTokenCreateOperation>({
@@ -597,7 +593,7 @@ export async function customerLogin(email: string, password: string): Promise<{ 
     }
 
     if (customerAccessToken) {
-      // Store the access token in cookies
+
       const cookieStore = await cookies();
       cookieStore.set('customerAccessToken', customerAccessToken.accessToken, {
         httpOnly: true,
@@ -628,7 +624,7 @@ export async function customerLogout(): Promise<{ success: boolean }> {
     const accessToken = cookieStore.get('customerAccessToken')?.value;
 
     if (accessToken) {
-      // Delete the access token from Shopify
+
       await shopifyFetch<ShopifyCustomerAccessTokenDeleteOperation>({
         query: customerAccessTokenDeleteMutation,
         variables: {
@@ -637,7 +633,7 @@ export async function customerLogout(): Promise<{ success: boolean }> {
       });
     }
 
-    // Remove the cookie
+
     cookieStore.delete('customerAccessToken');
 
     return { success: true };
@@ -786,7 +782,7 @@ export async function customerActivate(
     }
 
     if (customerAccessToken && customer) {
-      // Store the access token in cookies
+
       const cookieStore = await cookies();
       cookieStore.set('customerAccessToken', customerAccessToken.accessToken, {
         httpOnly: true,

@@ -20,7 +20,7 @@ export default function ProductosClient({ children, products }: ProductosClientP
   const searchParams = useSearchParams();
   const lenis = useLenis();
 
-  // Limpiar preloads no utilizados
+
   useEffect(() => {
     if (typeof window === 'undefined' || !products || products.length === 0) return;
 
@@ -51,25 +51,25 @@ export default function ProductosClient({ children, products }: ProductosClientP
     }, 100);
   }, [products]);
 
-  // Aggressive scroll reset with Lenis support
+
   const handleScrollReset = () => {
     if (typeof window !== 'undefined') {
       const originalRestoration = window.history.scrollRestoration;
       window.history.scrollRestoration = 'manual';
 
       const reset = () => {
-        // Native reset
+
         window.scrollTo(0, 0);
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
 
-        // Lenis reset
+
         if (lenis) {
           lenis.scrollTo(0, { immediate: true, force: true });
         }
       };
 
-      // Sequence
+
       reset();
       setTimeout(reset, 10);
       setTimeout(reset, 50);

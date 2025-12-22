@@ -1,10 +1,6 @@
-/**
- * Función de animación personalizada para next-view-transitions
- * Crea una transición donde la página antigua se desvanece y sube,
- * mientras que la nueva página aparece desde abajo con un efecto clip-path
- */
+
 export function slideInOut() {
-  // Anima la página antigua (que sale)
+
   document.documentElement.animate(
     [
       {
@@ -24,7 +20,7 @@ export function slideInOut() {
     }
   );
 
-  // Anima la página nueva (que entra)
+
   document.documentElement.animate(
     [
       {

@@ -207,7 +207,7 @@ export function CartProvider({
   const initialCart = use(cartPromise);
   const [localCart, setLocalCart] = useState(initialCart);
 
-  // Generar un ID único para esta instancia del contexto
+
   const contextId = useMemo(() => Math.random().toString(36).substr(2, 9), []);
 
   const updateCartItem = (merchandiseId: string, updateType: UpdateType) => {
@@ -221,7 +221,7 @@ export function CartProvider({
   };
 
   const addCartItem = async (variant: ProductVariant, product: Product, quantity: number = 1) => {
-    // Actualizar el carrito local
+
     setLocalCart(prevCart => {
       if (!prevCart) return prevCart;
       return cartReducer(prevCart, {
@@ -230,12 +230,12 @@ export function CartProvider({
       });
     });
 
-    // Sincronizar con Shopify usando la acción del servidor
+
     try {
       const { addItemToCart } = await import('./actions');
       await addItemToCart(variant.id, quantity);
     } catch (error) {
-      // Error sincronizando con Shopify
+
     }
   };
 
