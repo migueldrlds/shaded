@@ -17,6 +17,7 @@ export type CartProduct = {
   handle: string;
   title: string;
   featuredImage: Image;
+  images: Image[];
 };
 
 export type CartItem = {
@@ -33,6 +34,7 @@ export type CartItem = {
       value: string;
     }[];
     product: CartProduct;
+    image?: Image;
   };
 };
 

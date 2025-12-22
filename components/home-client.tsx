@@ -82,6 +82,16 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
   const [communityErrorMessage, setCommunityErrorMessage] = useState('');
 
   const [activeTrendingIndex, setActiveTrendingIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -381,7 +391,10 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
             <video
               ref={collectionVideoRef}
               className="absolute inset-0 w-full h-full object-cover"
-              src="/Card.mp4"
+              src={isMobile
+                ? "https://cdn.shopify.com/videos/c/o/v/6b530aed17a24fd9a249c127ada83113.mp4"
+                : "/Card.mp4"
+              }
               autoPlay
               muted
               loop

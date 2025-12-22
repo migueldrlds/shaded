@@ -37,6 +37,12 @@ const cartFragment = /* GraphQL */ `
                 name
                 value
               }
+              image {
+                url
+                altText
+                width
+                height
+              }
               product {
                 ...product
               }

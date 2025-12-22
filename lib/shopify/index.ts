@@ -177,7 +177,17 @@ const reshapeCart = (cart: ShopifyCart): Cart => {
 
   return {
     ...cart,
-    lines: removeEdgesAndNodes(cart.lines)
+    lines: removeEdgesAndNodes(cart.lines).map((line: any) => ({
+      ...line,
+      merchandise: {
+        ...line.merchandise,
+        image: line.merchandise.image,
+        product: {
+          ...line.merchandise.product,
+          images: reshapeImages(line.merchandise.product.images, line.merchandise.product.title)
+        }
+      }
+    }))
   };
 };
 

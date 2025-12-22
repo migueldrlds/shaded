@@ -94,7 +94,8 @@ function createOrUpdateCartItem(
         id: product.id,
         handle: product.handle,
         title: product.title,
-        featuredImage: variant.image || product.featuredImage
+        featuredImage: variant.image || product.featuredImage,
+        images: product.images
       }
     }
   };

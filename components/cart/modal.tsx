@@ -276,6 +276,26 @@ export default function CartModal() {
                   new URLSearchParams(merchandiseSearchParams)
                 );
 
+                const getCartItemImage = () => {
+                  const colorOption = item.merchandise.selectedOptions.find(
+                    (option) =>
+                      option.name.toLowerCase().includes('color') ||
+                      option.name.toLowerCase().includes('colour')
+                  );
+
+                  if (colorOption) {
+                    const selectedColor = colorOption.value.toLowerCase().trim();
+                    const matchingImage = item.merchandise.product.images?.find((img) => {
+                      const alt = img.altText?.toLowerCase().trim();
+                      return alt === selectedColor || alt.includes(`color: ${selectedColor}`);
+                    });
+                    if (matchingImage) return matchingImage.url;
+                  }
+
+                  if (item.merchandise.image?.url) return item.merchandise.image.url;
+                  return item.merchandise.product.featuredImage.url;
+                };
+
                 return (
                   <div className="cart-item" key={i}>
                     <LinkWithTransition
@@ -292,7 +312,7 @@ export default function CartModal() {
                           item.merchandise.product.featuredImage.altText ||
                           item.merchandise.product.title
                         }
-                        src={item.merchandise.product.featuredImage.url}
+                        src={getCartItemImage()}
                         loader={shopifyLoader}
                       />
                     </LinkWithTransition>
