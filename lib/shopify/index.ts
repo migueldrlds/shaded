@@ -190,7 +190,7 @@ const reshapeCollection = (
 
   return {
     ...collection,
-    path: `/search/${collection.handle}`
+    path: `/products?collection=${collection.handle}`
   };
 };
 
