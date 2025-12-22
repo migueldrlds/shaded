@@ -41,7 +41,7 @@ export async function subscribeToNewsletter(email: string) {
 
         return { success: true };
     } catch (error: any) {
-        console.error('Newsletter subscription error:', error);
+
 
 
         let errorMessage = '';

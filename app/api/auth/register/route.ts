@@ -21,12 +21,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      customer: result.customer 
+    return NextResponse.json({
+      success: true,
+      customer: result.customer
     });
   } catch (error) {
-    console.error('Registration API error:', error);
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

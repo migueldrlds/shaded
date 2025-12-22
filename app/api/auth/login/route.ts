@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       message: 'Por favor, revisa tu correo electrónico para el código de verificación'
     });
   } catch (error: any) {
-    console.error('Login API error:', error);
+
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

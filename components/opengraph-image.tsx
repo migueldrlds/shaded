@@ -24,7 +24,7 @@ export default async function OpengraphImage(
     const file = await readFile(fontPath);
     font = Uint8Array.from(file).buffer;
   } catch (error) {
-    console.error('Error loading font:', error);
+
 
   }
 

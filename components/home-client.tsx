@@ -23,7 +23,7 @@ interface HomeClientProps {
 }
 
 export default function HomeClient({ latestCollection, trendingProducts }: HomeClientProps) {
-  console.log('HomeClient trendingProducts:', trendingProducts?.length, trendingProducts);
+
   const { t } = useLanguage();
   const lenis = useLenis();
 

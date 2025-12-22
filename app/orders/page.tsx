@@ -66,10 +66,10 @@ export default function Orders() {
       if (response.ok) {
         setOrders(data.orders || []);
       } else {
-        console.error('Error fetching orders:', data.error);
+
       }
     } catch (error) {
-      console.error('Error fetching orders:', error);
+
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +96,7 @@ export default function Orders() {
 
       return `${currency} ${formatted}`;
     } catch (error) {
-      console.warn('Error formatting price:', error);
+
       return `USD $${numericAmount.toFixed(2)}`;
     }
   };

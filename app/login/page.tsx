@@ -237,7 +237,7 @@ export default function Login() {
         setIsSubmitting(false);
       }
     } catch (error) {
-      console.error('Login error:', error);
+
       setErrors(['An unexpected error occurred']);
       setIsSubmitting(false);
     }

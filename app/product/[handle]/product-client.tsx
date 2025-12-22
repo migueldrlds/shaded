@@ -675,7 +675,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
           await navigator.clipboard.writeText(url);
           alert('Link copiado al portapapeles!');
         } catch (clipboardError) {
-          console.error('Error compartiendo:', clipboardError);
+
         }
       }
     }
@@ -724,7 +724,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
 
       await addCartItem(variantWithImage, producto, quantity);
     } catch (error) {
-      console.error('❌ Error agregando producto al carrito:', error);
+
     }
   };
 
@@ -795,11 +795,6 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     >
       {/* Fondo Escritorio: Video Loop Simplificado - z-index -1 para evitar problemas */}
       <video
-        ref={(el) => {
-          if (el) {
-            console.log('Video element mounted', el);
-          }
-        }}
         className="fixed inset-0 w-full h-full object-cover -z-1 hidden md:block"
         src="/videoloop.mp4?v=2"
         autoPlay
@@ -807,8 +802,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
         loop
         playsInline
         suppressHydrationWarning
-        onLoadedData={() => console.log('Video loaded successfully')}
-        onError={(e) => console.error('Video error:', e)}
+
       />
 
 

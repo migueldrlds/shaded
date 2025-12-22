@@ -86,7 +86,7 @@ export default function SplitText({
 
 
     if (!GSAPSplitText || !GSAPSplitText.create) {
-      console.warn('GSAP SplitText plugin not available');
+
       return;
     }
 
@@ -125,7 +125,7 @@ export default function SplitText({
         });
       }
     } catch (error) {
-      console.error('Error creating SplitText:', error);
+
       return;
     }
 
@@ -190,7 +190,7 @@ export default function SplitText({
         try {
           splitInstanceRef.current.revert();
         } catch (error) {
-          console.error('Error reverting SplitText:', error);
+
         }
       }
     };

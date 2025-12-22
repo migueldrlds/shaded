@@ -137,11 +137,11 @@ export default function ReturnRequest({ params }: { params: Promise<{ id: string
 
         setReturnItems(items);
       } else {
-        console.error('Error fetching order detail:', data.error);
+
         router.push('/orders');
       }
     } catch (error) {
-      console.error('Error fetching order detail:', error);
+
       router.push('/orders');
     } finally {
       setIsLoading(false);
@@ -158,7 +158,7 @@ export default function ReturnRequest({ params }: { params: Promise<{ id: string
         currency: currency
       }).format(numericAmount);
     } catch (error) {
-      console.warn('Error formatting price:', error);
+
       return `USD $${numericAmount.toFixed(2)}`;
     }
   };
@@ -228,7 +228,7 @@ export default function ReturnRequest({ params }: { params: Promise<{ id: string
         alert(data.error || t('returns.errorSubmit'));
       }
     } catch (error) {
-      console.error('Error submitting return request:', error);
+
       alert(t('returns.errorSubmit'));
     } finally {
       setIsSubmitting(false);

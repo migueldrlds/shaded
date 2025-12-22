@@ -112,7 +112,7 @@ export default function VerifyCode() {
         inputRefs.current[0]?.focus();
       }
     } catch (error) {
-      console.error('Activation error:', error);
+
       setErrors([t('verify.errorUnexpected')]);
     } finally {
       setIsSubmitting(false);
@@ -135,7 +135,7 @@ export default function VerifyCode() {
         alert(t('verify.codeResent'));
       }
     } catch (error) {
-      console.error('Resend error:', error);
+
     }
   };
 

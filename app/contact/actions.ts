@@ -54,7 +54,7 @@ export async function submitContactForm(prevState: any, formData: FormData) {
         return { success: true, message: 'Message sent' };
 
     } catch (error) {
-        console.error('Contact form submission error:', error);
+
         return { success: false, message: 'Failed to send message. Please try again later.' };
     }
 }

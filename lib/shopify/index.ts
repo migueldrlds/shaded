@@ -551,7 +551,7 @@ export async function revalidate(req: NextRequest): Promise<NextResponse> {
   const isProductUpdate = productWebhooks.includes(topic);
 
   if (!secret || secret !== process.env.SHOPIFY_REVALIDATION_SECRET) {
-    console.error('Invalid revalidation secret.');
+
     return NextResponse.json({ status: 401 });
   }
 
@@ -611,7 +611,7 @@ export async function customerLogin(email: string, password: string): Promise<{ 
       errors: ['Login failed']
     };
   } catch (error) {
-    console.error('Login error:', error);
+
     return {
       errors: ['An error occurred during login']
     };
@@ -638,7 +638,7 @@ export async function customerLogout(): Promise<{ success: boolean }> {
 
     return { success: true };
   } catch (error) {
-    console.error('Logout error:', error);
+
     return { success: false };
   }
 }
@@ -668,7 +668,7 @@ export async function customerRegister(firstName: string, lastName: string, emai
 
     return { customer };
   } catch (error) {
-    console.error('Registration error:', error);
+
     return {
       errors: ['An error occurred during registration']
     };
@@ -693,7 +693,7 @@ export async function getCustomer(): Promise<Customer | null> {
 
     return res.body.data.customer || null;
   } catch (error) {
-    console.error('Get customer error:', error);
+
     return null;
   }
 }
@@ -718,7 +718,7 @@ export async function customerForgotPassword(email: string): Promise<{ success: 
 
     return { success: true };
   } catch (error) {
-    console.error('Forgot password error:', error);
+
     return {
       success: false,
       errors: ['An error occurred while processing your request']
@@ -751,7 +751,7 @@ export async function getCustomerOrders(first: number = 10): Promise<any[]> {
 
     return customer.orders.edges.map((edge: any) => edge.node);
   } catch (error) {
-    console.error('Get customer orders error:', error);
+
     return [];
   }
 }
@@ -801,7 +801,7 @@ export async function customerActivate(
       errors: ['Activation failed']
     };
   } catch (error) {
-    console.error('Customer activation error:', error);
+
     return {
       errors: ['An error occurred during activation']
     };

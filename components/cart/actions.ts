@@ -2,11 +2,11 @@
 
 import { TAGS } from 'lib/constants';
 import {
-    addToCart,
-    createCart,
-    getCart,
-    removeFromCart,
-    updateCart
+  addToCart,
+  createCart,
+  getCart,
+  removeFromCart,
+  updateCart
 } from 'lib/shopify';
 import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
@@ -90,20 +90,20 @@ export async function updateItemQuantity(
 
     revalidateTag(TAGS.cart);
   } catch (e) {
-    console.error(e);
+
     return 'Error updating item quantity';
   }
 }
 
 export async function redirectToCheckout() {
   let cart = await getCart();
-  
+
   // Si no hay carrito, crear uno
   if (!cart) {
     cart = await createCart();
     (await cookies()).set('cartId', cart.id!);
   }
-  
+
   redirect(cart!.checkoutUrl);
 }
 
@@ -118,7 +118,7 @@ export async function addItemToCart(variantId: string, quantity: number = 1) {
     revalidateTag(TAGS.cart);
     return { success: true };
   } catch (error) {
-    console.error('Error adding item to cart:', error);
+
     return { success: false, error: 'Error adding item to cart' };
   }
 }

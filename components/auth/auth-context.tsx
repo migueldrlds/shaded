@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setCustomer(data.customer);
       }
     } catch (error) {
-      console.error('Error fetching customer:', error);
+
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
       }
     } catch (error) {
-      console.error('Login error:', error);
+
       return {
         success: false,
         errors: ['An error occurred during login']
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setCustomer(null);
     } catch (error) {
-      console.error('Logout error:', error);
+
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
       }
     } catch (error) {
-      console.error('Registration error:', error);
+
       return {
         success: false,
         errors: ['An error occurred during registration']

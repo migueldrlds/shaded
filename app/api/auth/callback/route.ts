@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
 
     if (error) {
-      console.error('OAuth error:', error);
+
       return NextResponse.redirect(
         new URL(`/login?error=${encodeURIComponent(error)}`, req.url)
       );
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.redirect(new URL('/?login=success', req.url));
   } catch (error: any) {
-    console.error('Callback error:', error);
+
     return NextResponse.redirect(
       new URL(`/login?error=${encodeURIComponent(error.message)}`, req.url)
     );

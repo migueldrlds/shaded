@@ -13,7 +13,7 @@ export default function ShopifyAnalytics() {
         // we would trigger it here.
         // For now, this component preserves the architecture for analytics injection.
 
-        // console.log(`[Shopify Analytics] Page View: ${pathname}`);
+
     }, [pathname, searchParams]);
 
     return null;

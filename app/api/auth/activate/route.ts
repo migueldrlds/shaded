@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       customer: result.customer
     });
   } catch (error) {
-    console.error('Customer activation API error:', error);
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

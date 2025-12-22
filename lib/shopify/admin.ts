@@ -29,7 +29,7 @@ export async function shopifyAdminFetch<T>({
   const body = await result.json();
 
   if (body.errors) {
-    console.error('Shopify Admin API errors:', body.errors);
+
     throw new Error(body.errors[0]?.message || 'Admin API error');
   }
 
@@ -83,7 +83,7 @@ export async function createReturnRequest(orderId: string, returnItems: any[]) {
 
     return response.body;
   } catch (error) {
-    console.error('Error creating return request:', error);
+
     throw error;
   }
 }
@@ -120,7 +120,7 @@ export async function addOrderNote(orderId: string, note: string) {
 
     return response.body;
   } catch (error) {
-    console.error('Error adding order note:', error);
+
     throw error;
   }
 }

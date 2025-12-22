@@ -104,11 +104,11 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
       if (response.ok) {
         setOrder(data.order);
       } else {
-        console.error('Error fetching order detail:', data.error);
+
         router.push('/orders');
       }
     } catch (error) {
-      console.error('Error fetching order detail:', error);
+
       router.push('/orders');
     } finally {
       setIsLoading(false);
@@ -136,7 +136,7 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
 
       return `${currency} ${formatted}`;
     } catch (error) {
-      console.warn('Error formatting price:', error);
+
       return `USD $${numericAmount.toFixed(2)}`;
     }
   };

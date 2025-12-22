@@ -36,7 +36,7 @@ export async function GET() {
     const customer = await getCustomerLegacy();
     return NextResponse.json({ customer });
   } catch (error) {
-    console.error('Get customer API error:', error);
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
