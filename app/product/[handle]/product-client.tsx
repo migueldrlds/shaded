@@ -796,7 +796,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
       {/* Fondo Escritorio: Video Loop Simplificado - z-index -1 para evitar problemas */}
       <video
         className="fixed inset-0 w-full h-full object-cover -z-1 hidden md:block"
-        src="/videoloop.mp4?v=2"
+        src="https://cdn.shopify.com/videos/c/o/v/8c7e2e1e05c6407aa66c36c125ebec6b.mp4"
         autoPlay
         muted
         loop

@@ -361,7 +361,7 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
       <video
         ref={backgroundVideoRef}
         className="fixed inset-0 w-full h-full object-cover z-0"
-        src="/videoloop2.mp4"
+        src="https://cdn.shopify.com/videos/c/o/v/6b530aed17a24fd9a249c127ada83113.mp4"
         autoPlay
         muted
         loop

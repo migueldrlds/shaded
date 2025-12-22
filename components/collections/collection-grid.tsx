@@ -24,7 +24,7 @@ export default function CollectionGrid({ collections }: CollectionGridProps) {
                     <LinkWithTransition
                         key={collection.path}
                         href={collection.path}
-                        className="group relative aspect-video overflow-hidden rounded-sm bg-gray-100 w-full md:w-[calc(50%-2rem)]"
+                        className="group relative aspect-[3/2] overflow-hidden rounded-sm bg-gray-100 w-full md:w-[calc(66.66%-2rem)] grow"
                         onMouseEnter={() => setHoveredIndex(index)}
                         onMouseLeave={() => setHoveredIndex(null)}
                     >
@@ -35,7 +35,7 @@ export default function CollectionGrid({ collections }: CollectionGridProps) {
                                     alt={collection.image.altText || collection.title}
                                     fill
                                     className="object-cover"
-                                    sizes="(min-width: 768px) 50vw, 100vw"
+                                    sizes="(min-width: 768px) 66vw, 100vw"
                                     quality={100}
                                     priority={index < 4}
                                 />
@@ -67,7 +67,7 @@ export default function CollectionGrid({ collections }: CollectionGridProps) {
                         </div>
                     </LinkWithTransition>
                 ))}
-                <div className="group relative aspect-video overflow-hidden rounded-sm bg-black flex items-center justify-center border border-neutral-800 w-full md:w-[calc(50%-2rem)]">
+                <div className="group relative aspect-[3/4] overflow-hidden rounded-sm bg-black flex items-center justify-center border border-neutral-800 w-full md:w-[calc(33.33%-2rem)]">
                     <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 hidden"></div>
                     <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 to-black"></div>
 
