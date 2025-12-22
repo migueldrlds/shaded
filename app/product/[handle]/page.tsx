@@ -25,6 +25,13 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
         },
       ],
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.seo?.title || product.title,
+      description: product.seo?.description || product.description,
+      images: [product.featuredImage?.url || ''],
+      creator: '@shaded'
+    },
   };
 }
 
