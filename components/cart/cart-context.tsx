@@ -207,6 +207,10 @@ export function CartProvider({
   const initialCart = use(cartPromise);
   const [localCart, setLocalCart] = useState(initialCart);
 
+  React.useEffect(() => {
+    setLocalCart(initialCart);
+  }, [initialCart]);
+
 
   const contextId = useMemo(() => Math.random().toString(36).substr(2, 9), []);
 
