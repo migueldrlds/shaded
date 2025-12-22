@@ -809,7 +809,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
           playsInline
           className="w-full h-full object-cover"
         >
-          <source src="/shadedbg.mp4" type="video/mp4" />
+          <source src="/Videoloop.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
@@ -1453,10 +1453,16 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                           : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4 justify-items-center'
                       }`}>
                       {recommendedProducts.slice(0, 4).map((product, index) => {
-                        // Obtener segunda imagen si existe
+                        // Logic: User wants the SECOND image as the main image.
+                        // And the THIRD image as the hover image.
                         const featuredImageUrl = product.featuredImage?.url;
-                        const secondImage = product.images?.find(img => img.url !== featuredImageUrl);
-                        const hoverImage = secondImage?.url || product.images?.[1]?.url || featuredImageUrl;
+                        const secondImageUrl = product.images?.[1]?.url;
+                        const thirdImageUrl = product.images?.[2]?.url;
+
+                        // Main display: Second image (fallback to featured)
+                        const displayImage = secondImageUrl || featuredImageUrl;
+                        // Hover display: Third image (fallback to featured)
+                        const hoverImage = thirdImageUrl || featuredImageUrl;
 
                         // Extraer colores únicos para este producto recomendado
                         const productColors = (() => {
@@ -1483,18 +1489,18 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                             className="group cursor-pointer w-full max-w-[280px]"
                           >
                             <div className="relative aspect-square bg-white/5 rounded-[20px] overflow-hidden mb-4 w-full border border-white/10 group-hover:border-white/30 transition-colors">
-                              {product.featuredImage && (
+                              {displayImage && (
                                 <>
-                                  {/* Imagen principal */}
+                                  {/* Imagen principal (Ahora es la segunda foto) */}
                                   <Image
-                                    src={product.featuredImage.url}
+                                    src={displayImage}
                                     alt={product.title}
                                     fill
                                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                                     sizes="(min-width: 768px) 25vw, 50vw"
                                   />
-                                  {/* Segunda imagen en hover (si existe) */}
-                                  {hoverImage && hoverImage !== product.featuredImage.url && (
+                                  {/* Imagen hover (Ahora es la primera foto) */}
+                                  {hoverImage && (
                                     <Image
                                       src={hoverImage}
                                       alt={product.title}

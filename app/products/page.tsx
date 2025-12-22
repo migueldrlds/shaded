@@ -180,7 +180,7 @@ export default async function Products({ searchParams }: ProductsPageProps) {
       {/* Video de fondo para móvil */}
       <video
         className="fixed inset-0 w-full h-full object-cover -z-20 md:hidden"
-        src="/videoloop.mp4"
+        src="/Videoloop.mp4?v=2"
         autoPlay
         muted
         loop
@@ -190,7 +190,7 @@ export default async function Products({ searchParams }: ProductsPageProps) {
       {/* Video de fondo para escritorio */}
       <video
         className="fixed inset-0 w-full h-full object-cover -z-20 hidden md:block"
-        src="/videoloop2.mp4"
+        src="/Videoloop.mp4?v=2"
         autoPlay
         muted
         loop

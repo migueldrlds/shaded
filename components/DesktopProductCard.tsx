@@ -70,7 +70,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
       <div className="relative" style={{ top: '240px', width: '300px', right: '-30px' }}>
         <LinkWithTransition
           href={`/product/${product.handle}`}
-          className="bg-transparent rounded-3xl overflow-hidden hover:shadow-lg transition-all duration-300 group relative w-full block cursor-pointer"
+          className="bg-transparent rounded-3xl overflow-hidden transition-all duration-300 group relative w-full block cursor-pointer"
           style={{ height: '500px' }}
         >
           {/* Imagen del producto */}
@@ -79,7 +79,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
               src={product.featuredImage?.url || '/img1.jpg'}
               alt={product.title}
               fill
-              className="object-contain group-hover:scale-105 transition-transform duration-300"
+              className="object-contain transition-transform duration-300"
               sizes="400px"
               priority={false}
               quality={90}
@@ -89,7 +89,7 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
               src={product.featuredImage?.url || '/img1.jpg'}
               alt={product.title}
               fill
-              className="object-contain group-hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100 absolute inset-0"
+              className="object-contain transition-all duration-300 opacity-0 absolute inset-0"
               sizes="400px"
               priority={false}
               quality={90}

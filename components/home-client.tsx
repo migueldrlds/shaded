@@ -86,6 +86,16 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
   const [communityLoading, setCommunityLoading] = useState(false);
   const [communityErrorMessage, setCommunityErrorMessage] = useState('');
 
+  // Trending Now Image State
+  const [activeTrendingIndex, setActiveTrendingIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTrendingIndex((prev) => (prev === 0 ? 1 : 0));
+    }, 6000); // 6 seconds for the fade
+    return () => clearInterval(interval);
+  }, []);
+
   const handleDiscountClick = () => {
     if (newsletterState === 'idle') {
       setNewsletterState('interacting');
@@ -509,24 +519,49 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            {trendingProducts?.slice(0, 2).map((product, index) => (
+            {[
+              {
+                images: [
+                  "https://cdn.shopify.com/s/files/1/0703/4562/1751/files/HoodieB3.webp?v=1766373916",
+                  "https://cdn.shopify.com/s/files/1/0703/4562/1751/files/HoodieG3.webp?v=1766373916"
+                ],
+                product: trendingProducts?.find(p => p.title.toLowerCase().includes('hoodie')) || trendingProducts?.[0],
+                fallback: 'Premium Hoodie'
+              },
+              {
+                images: [
+                  "https://cdn.shopify.com/s/files/1/0703/4562/1751/files/SweatshortG3.webp?v=1766373884",
+                  "https://cdn.shopify.com/s/files/1/0703/4562/1751/files/SweatshortB3.webp?v=1766373884"
+                ],
+                product: trendingProducts?.find(p => p.title.toLowerCase().includes('short')) || trendingProducts?.[1],
+                fallback: 'Essential Shorts'
+              }
+            ].map((item, index) => (
               <LinkWithTransition
-                key={`${product.id}-${index}`}
-                href={`/product/${product.handle}`}
+                key={index}
+                href={item.product ? `/product/${item.product.handle}` : '/collections'}
                 className="group relative bg-black/30 backdrop-blur-md rounded-[40px] border border-white/10 overflow-hidden aspect-[4/5] md:aspect-[3/4] block cursor-pointer"
               >
-                <Image
-                  src={product.featuredImage?.url || ''}
-                  alt={product.title}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                  loader={shopifyLoader}
-                />
+                {/* Image pairs with fade */}
+                {item.images.map((imgUrl, imgIndex) => (
+                  <Image
+                    key={imgUrl}
+                    src={imgUrl}
+                    alt={item.product?.title || item.fallback}
+                    fill
+                    className={`object-cover transition-opacity duration-1000 group-hover:scale-105 ${activeTrendingIndex === imgIndex ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                    loader={shopifyLoader}
+                  />
+                ))}
+
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-8 md:p-10 flex flex-col items-start">
-                  <h4 className="text-2xl md:text-3xl font-light text-white mb-2">{product.title}</h4>
+                  <h4 className="text-2xl md:text-3xl font-light text-white mb-2">
+                    {item.product?.title || item.fallback}
+                  </h4>
                   <p className="text-white/70 font-extralight text-sm mb-6 max-w-xs line-clamp-2">
-                    {product.description || 'Premium athleisure wear.'}
+                    {item.product?.description || 'Premium athleisure wear.'}
                   </p>
                   <div
                     className="bg-white text-black px-6 py-3 rounded-full text-sm font-medium hover:bg-white/90 transition-all w-full md:w-auto text-center"
@@ -589,22 +624,21 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            {trendingProducts?.slice(2, 6).map((product, index) => (
-              <div key={`${product.id}-${index}`} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-white/5">
+            {[
+              "https://cdn.shopify.com/s/files/1/0703/4562/1751/files/Join1.webp?v=1766376407",
+              "https://cdn.shopify.com/s/files/1/0703/4562/1751/files/Join2.webp?v=1766376407",
+              "https://cdn.shopify.com/s/files/1/0703/4562/1751/files/Join3.webp?v=1766376407",
+              "https://cdn.shopify.com/s/files/1/0703/4562/1751/files/Join4.webp?v=1766376407"
+            ].map((url, index) => (
+              <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-white/5">
                 <Image
-                  src={product.featuredImage?.url || '/logo.png'}
-                  alt={`Community Member - ${product.title}`}
+                  src={url}
+                  alt={`Community Member ${index + 1}`}
                   fill
                   className="object-cover hover:scale-110 transition-transform duration-500"
-                  sizes="(min-width: 768px) 50vw, 50vw"
+                  sizes="(min-width: 768px) 25vw, 50vw"
                   loader={shopifyLoader}
                 />
-              </div>
-            ))}
-            {/* Fallback blocks if fewer than 4 items */}
-            {trendingProducts?.slice(2, 6).length < 4 && Array.from({ length: 4 - (trendingProducts?.slice(2, 6).length || 0) }).map((_, i) => (
-              <div key={`fallback-${i}`} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-white/5 flex items-center justify-center">
-                <Image src="/logo.png" alt="Shaded" width={40} height={40} className="opacity-20" />
               </div>
             ))}
           </div>
@@ -619,7 +653,7 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
         >
           <div className="relative overflow-hidden rounded-[60px] lg:rounded-[40px] h-[20rem] md:h-[28rem]">
             <Image
-              src={trendingProducts?.[1]?.featuredImage?.url || '/logo.png'}
+              src="https://cdn.shopify.com/s/files/1/0703/4562/1751/files/SignIn.webp?v=1766375386"
               alt={t('home.getDiscount')}
               fill
               className="object-cover"
