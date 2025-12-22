@@ -803,7 +803,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
       {/* Video de fondo para escritorio - SOLO DESKTOP */}
       <video
         className="fixed inset-0 w-full h-full object-cover -z-20 hidden md:block"
-        src="/Videoloop.mp4?v=2"
+        src="/Videoloop.mp4"
         autoPlay
         muted
         loop
