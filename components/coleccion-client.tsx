@@ -1,6 +1,7 @@
 'use client';
 
 import { useLanguage } from 'components/providers/language-provider';
+import shopifyLoader from 'lib/image-loader';
 import Image from 'next/image';
 import FlowingMenu from './FlowingMenu';
 
@@ -38,8 +39,9 @@ export default function ColeccionClient({ menuItems }: ColeccionClientProps) {
                   alt="Collections"
                   fill
                   className="object-cover"
-                  sizes="(min-width: 1280px) 80rem, 100vw"
+                  sizes="(max-width: 1280px) 100vw, 1280px"
                   priority
+                  loader={shopifyLoader}
                 />
 
                 <div className="absolute inset-0 bg-black/30"></div>

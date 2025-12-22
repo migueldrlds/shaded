@@ -1,6 +1,7 @@
 'use client';
 
 import LinkWithTransition from 'components/link-with-transition';
+import shopifyLoader from 'lib/image-loader';
 import { Collection } from 'lib/shopify/types';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -35,9 +36,10 @@ export default function CollectionGrid({ collections }: CollectionGridProps) {
                                     alt={collection.image.altText || collection.title}
                                     fill
                                     className="object-cover"
-                                    sizes="(min-width: 768px) 66vw, 100vw"
-                                    quality={100}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
+                                    quality={90}
                                     priority={index < 4}
+                                    loader={shopifyLoader}
                                 />
                             ) : (
                                 <div className="w-full h-full bg-neutral-200 flex items-center justify-center">

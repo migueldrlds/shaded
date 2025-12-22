@@ -54,7 +54,7 @@ const CollectionHero: React.FC<CollectionHeroProps> = ({
                         alt={collectionName || collectionHandle}
                         fill
                         className="object-cover"
-                        sizes="100vw"
+                        sizes="(max-width: 768px) 100vw, 1280px"
                         priority
                         loader={shopifyLoader}
                     />
@@ -72,7 +72,7 @@ const CollectionHero: React.FC<CollectionHeroProps> = ({
                             alt={collectionName || collectionHandle}
                             fill
                             className="object-cover rounded-3xl"
-                            sizes="(max-width: 768px) 100vw"
+                            sizes="(max-width: 768px) 100vw, 672px"
                             priority
                             loader={shopifyLoader}
                         />

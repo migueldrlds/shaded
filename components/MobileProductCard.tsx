@@ -127,22 +127,32 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({ product }) => {
       >
         <div className="flex h-full">
 
-          <div className="flex-1 p-6 flex flex-col justify-between z-10 relative">
-            <h2 className="text-2xl font-medium" style={{ color: '#000000' }}>
-              {product.title}
-            </h2>
+          <div className="flex-1 p-6 flex flex-col justify-between z-10 relative h-full">
+            <div className="pt-2">
+              <h2 className="text-2xl font-extrabold leading-[0.92] uppercase max-w-[140px]" style={{ color: '#000000', fontFamily: 'var(--font-inter)' }}>
+                {product.title}
+              </h2>
+              <div className="mt-1.5 opacity-60">
+                <Image
+                  src="/logob.png"
+                  alt="Shaded Logo"
+                  width={60}
+                  height={20}
+                  className="object-contain"
+                />
+              </div>
+            </div>
 
-            <div className="flex flex-col items-start gap-3">
-
+            <div className="flex flex-col items-start gap-4 pb-2">
               <div className="flex gap-2">
                 {getAvailableColors().map((colorInfo, index) => (
                   <div
                     key={index}
-                    className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${!colorInfo.disponible ? 'opacity-40' : ''
+                    className={`inline-flex items-center justify-center w-6 h-6 rounded-full transition-all duration-300 ${!colorInfo.disponible ? 'opacity-40' : ''
                       }`}
                   >
                     <div
-                      className="w-6 h-6 rounded-full border-1 border-white"
+                      className="w-4.5 h-4.5 rounded-full border border-white/50"
                       style={{ backgroundColor: colorInfo.codigo }}
                     ></div>
                   </div>
@@ -166,18 +176,16 @@ const MobileProductCard: React.FC<MobileProductCardProps> = ({ product }) => {
               </div>
 
 
-              <div className="bg-black/80 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center justify-between w-fit gap-2">
-
+              <div className="bg-black/90 backdrop-blur-md rounded-full px-3.5 py-2 flex items-center justify-between w-fit gap-3">
                 <div>
-                  <span className="text-sm font-light text-white">
+                  <span className="text-xs font-light text-white tracking-widest">
                     {formatPrice(product.priceRange?.maxVariantPrice)}
                   </span>
                 </div>
 
-
-                <div className="inline-flex items-center justify-center w-8 h-8 bg-white text-black rounded-full">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <div className="inline-flex items-center justify-center w-6 h-6 bg-white text-black rounded-full">
+                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
               </div>
