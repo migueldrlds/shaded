@@ -30,13 +30,12 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
     isSwipingRef.current = false;
   };
 
-  const moveGesture = (x: number, y: number, preventDefault?: () => void) => {
+  const moveGesture = (x: number, y: number) => {
     if (startXRef.current === null || startYRef.current === null) return;
     const deltaX = x - startXRef.current;
     const deltaY = y - startYRef.current;
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
       isSwipingRef.current = true;
-      if (preventDefault) preventDefault();
     }
   };
 
@@ -64,7 +63,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
   };
   const onPointerMove = (e: React.PointerEvent) => {
     if (e.pointerType !== 'touch') return;
-    moveGesture(e.clientX, e.clientY, () => e.preventDefault());
+    moveGesture(e.clientX, e.clientY);
   };
   const onPointerUp = (e: React.PointerEvent) => {
     if (e.pointerType !== 'touch') return;
@@ -78,7 +77,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
   };
   const handleTouchMove = (e: React.TouchEvent) => {
     const touch = e.touches[0];
-    if (touch) moveGesture(touch.clientX, touch.clientY, () => e.preventDefault());
+    if (touch) moveGesture(touch.clientX, touch.clientY);
   };
   const handleTouchEnd = (e: React.TouchEvent) => {
     const touch = e.changedTouches[0];

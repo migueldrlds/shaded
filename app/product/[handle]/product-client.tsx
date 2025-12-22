@@ -199,45 +199,47 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
   const [showScrollIndicator, setShowScrollIndicator] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
   const lastScrollY = useRef(0);
+  const ticking = useRef(false);
   const galleryGridRef = useRef<HTMLDivElement>(null);
 
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      if (!ticking.current) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
 
+          if (galleryGridRef.current) {
+            const rect = galleryGridRef.current.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            const totalScrollable = rect.height - windowHeight;
 
-      if (galleryGridRef.current) {
-        const rect = galleryGridRef.current.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        const totalScrollable = rect.height - windowHeight;
+            if (totalScrollable > 0) {
+              const scrolled = -rect.top + 100;
+              const percentage = (scrolled / totalScrollable) * 100;
+              setScrollProgress(Math.min(100, Math.max(0, percentage)));
+            } else {
+              setScrollProgress(100);
+            }
+          }
 
-        if (totalScrollable > 0) {
+          if (currentScrollY > 100) {
+            setShowScrollIndicator(false);
+          } else {
+            setShowScrollIndicator(true);
+          }
 
-          const scrolled = -rect.top + 100;
-          const percentage = (scrolled / totalScrollable) * 100;
-          setScrollProgress(Math.min(100, Math.max(0, percentage)));
-        } else {
-          setScrollProgress(100);
-        }
+          if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+            setIsHeaderVisible(false);
+          } else {
+            setIsHeaderVisible(true);
+          }
+
+          lastScrollY.current = currentScrollY;
+          ticking.current = false;
+        });
+        ticking.current = true;
       }
-
-
-      if (currentScrollY > 100) {
-        setShowScrollIndicator(false);
-      } else {
-        setShowScrollIndicator(true);
-      }
-
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-
-        setIsHeaderVisible(false);
-      } else {
-
-        setIsHeaderVisible(true);
-      }
-
-      lastScrollY.current = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -750,7 +752,6 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
 
   const handleFullscreenTouchMove = (e: React.TouchEvent) => {
     if (!isFullscreen) return;
-    e.preventDefault();
 
     if (e.touches.length === 1 && isDragging) {
       const newX = (e.touches[0]?.clientX || 0) - dragStart.x;
@@ -828,13 +829,8 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
               if (touchStart && e.touches.length === 1 && !isTransitioning) {
                 const touch = e.touches[0];
                 if (touch) {
-                  const deltaX = touch.clientX - touchStart.x;
-                  const deltaY = touch.clientY - touchStart.y;
-
-
-                  if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
-                    e.preventDefault();
-                  }
+                  // Swipe detection logic remains, but preventDefault is removed
+                  // as touchAction: pan-y on the container handles it.
                 }
               }
             }}
@@ -1068,6 +1064,8 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                         alt={product.title}
                         fill
                         className="object-cover"
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        loader={shopifyLoader}
                       />
                     )}
                   </div>
@@ -1492,6 +1490,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                                     fill
                                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                                     sizes="(min-width: 768px) 25vw, 50vw"
+                                    loader={shopifyLoader}
                                   />
 
                                   {hoverImage && (
@@ -1501,6 +1500,7 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                                       fill
                                       className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100 absolute inset-0 scale-105"
                                       sizes="(min-width: 768px) 25vw, 50vw"
+                                      loader={shopifyLoader}
                                     />
                                   )}
                                 </>
