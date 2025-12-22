@@ -802,13 +802,20 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     >
       {/* Fondo Escritorio: Video Loop Simplificado - z-index -1 para evitar problemas */}
       <video
+        ref={(el) => {
+          if (el) {
+            console.log('Video element mounted', el);
+          }
+        }}
         className="fixed inset-0 w-full h-full object-cover -z-1 hidden md:block"
-        src="/Videoloop.mp4?v=2"
+        src="/videoloop.mp4?v=2"
         autoPlay
         muted
         loop
         playsInline
         suppressHydrationWarning
+        onLoadedData={() => console.log('Video loaded successfully')}
+        onError={(e) => console.error('Video error:', e)}
       />
 
       {/* Overlay Escritorio */}
