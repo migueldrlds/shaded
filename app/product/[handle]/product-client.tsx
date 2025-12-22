@@ -800,21 +800,19 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     <div
       className="min-h-screen relative"
     >
-      {/* 1. Fondo Móvil: Blanco sólido */}
-      <div className="fixed inset-0 bg-white -z-20 md:hidden" />
-
-      {/* 2. Fondo Escritorio: Video Loop */}
+      {/* Fondo Escritorio: Video Loop Simplificado - z-index -1 para evitar problemas */}
       <video
-        className="fixed inset-0 w-full h-full object-cover -z-20 hidden md:block"
+        className="fixed inset-0 w-full h-full object-cover -z-1 hidden md:block"
         src="/Videoloop.mp4?v=2"
         autoPlay
         muted
         loop
         playsInline
+        suppressHydrationWarning
       />
 
-      {/* 3. Overlay Escritorio */}
-      <div className="fixed inset-0 bg-black/20 -z-10 hidden md:block"></div>
+      {/* Overlay Escritorio */}
+      <div className="fixed inset-0 bg-black/20 -z-1 hidden md:block"></div>
 
       {/* LAYOUT MÓVIL (Scrollable) */}
       {!isFullscreen && (
