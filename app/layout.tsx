@@ -32,9 +32,6 @@ export const metadata = {
     follow: true,
     index: true
   },
-  icons: {
-    icon: 'https://cdn.shopify.com/s/files/1/0703/4562/1751/files/Facebook_Profile_Picture_1.5x-100.jpg?v=1745610005'
-  },
   openGraph: {
     type: 'website',
     locale: 'en_US',

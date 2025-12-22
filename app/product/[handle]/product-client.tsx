@@ -36,10 +36,156 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
   const [zoomLevel, setZoomLevel] = useState(1);
   const [lastPinchDistance, setLastPinchDistance] = useState(0);
 
-  // Estados para el producto
-  const [selectedVariant, setSelectedVariant] = useState<any>(null);
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
+  // Función para obtener código de color basado en el nombre
+  const getColorCode = (colorName: string) => {
+    const colorMap: Record<string, string> = {
+      'black': '#000000',
+      'negro': '#000000',
+      'white': '#FFFFFF',
+      'blanco': '#FFFFFF',
+      'gray': '#808080',
+      'gris': '#808080',
+      'grey': '#808080',
+      'red': '#FF0000',
+      'rojo': '#FF0000',
+      'blue': '#0000FF',
+      'azul': '#0000FF',
+      'green': '#008000',
+      'verde': '#008000',
+      'yellow': '#FFFF00',
+      'amarillo': '#FFFF00',
+      'purple': '#800080',
+      'morado': '#800080',
+      'pink': '#FFC0CB',
+      'rosa': '#FFC0CB',
+      'brown': '#A52A2A',
+      'marrón': '#A52A2A',
+      'marron': '#A52A2A',
+      'orange': '#FFA500',
+      'naranja': '#FFA500'
+    };
+
+    return colorMap[colorName.toLowerCase()] || '#808080';
+  };
+
+  // Extraer colores únicos de las variantes
+  const getAvailableColors = () => {
+    if (!producto?.variants) return [];
+
+    const colorMap = new Map();
+    producto.variants.forEach((variant) => {
+      const colorOption = variant.selectedOptions?.find(option =>
+        option.name.toLowerCase().includes('color') ||
+        option.name.toLowerCase().includes('colour')
+      );
+
+      if (colorOption) {
+        const colorName = colorOption.value;
+        const isAvailable = variant.availableForSale;
+
+        // 1. Intentar buscar en Metaobjetos
+        let variantImage = null;
+        if (colorsMetaobjects?.length) {
+          const metaobject = colorsMetaobjects.find(m =>
+            m.label?.toLowerCase() === colorName.toLowerCase() ||
+            m.handle.toLowerCase() === colorName.toLowerCase()
+          );
+          if (metaobject?.image?.url) {
+            variantImage = metaobject.image.url;
+          }
+        }
+
+        // 2. Si no hay en Metaobjetos, usar lógica anterior (Variant Image)
+        if (!variantImage) {
+          variantImage = variant.image?.url;
+        }
+
+        // 3. Fallback: buscar por Alt Text en las imágenes del producto
+        if (!variantImage && producto.images) {
+          const colorImage = producto.images.find(img =>
+            img.altText?.toLowerCase() === colorName.toLowerCase() ||
+            img.altText?.toLowerCase().includes(`color: ${colorName.toLowerCase()}`)
+          );
+          if (colorImage) {
+            variantImage = colorImage.url;
+          }
+        }
+
+        // 4. Fallback final: imagen principal
+        variantImage = variantImage || producto.featuredImage?.url;
+
+        if (!colorMap.has(colorName)) {
+          colorMap.set(colorName, {
+            nombre: colorName,
+            imagen: variantImage,
+            codigo: getColorCode(colorName),
+            disponible: isAvailable
+          });
+        } else {
+          // Si ya existe, actualizar disponibilidad (si alguna variante está disponible)
+          const existing = colorMap.get(colorName);
+          if (isAvailable) {
+            existing.disponible = true;
+            // Si esta variante disponible tiene imagen (y la existente no, o es peor), actualizarla
+            // Priorizamos: Metaobjeto > Variante especifica > Alt text > General
+            if (variant.image?.url && !colorsMetaobjects?.some(m => m.label?.toLowerCase() === colorName.toLowerCase())) {
+              existing.imagen = variant.image.url;
+            }
+          }
+        }
+      }
+    });
+
+    return Array.from(colorMap.values());
+  };
+
+  // Extraer tallas únicas de las variantes
+  const getAvailableSizes = () => {
+    if (!producto?.variants) return [];
+
+    const sizeMap = new Map();
+    producto.variants.forEach((variant) => {
+      const sizeOption = variant.selectedOptions?.find(option =>
+        option.name.toLowerCase().includes('size') ||
+        option.name.toLowerCase().includes('talla')
+      );
+
+      if (sizeOption) {
+        const sizeName = sizeOption.value;
+        const isAvailable = variant.availableForSale;
+
+        if (!sizeMap.has(sizeName)) {
+          sizeMap.set(sizeName, {
+            talla: sizeName,
+            disponible: isAvailable
+          });
+        } else {
+          // Si ya existe, actualizar disponibilidad
+          const existing = sizeMap.get(sizeName);
+          if (isAvailable) {
+            existing.disponible = true;
+          }
+        }
+      }
+    });
+
+    return Array.from(sizeMap.values());
+  };
+
+  // Estados para el producto (Inicialización lazy para evitar flash)
+  const [selectedVariant, setSelectedVariant] = useState<any>(() => {
+    return producto?.variants?.[0] || null;
+  });
+
+  const [selectedColor, setSelectedColor] = useState(() => {
+    const colors = getAvailableColors();
+    return colors.length > 0 ? colors[0].nombre : '';
+  });
+
+  const [selectedSize, setSelectedSize] = useState(() => {
+    const sizes = getAvailableSizes();
+    return sizes.length > 0 ? sizes[0].talla : '';
+  });
   const [quantity, setQuantity] = useState(1);
   const [showFullDetails, setShowFullDetails] = useState(false);
 
@@ -173,162 +319,16 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     }
   }, [producto?.id]);
 
-  // Extraer colores únicos de las variantes
-  const getAvailableColors = () => {
-    if (!producto?.variants) return [];
 
-    const colorMap = new Map();
-    producto.variants.forEach(variant => {
-      const colorOption = variant.selectedOptions?.find(option =>
-        option.name.toLowerCase().includes('color') ||
-        option.name.toLowerCase().includes('colour')
-      );
 
-      if (colorOption) {
-        const colorName = colorOption.value;
-        const isAvailable = variant.availableForSale;
-
-        // 1. Intentar buscar en Metaobjetos
-        let variantImage = null;
-        if (colorsMetaobjects?.length) {
-          const metaobject = colorsMetaobjects.find(m =>
-            m.label?.toLowerCase() === colorName.toLowerCase() ||
-            m.handle.toLowerCase() === colorName.toLowerCase()
-          );
-          if (metaobject?.image?.url) {
-            variantImage = metaobject.image.url;
-          }
-        }
-
-        // 2. Si no hay en Metaobjetos, usar lógica anterior (Variant Image)
-        if (!variantImage) {
-          variantImage = variant.image?.url;
-        }
-
-        // 3. Fallback: buscar por Alt Text en las imágenes del producto
-        if (!variantImage && producto.images) {
-          const colorImage = producto.images.find(img =>
-            img.altText?.toLowerCase() === colorName.toLowerCase() ||
-            img.altText?.toLowerCase().includes(`color: ${colorName.toLowerCase()}`)
-          );
-          if (colorImage) {
-            variantImage = colorImage.url;
-          }
-        }
-
-        // 4. Fallback final: imagen principal
-        variantImage = variantImage || producto.featuredImage?.url;
-
-        if (!colorMap.has(colorName)) {
-          colorMap.set(colorName, {
-            nombre: colorName,
-            imagen: variantImage,
-            codigo: getColorCode(colorName),
-            disponible: isAvailable
-          });
-        } else {
-          // Si ya existe, actualizar disponibilidad (si alguna variante está disponible)
-          const existing = colorMap.get(colorName);
-          if (isAvailable) {
-            existing.disponible = true;
-            // Si esta variante disponible tiene imagen (y la existente no, o es peor), actualizarla
-            // Priorizamos: Metaobjeto > Variante especifica > Alt text > General
-            // Como ya calculamos `variantImage` con esa prioridad arriba, aquí solo actualizamos si encontramos algo mejor
-            // Pero en realidad, el metaobjeto es constante por color, así que no cambia por variante.
-            // Solo si usabamos variant.image, querríamos la de la variante disponible.
-            if (variant.image?.url && !colorsMetaobjects?.some(m => m.label?.toLowerCase() === colorName.toLowerCase())) {
-              existing.imagen = variant.image.url;
-            }
-          }
-        }
-      }
-    });
-
-    return Array.from(colorMap.values());
-  };
-
-  // Extraer tallas únicas de las variantes
-  const getAvailableSizes = () => {
-    if (!producto?.variants) return [];
-
-    const sizeMap = new Map();
-    producto.variants.forEach(variant => {
-      const sizeOption = variant.selectedOptions?.find(option =>
-        option.name.toLowerCase().includes('size') ||
-        option.name.toLowerCase().includes('talla')
-      );
-
-      if (sizeOption) {
-        const sizeName = sizeOption.value;
-        const isAvailable = variant.availableForSale;
-
-        if (!sizeMap.has(sizeName)) {
-          sizeMap.set(sizeName, {
-            talla: sizeName,
-            disponible: isAvailable
-          });
-        } else {
-          // Si ya existe, actualizar disponibilidad
-          const existing = sizeMap.get(sizeName);
-          if (isAvailable) {
-            existing.disponible = true;
-          }
-        }
-      }
-    });
-
-    return Array.from(sizeMap.values());
-  };
-
-  // Función para obtener código de color basado en el nombre
-  const getColorCode = (colorName: string) => {
-    const colorMap: Record<string, string> = {
-      'black': '#000000',
-      'negro': '#000000',
-      'white': '#FFFFFF',
-      'blanco': '#FFFFFF',
-      'gray': '#808080',
-      'gris': '#808080',
-      'grey': '#808080',
-      'red': '#FF0000',
-      'rojo': '#FF0000',
-      'blue': '#0000FF',
-      'azul': '#0000FF',
-      'green': '#008000',
-      'verde': '#008000',
-      'yellow': '#FFFF00',
-      'amarillo': '#FFFF00',
-      'purple': '#800080',
-      'morado': '#800080',
-      'pink': '#FFC0CB',
-      'rosa': '#FFC0CB',
-      'brown': '#A52A2A',
-      'marrón': '#A52A2A',
-      'marron': '#A52A2A',
-      'orange': '#FFA500',
-      'naranja': '#FFA500'
-    };
-
-    return colorMap[colorName.toLowerCase()] || '#808080';
-  };
-
-  // Inicializar variante seleccionada y valores por defecto
+  // Resetear estado si el producto cambia completamente (navegación)
   useEffect(() => {
-    if (producto?.variants && producto.variants.length > 0) {
-      setSelectedVariant(producto.variants[0]);
-
-      // Establecer valores por defecto para color y talla
-      const colors = getAvailableColors();
-      const sizes = getAvailableSizes();
-
-      if (colors.length > 0 && !selectedColor) {
-        setSelectedColor(colors[0].nombre);
-      }
-      if (sizes.length > 0 && !selectedSize) {
-        setSelectedSize(sizes[0].talla);
-      }
+    if (producto?.id && currentProductId.current !== producto.id) {
+      // Si cambiamos de producto, podríamos necesitar resetear estados si no se desmonta el componente
+      // Pero Next.js suele desmontar/remontar en navegación de rutas dinámicas.
+      // Dejamos esto limpio por si acaso.
     }
-  }, [producto]);
+  }, [producto?.id]);
 
   // Preload programático usando `new Image()` para evitar warnings de "unused preload"
   // y llenar la caché del navegador silenciosamente.
@@ -800,19 +800,18 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
     <div
       className="min-h-screen relative bg-white md:bg-transparent"
     >
-      {/* Video de fondo - Solo en escritorio */}
-      <div className="hidden md:block fixed inset-0" style={{ zIndex: -1 }}>
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="w-full h-full object-cover"
-        >
-          <source src="/Videoloop.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-black/30"></div>
-      </div>
+      {/* Video de fondo para escritorio - SOLO DESKTOP */}
+      <video
+        className="fixed inset-0 w-full h-full object-cover -z-20 hidden md:block"
+        src="/Videoloop.mp4?v=2"
+        autoPlay
+        muted
+        loop
+        playsInline
+      />
+
+      {/* Overlay - SOLO DESKTOP */}
+      <div className="fixed inset-0 bg-black/20 -z-10 hidden md:block"></div>
 
       {/* LAYOUT MÓVIL (Scrollable) */}
       {!isFullscreen && (
