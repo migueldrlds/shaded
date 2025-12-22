@@ -9,12 +9,14 @@ interface CollectionHeroProps {
     collectionName: string;
     productCount: number;
     collectionHandle: string;
+    image?: string;
 }
 
 const CollectionHero: React.FC<CollectionHeroProps> = ({
     collectionName,
     productCount,
-    collectionHandle
+    collectionHandle,
+    image
 }) => {
     const { t } = useLanguage();
 
@@ -46,9 +48,9 @@ const CollectionHero: React.FC<CollectionHeroProps> = ({
                 </div>
 
                 {/* Hero Image - rounded */}
-                <div className="relative w-full aspect-[5/1] rounded-3xl overflow-hidden border border-white/10 bg-black/20">
+                <div className="relative w-full aspect-[2.5/1] rounded-3xl overflow-hidden border border-white/10 bg-black/20">
                     <Image
-                        src="/Shaded Photoshoot/Shaded Photoshoot0540.jpg"
+                        src={image || "/Shaded Photoshoot/Shaded Photoshoot0540.jpg"}
                         alt={collectionName || collectionHandle}
                         fill
                         className="object-cover"
@@ -62,52 +64,38 @@ const CollectionHero: React.FC<CollectionHeroProps> = ({
 
             {/* Mobile Hero Card (Visible only on Mobile) */}
             <div className="md:hidden w-full max-w-2xl relative mb-12">
-                <div className="block bg-white/30 backdrop-blur-xl rounded-3xl h-66 relative overflow-visible">
-                    <div className="flex h-full">
-                        {/* Información - lado izquierdo */}
-                        <div className="flex-1 p-6 flex flex-col justify-between z-10 relative">
-                            <div>
-                                <span className="text-[10px] font-medium uppercase tracking-widest text-black/60 mb-2 block">
-                                    {t('collection.tag')}
+                <div className="block bg-white/30 backdrop-blur-xl rounded-3xl h-96 relative overflow-visible">
+                    {/* Imagen de fondo */}
+                    <div className="absolute inset-0 w-full h-full">
+                        <Image
+                            src={image || "/Shaded Photoshoot/Shaded Photoshoot0540.jpg"}
+                            alt={collectionName || collectionHandle}
+                            fill
+                            className="object-cover rounded-3xl"
+                            sizes="(max-width: 768px) 100vw"
+                            priority
+                            loader={shopifyLoader}
+                        />
+                        <div className="absolute inset-0 bg-black/20 rounded-3xl"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-3xl"></div>
+                    </div>
+
+                    {/* Contenido sobre la imagen */}
+                    <div className="relative z-10 p-6 flex flex-col justify-end h-full">
+                        <div>
+                            <span className="text-[10px] font-medium uppercase tracking-widest text-white/80 mb-2 block">
+                                {t('collection.tag')}
+                            </span>
+                            <h2 className="text-4xl font-black uppercase tracking-tighter leading-[0.9] text-white mb-3">
+                                <span className="block">{collectionName || collectionHandle.replace(/-/g, ' ')}</span>
+                            </h2>
+
+                            {/* Product count */}
+                            <div className="inline-flex items-center justify-center h-8 px-3 rounded-full bg-white/20 backdrop-blur-md border border-white/20">
+                                <span className="text-xs font-medium text-white">
+                                    {productCount} {t('collection.items')}
                                 </span>
-                                <h2 className="text-3xl font-black uppercase tracking-tighter leading-[0.9]" style={{ color: '#000000' }}>
-                                    <span className="block">{collectionName || collectionHandle.replace(/-/g, ' ')}</span>
-                                </h2>
                             </div>
-
-                            <div className="flex flex-col items-start gap-3">
-                                {/* Decorative pills similar to product card */}
-                                <div className="flex gap-2">
-                                    <div className="inline-flex items-center justify-center h-8 px-3 rounded-full bg-white/40 backdrop-blur-sm border border-white/20">
-                                        <span className="text-xs font-medium text-black/70">
-                                            {productCount} {t('collection.items')}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Bottom 'pill' area */}
-                                <div className="bg-black/80 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-2">
-                                    <span className="text-sm font-light text-white">{t('collection.viewAll')}</span>
-                                    <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center">
-                                        <svg className="w-2 h-2 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Imagen - lado derecho (break out) */}
-                        <div className="absolute -right-3 -top-4 w-40 h-[calc(100%+1rem)] flex-shrink-0">
-                            <Image
-                                src="/Shaded Photoshoot/Shaded Photoshoot0540.jpg"
-                                alt={collectionName || collectionHandle}
-                                fill
-                                className="object-cover rounded-3xl"
-                                sizes="(max-width: 768px) 50vw"
-                                priority
-                                loader={shopifyLoader}
-                            />
                         </div>
                     </div>
                 </div>

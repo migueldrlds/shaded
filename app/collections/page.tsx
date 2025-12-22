@@ -22,7 +22,7 @@ export default async function Coleccion() {
   // Convertir colecciones a formato para FlowingMenu
   const menuItems = [
     ...collections.map(collection => ({
-      link: `/productos?coleccion=${collection.handle}`,
+      link: `/products?collection=${collection.handle}`,
       text: collection.title.toUpperCase(),
       image: collection.image?.url || '/img1.jpg' // Usar imagen de la colección o imagen por defecto
     })),

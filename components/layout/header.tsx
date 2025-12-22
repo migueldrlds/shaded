@@ -36,10 +36,10 @@ export default function Header({ transparent = false, latestCollection }: Header
 
   useEffect(() => {
     if (!isMounted) return;
-    
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       // Solo aplicar el comportamiento de scroll en la página principal o cuando no es transparente
       if (pathname === '/' || !transparent) {
         if (currentScrollY > lastScrollY && currentScrollY > 100) {
@@ -50,7 +50,7 @@ export default function Header({ transparent = false, latestCollection }: Header
           setIsHeaderVisible(true);
         }
       }
-      
+
       setLastScrollY(currentScrollY);
     };
 
@@ -83,10 +83,10 @@ export default function Header({ transparent = false, latestCollection }: Header
       setIsMenuOpen(false);
     }
   };
-  
+
   // Detectar si estamos en móvil
   const [isMobile, setIsMobile] = useState(false);
-  
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -95,14 +95,14 @@ export default function Header({ transparent = false, latestCollection }: Header
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-  
+
   // Determinar si debe usar estilo negro (fondo claro)
   // En móvil, siempre usar modo oscuro en páginas de producto
-  const isDarkHeader = pathname === '/coleccion' || pathname === '/productos' || pathname.startsWith('/productos-alt') || (isMobile && pathname.startsWith('/product/'));
-  
+  const isDarkHeader = pathname === '/collections' || pathname === '/products' || pathname.startsWith('/productos-alt') || (isMobile && pathname.startsWith('/product/'));
+
   const navigationItems = [
-    { label: latestCollection.title, href: `/productos?coleccion=${latestCollection.handle}` },
-    { label: t('header.collection'), href: '/coleccion' }
+    { label: latestCollection.title, href: `/products?collection=${latestCollection.handle}` },
+    { label: t('header.collection'), href: '/collections' }
   ];
 
   const headerBase = transparent
@@ -110,7 +110,7 @@ export default function Header({ transparent = false, latestCollection }: Header
     : 'bg-transparent shadow-none fixed top-0 w-full z-50 px-4 py-4';
 
   return (
-    <header 
+    <header
       className={headerBase}
       style={{
         transform: isMounted && (pathname === '/' || !transparent)
@@ -124,16 +124,16 @@ export default function Header({ transparent = false, latestCollection }: Header
       <div className="max-w-7xl mx-auto">
         {/* Header principal con estilo frosted glass */}
         <div className="relative">
-          <div className="absolute inset-0 backdrop-blur-md rounded-full" style={{ 
+          <div className="absolute inset-0 backdrop-blur-md rounded-full" style={{
             backgroundColor: isDarkHeader ? 'rgba(210, 213, 211, 0.7)' : 'rgba(255, 255, 255, 0.2)',
-            borderColor: isDarkHeader ? '#2E2E2C' : 'rgba(255, 255, 255, 0.3)', 
-            borderWidth: '1px', 
-            borderStyle: 'solid' 
+            borderColor: isDarkHeader ? '#2E2E2C' : 'rgba(255, 255, 255, 0.3)',
+            borderWidth: '1px',
+            borderStyle: 'solid'
           }}></div>
           <div className="relative flex items-center justify-between px-6 py-4">
-            
-             {/* Logo izquierdo */}
-             <div className="flex items-center ml-2">
+
+            {/* Logo izquierdo */}
+            <div className="flex items-center ml-2">
               {pathname === '/' ? (
                 <div className="inline-flex items-center cursor-default">
                   <Image
@@ -157,21 +157,21 @@ export default function Header({ transparent = false, latestCollection }: Header
                   />
                 </LinkWithTransition>
               )}
-             </div>
+            </div>
 
             {/* Navegación central */}
             <nav className="hidden md:flex items-center space-x-8">
               <LinkWithTransition
-                href="/productos?coleccion=all"
+                href="/products?collection=all"
                 className="transition-colors duration-200 font-light"
                 style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
-                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'}
                 onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
               >
                 {t('header.shopNow')}
               </LinkWithTransition>
               {navigationItems.map((item) => {
-                const isActive = pathname === item.href || (item.href === '/coleccion' && pathname.startsWith('/coleccion'));
+                const isActive = pathname === item.href || (item.href === '/collections' && pathname.startsWith('/collections'));
                 return isActive ? (
                   <span
                     key={item.label}
@@ -186,7 +186,7 @@ export default function Header({ transparent = false, latestCollection }: Header
                     href={item.href}
                     className="transition-colors duration-200 font-light"
                     style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
-                    onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                    onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'}
                     onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
                   >
                     {item.label}
@@ -195,37 +195,37 @@ export default function Header({ transparent = false, latestCollection }: Header
               })}
             </nav>
 
-             {/* Sección derecha */}
-             <div className="flex items-center space-x-3">
-        <UserMenu iconColor={isDarkHeader ? '#2E2E2C' : 'white'} />
-               <button
-                 onClick={openCart}
-                 className="relative p-2 rounded-full transition-all duration-200 cursor-pointer" 
-                 style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }} 
-                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+            {/* Sección derecha */}
+            <div className="flex items-center space-x-3">
+              <UserMenu iconColor={isDarkHeader ? '#2E2E2C' : 'white'} />
+              <button
+                onClick={openCart}
+                className="relative p-2 rounded-full transition-all duration-200 cursor-pointer"
+                style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
+                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'}
                 onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
-               >
-                 <FiShoppingCart className="h-5 w-5" />
-                 {cart?.totalQuantity && cart.totalQuantity > 0 ? (
-                   <span 
-                     className="absolute -top-1 -right-1 bg-black text-white rounded-full h-5 w-5 flex items-center justify-center font-bold"
-                     style={{ 
-                       fontSize: '10px',
-                       lineHeight: '1',
-                       minWidth: '20px',
-                       minHeight: '20px'
-                     }}
-                   >
-                     {cart.totalQuantity}
-                   </span>
-                 ) : null}
-               </button>
+              >
+                <FiShoppingCart className="h-5 w-5" />
+                {cart?.totalQuantity && cart.totalQuantity > 0 ? (
+                  <span
+                    className="absolute -top-1 -right-1 bg-black text-white rounded-full h-5 w-5 flex items-center justify-center font-bold"
+                    style={{
+                      fontSize: '10px',
+                      lineHeight: '1',
+                      minWidth: '20px',
+                      minHeight: '20px'
+                    }}
+                  >
+                    {cart.totalQuantity}
+                  </span>
+                ) : null}
+              </button>
 
               {/* Botón de menú móvil */}
               <button
                 className="md:hidden p-2 rounded-full transition-all duration-200"
                 style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
-                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'}
                 onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
                 onClick={() => {
                   if (isMenuOpen) {
@@ -243,52 +243,52 @@ export default function Header({ transparent = false, latestCollection }: Header
 
         {/* Menú móvil */}
         {isMenuOpen && (
-          <div ref={menuRef} className="mt-4 backdrop-blur-md rounded-2xl overflow-hidden" style={{ 
+          <div ref={menuRef} className="mt-4 backdrop-blur-md rounded-2xl overflow-hidden" style={{
             backgroundColor: isDarkHeader ? 'rgba(210, 213, 211, 0.3)' : 'rgba(255, 255, 255, 0.2)',
-            borderColor: isDarkHeader ? '#2E2E2C' : 'rgba(255, 255, 255, 0.3)', 
-            borderWidth: '1px', 
-            borderStyle: 'solid' 
+            borderColor: isDarkHeader ? '#2E2E2C' : 'rgba(255, 255, 255, 0.3)',
+            borderWidth: '1px',
+            borderStyle: 'solid'
           }}>
             <div className="px-6 py-4">
               {/* Navegación móvil */}
               <nav className="space-y-2">
-            <LinkWithTransition
-              href="/productos?coleccion=all"
-              className="block px-4 py-2 rounded-lg transition-colors duration-200 font-light"
-              style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
-                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
-                onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
-              onClick={closeMenuWithAnimation}
-            >
-              {t('header.shopNow')}
-            </LinkWithTransition>
-            <button
-              onClick={() => {
-                openCart();
-                closeMenuWithAnimation();
-              }}
-              className="relative block w-full text-left px-4 py-2 rounded-lg transition-colors duration-200 font-light cursor-pointer"
-              style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
-                onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
-                onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
-            >
-              {t('header.cart')}
-              {cart?.totalQuantity && cart.totalQuantity > 0 ? (
-                <span 
-                  className="absolute top-1 right-2 bg-black text-white rounded-full h-4 w-4 flex items-center justify-center font-bold"
-                  style={{ 
-                    fontSize: '9px',
-                    lineHeight: '1',
-                    minWidth: '16px',
-                    minHeight: '16px'
-                  }}
+                <LinkWithTransition
+                  href="/products?collection=all"
+                  className="block px-4 py-2 rounded-lg transition-colors duration-200 font-light"
+                  style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
+                  onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'}
+                  onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
+                  onClick={closeMenuWithAnimation}
                 >
-                  {cart.totalQuantity}
-                </span>
-              ) : null}
-            </button>
+                  {t('header.shopNow')}
+                </LinkWithTransition>
+                <button
+                  onClick={() => {
+                    openCart();
+                    closeMenuWithAnimation();
+                  }}
+                  className="relative block w-full text-left px-4 py-2 rounded-lg transition-colors duration-200 font-light cursor-pointer"
+                  style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
+                  onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'}
+                  onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
+                >
+                  {t('header.cart')}
+                  {cart?.totalQuantity && cart.totalQuantity > 0 ? (
+                    <span
+                      className="absolute top-1 right-2 bg-black text-white rounded-full h-4 w-4 flex items-center justify-center font-bold"
+                      style={{
+                        fontSize: '9px',
+                        lineHeight: '1',
+                        minWidth: '16px',
+                        minHeight: '16px'
+                      }}
+                    >
+                      {cart.totalQuantity}
+                    </span>
+                  ) : null}
+                </button>
                 {navigationItems.map((item) => {
-                  const isActive = pathname === item.href || (item.href === '/coleccion' && pathname.startsWith('/coleccion'));
+                  const isActive = pathname === item.href || (item.href === '/collections' && pathname.startsWith('/collections'));
                   return isActive ? (
                     <span
                       key={item.label}
@@ -303,7 +303,7 @@ export default function Header({ transparent = false, latestCollection }: Header
                       href={item.href}
                       className="block px-4 py-2 rounded-lg transition-colors duration-200 font-light"
                       style={{ color: isDarkHeader ? '#2E2E2C' : 'white' }}
-                      onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'} 
+                      onMouseEnter={(e) => (e.target as HTMLElement).style.opacity = '0.7'}
                       onMouseLeave={(e) => (e.target as HTMLElement).style.opacity = '1'}
                       onClick={closeMenuWithAnimation}
                     >

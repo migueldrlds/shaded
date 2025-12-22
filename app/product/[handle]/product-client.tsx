@@ -908,9 +908,9 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
             </div>
 
             {/* Indicadores sobre la imagen */}
-            {producto?.images && producto.images.length > 1 && (
+            {galleryImages && galleryImages.length > 1 && (
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10 bg-black/20 backdrop-blur-md px-3 py-2 rounded-full border border-white/10">
-                {producto.images.map((_, index) => (
+                {galleryImages.map((_, index) => (
                   <div
                     key={index}
                     className={`transition-all duration-300 rounded-full h-1.5 ${index === currentImageIndex
@@ -980,19 +980,14 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
                       key={index}
                       onClick={() => setSelectedColor(colorInfo.nombre)}
                       disabled={!colorInfo.disponible}
-                      className={`relative w-10 h-14 rounded-lg border border-black/10 flex items-center justify-center transition-all overflow-hidden ${selectedColor === colorInfo.nombre
-                        ? 'ring-2 ring-offset-2 ring-black scale-110'
+                      className={`relative w-10 h-10 rounded-full border border-black/20 flex items-center justify-center transition-all duration-300 ${selectedColor === colorInfo.nombre
+                        ? 'ring-2 ring-black ring-offset-2 ring-offset-white scale-110'
                         : 'hover:scale-105'
-                        } ${!colorInfo.disponible ? 'opacity-30' : ''}`}
+                        } ${!colorInfo.disponible ? 'opacity-30 cursor-not-allowed' : ''}`}
+                      style={{ backgroundColor: colorInfo.codigo }}
+                      title={colorInfo.nombre}
                     >
-                      <Image
-                        src={colorInfo.imagen || '/img1.jpg'}
-                        alt={colorInfo.nombre}
-                        fill
-                        className="object-cover"
-                        sizes="40px"
-                        loader={shopifyLoader}
-                      />
+                      <span className="sr-only">{colorInfo.nombre}</span>
                     </button>
                   ))}
                 </div>

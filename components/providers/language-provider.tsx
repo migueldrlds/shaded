@@ -16,7 +16,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const translations: Record<Language, Record<string, string>> = {
   en: {
     'header.shopNow': 'Shop Now',
-    'header.collection': 'Collection',
+    'header.collection': 'Collections',
     'header.cart': 'Cart',
     'cart.bag': 'Bag',
     'cart.close': 'Close',

@@ -392,7 +392,7 @@ export default function Login() {
                   Discover our latest streetwear essentials
                 </p>
                 <div className="flex justify-end">
-                  <LinkWithTransition href="/coleccion" className="text-white text-lg font-medium hover:text-white/70 transition-colors duration-200">
+                  <LinkWithTransition href="/collection" className="text-white text-lg font-medium hover:text-white/70 transition-colors duration-200">
                     Explore Now
                   </LinkWithTransition>
                 </div>

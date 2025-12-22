@@ -52,9 +52,9 @@ export default function UserMenu({ iconColor = 'white' }: UserMenuProps) {
   // Si no está autenticado, redirigir a login
   if (!customer) {
     return (
-      <LinkWithTransition 
-        href="/login" 
-        className="p-2 rounded-full transition-all duration-200 hover:opacity-70" 
+      <LinkWithTransition
+        href="/login"
+        className="p-2 rounded-full transition-all duration-200 hover:opacity-70"
       >
         <FiUser className="h-5 w-5" style={{ color: iconColor }} />
       </LinkWithTransition>

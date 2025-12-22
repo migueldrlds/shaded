@@ -44,13 +44,23 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
   if (!product) return null;
 
   // Función para obtener la segunda imagen disponible
-  const getSecondImage = () => {
-    if (product.images && product.images.length > 1) {
-      // Buscar la segunda imagen que no sea la featuredImage
-      const featuredImageUrl = product.featuredImage?.url;
-      const secondImage = product.images.find(img => img.url !== featuredImageUrl);
-      return secondImage?.url || product.images[1]?.url;
+  // Función para obtener la imagen de Banner (o segunda imagen como fallback)
+  const getBannerImage = () => {
+    if (product.images && product.images.length > 0) {
+      // 1. Buscar imagen con Alt Text "Banner"
+      const bannerImage = product.images.find(img =>
+        img.altText && img.altText.toLowerCase().includes('banner')
+      );
+      if (bannerImage) return bannerImage.url;
+
+      // 2. Si no hay banner, buscar la segunda imagen que no sea la featuredImage
+      if (product.images.length > 1) {
+        const featuredImageUrl = product.featuredImage?.url;
+        const secondImage = product.images.find(img => img.url !== featuredImageUrl);
+        return secondImage?.url || product.images[1]?.url;
+      }
     }
+    // 3. Fallback a featuredImage
     return product.featuredImage?.url;
   };
 
@@ -70,8 +80,9 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
               alt={product.title}
               fill
               className="object-contain group-hover:scale-105 transition-transform duration-300"
-              sizes="300px"
+              sizes="400px"
               priority={false}
+              quality={90}
               loader={shopifyLoader}
             />
             <Image
@@ -79,8 +90,9 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
               alt={product.title}
               fill
               className="object-contain group-hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100 absolute inset-0"
-              sizes="300px"
+              sizes="400px"
               priority={false}
+              quality={90}
               loader={shopifyLoader}
             />
           </div>
@@ -148,12 +160,13 @@ const DesktopProductCard: React.FC<DesktopProductCardProps> = ({ product, collec
           {/* Imagen del producto derecho */}
           <div className="relative w-full h-full">
             <Image
-              src={getSecondImage() || '/img2.jpg'}
+              src={getBannerImage() || '/img2.jpg'}
               alt={product?.title || 'Producto derecho'}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-              sizes="900px"
-              priority={false}
+              className="object-cover"
+              sizes="(min-width: 1024px) 1200px, 100vw"
+              quality={100}
+              priority={true}
               loader={shopifyLoader}
             />
           </div>

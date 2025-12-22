@@ -1,43 +1,44 @@
-import { getCollection, getCollectionProducts, getProducts } from 'lib/shopify';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import CollectionHero from '../../components/collection-hero';
 import DesktopProductCard from '../../components/DesktopProductCard';
 import MobileProductCard from '../../components/MobileProductCard';
 import ProductosClient from '../../components/productos-client';
+import { getCollection, getCollectionProducts, getProducts } from '../../lib/shopify';
+import { Product } from '../../lib/shopify/types';
 
-interface ProductosPageProps {
-  searchParams: Promise<{ coleccion?: string }>;
+interface ProductsPageProps {
+  searchParams: Promise<{ collection?: string }>;
 }
 
-export async function generateMetadata({ searchParams }: ProductosPageProps): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
   const params = await searchParams;
-  const coleccion = params.coleccion || 'all';
+  const collectionHandle = params.collection || 'all';
 
-  if (coleccion === 'all') {
+  if (collectionHandle === 'all') {
     return {
       title: 'All Products',
       description: 'Explore our full range of premium athleisure wear.',
     };
   }
 
-  const collection = await getCollection(coleccion);
+  const collection = await getCollection(collectionHandle);
   return {
     title: collection?.seo?.title || collection?.title || 'Collection',
     description: collection?.seo?.description || collection?.description || `Explore our ${collection?.title} collection.`,
   };
 }
 
-export default async function Productos({ searchParams }: ProductosPageProps) {
+export default async function Products({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
-  const coleccion = params.coleccion || 'serene';
+  const collectionHandle = params.collection || 'serene';
 
   // Obtener productos de Shopify
-  let allProducts;
-  if (coleccion && coleccion !== 'all') {
+  let allProducts: Product[] | undefined;
+  if (collectionHandle && collectionHandle !== 'all') {
     // Si se especifica una colección, obtener productos de esa colección
     allProducts = await getCollectionProducts({
-      collection: coleccion,
+      collection: collectionHandle,
       reverse: false
     });
   } else {
@@ -51,7 +52,7 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
       <div className="min-h-screen relative flex items-center justify-center" style={{ backgroundColor: '#d2d5d3' }}>
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-4" style={{ color: '#FFFFFF' }}>
-            {coleccion !== 'all' ? `No hay productos en ${coleccion.toUpperCase()}` : 'No hay productos disponibles'}
+            {collectionHandle !== 'all' ? `No hay productos en ${collectionHandle.toUpperCase()}` : 'No hay productos disponibles'}
           </h1>
           <p className="text-lg font-light" style={{ color: '#FFFFFF', opacity: 0.8 }}>
             Próximamente tendremos productos disponibles
@@ -66,11 +67,11 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
 
   // Obtener el nombre y descripción de la colección
   let collectionName = '';
-  let collectionDescription = '';
-  if (coleccion && coleccion !== 'all') {
-    const collection = await getCollection(coleccion);
+  // let collectionDescription = '';
+  if (collectionHandle && collectionHandle !== 'all') {
+    const collection = await getCollection(collectionHandle);
     collectionName = collection?.title || '';
-    collectionDescription = collection?.description || '';
+    // collectionDescription = collection?.description || '';
   }
 
   // Función para formatear el precio
@@ -176,8 +177,19 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
   return (
     <div className="min-h-screen relative">
       {/* Video de fondo (fijo, debajo de todo) */}
+      {/* Video de fondo para móvil */}
       <video
-        className="fixed inset-0 w-full h-full object-cover -z-20"
+        className="fixed inset-0 w-full h-full object-cover -z-20 md:hidden"
+        src="/videoloop.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+      />
+
+      {/* Video de fondo para escritorio */}
+      <video
+        className="fixed inset-0 w-full h-full object-cover -z-20 hidden md:block"
         src="/videoloop2.mp4"
         autoPlay
         muted
@@ -193,25 +205,27 @@ export default async function Productos({ searchParams }: ProductosPageProps) {
         <div className="relative z-10 pt-24 px-4 pb-4">
           <div className="max-w-7xl mx-auto">
             {/* Hero Header */}
-            {coleccion !== 'all' && (
+            {/* Hero Header */}
+            {collectionHandle !== 'all' && (
               <CollectionHero
                 collectionName={collectionName}
                 productCount={productosFiltrados.length}
-                collectionHandle={coleccion}
+                collectionHandle={collectionHandle}
+                image="https://cdn.shopify.com/s/files/1/0703/4562/1751/files/Tile.webp?v=1766373501"
               />
             )}
 
 
             {/* Versión móvil - Cards de productos dinámicos */}
             <div className="max-w-7xl mx-auto flex flex-col items-center md:hidden mt-8 space-y-8">
-              {productosFiltrados.map((producto, index) => (
+              {productosFiltrados.map((producto: Product, index: number) => (
                 <MobileProductCard key={producto.id || index} product={producto} />
               ))}
             </div>
 
             {/* Versión desktop - Cards de productos dinámicos */}
             <div className="max-w-7xl mx-auto flex flex-col items-center hidden md:block mt-8 space-y-12">
-              {productosFiltrados.map((producto, index) => (
+              {productosFiltrados.map((producto: Product, index: number) => (
                 <div key={producto.id || index} className="max-w-7xl mx-auto flex justify-center">
                   <div className="bg-white/50 backdrop-blur-xl rounded-3xl pl-5 pr-0 pt-8 pb-0 relative w-full max-w-7xl" style={{ height: '930px' }}>
                     {/* Logo en la esquina izquierda */}

@@ -431,7 +431,7 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
               </div>
               <LinkWithTransition
                 ref={viewCollectionButtonRef}
-                href={`/productos?coleccion=${latestCollection.handle}`}
+                href={`/products?collection=${latestCollection.handle}`}
                 className="bg-white/20 backdrop-blur-sm border border-white/70 text-white px-6 py-3 rounded-full text-sm font-light hover:bg-white/30 transition-all duration-200 w-fit"
               >
                 {t('home.viewCollection')}
@@ -441,7 +441,7 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
 
           {/* Nueva fila: Card de texto que ocupa toda la fila */}
           <div ref={secondCardWrapperRef} className="mt-4">
-            <LinkWithTransition href="/coleccion" className="block group" aria-label="Explore collections">
+            <LinkWithTransition href="/collections" className="block group" aria-label="Explore collections">
               <div
                 ref={secondCardRef}
                 className="bg-black/90 backdrop-blur-md rounded-[60px] lg:rounded-[40px] w-full flex flex-col h-[256px] p-12 md:p-16 relative items-center justify-center cursor-pointer border border-white/5 group-hover:border-white/10 transition-all duration-0"
@@ -503,7 +503,7 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
         <div className="w-full max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-8 px-2">
             <h3 className="text-2xl md:text-3xl font-light text-white tracking-tight">Trending Now</h3>
-            <LinkWithTransition href="/coleccion" className="text-sm text-white/70 hover:text-white transition-colors uppercase tracking-widest border-b border-transparent hover:border-white/50 pb-1">
+            <LinkWithTransition href="/collections" className="text-sm text-white/70 hover:text-white transition-colors uppercase tracking-widest border-b border-transparent hover:border-white/50 pb-1">
               View All
             </LinkWithTransition>
           </div>
@@ -703,10 +703,10 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
             {/* Background Image */}
             {/* Background Image */}
             <Image
-              src={trendingProducts?.[0]?.featuredImage?.url || '/logo.png'}
+              src="https://cdn.shopify.com/s/files/1/0703/4562/1751/files/Movement.webp?v=1766375294"
               alt="Shaded Movement"
               fill
-              className="object-cover opacity-60 mix-blend-screen"
+              className="object-cover"
               sizes="100vw"
               loader={shopifyLoader}
             />

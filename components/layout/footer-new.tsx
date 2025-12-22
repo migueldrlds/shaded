@@ -88,12 +88,12 @@ export default function FooterNew({ isDarkMode = false }: FooterNewProps) {
                 <h3 className={`${textColor} font-semibold mb-4`}>{t('footer.collections')}</h3>
                 <ul className="space-y-3">
                   <li>
-                    <LinkWithTransition href="/productos?coleccion=serene" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
+                    <LinkWithTransition href="/products?collection=serene" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                       INTRODUCING SERENE
                     </LinkWithTransition>
                   </li>
                   <li>
-                    <LinkWithTransition href="/coleccion" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
+                    <LinkWithTransition href="/collection" className={`${textColorMuted} ${textColorHover} transition-colors text-sm`}>
                       {t('footer.allCollections')}
                     </LinkWithTransition>
                   </li>
