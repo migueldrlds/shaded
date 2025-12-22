@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     openGraph: {
       images: [
         {
-          url: product.featuredImage?.url || '',
+          url: product.featuredImage?.url || product.images?.[0]?.url || '',
           width: 800,
           height: 600,
           alt: product.title,
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       card: 'summary_large_image',
       title: product.seo?.title || product.title,
       description: product.seo?.description || product.description,
-      images: [product.featuredImage?.url || ''],
+      images: [product.featuredImage?.url || product.images?.[0]?.url || ''],
       creator: '@shaded'
     },
   };
