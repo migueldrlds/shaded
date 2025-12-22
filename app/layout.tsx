@@ -31,6 +31,37 @@ export const metadata = {
   robots: {
     follow: true,
     index: true
+  },
+  icons: {
+    icon: 'https://cdn.shopify.com/s/files/1/0703/4562/1751/files/Facebook_Profile_Picture_1.5x-100.jpg?v=1745610005'
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'Shaded',
+    title: 'Shaded | Embrace comfort, experience quality',
+    description: 'Embrace comfort, experience quality.',
+    images: [
+      {
+        url: 'https://cdn.shopify.com/s/files/1/0703/4562/1751/files/SEO.webp?v=1766377985',
+        width: 1200,
+        height: 630,
+        alt: 'Shaded'
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Shaded | Embrace comfort, experience quality',
+    description: 'Embrace comfort, experience quality.',
+    images: ['https://cdn.shopify.com/s/files/1/0703/4562/1751/files/SEO.webp?v=1766377985'],
+    creator: '@shaded'
+  },
+  keywords: ['Athleisure', 'Fashion', 'Comfort', 'Quality', 'Shaded', 'Clothing', 'Sportswear'],
+  authors: [{ name: 'Shaded' }],
+  category: 'fashion',
+  alternates: {
+    canonical: baseUrl
   }
 };
 

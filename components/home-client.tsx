@@ -733,8 +733,7 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
           ref={movementCardRef}
           className="bg-black/30 backdrop-blur-md rounded-[60px] border border-white/10 p-2 lg:p-6 w-full max-w-5xl mx-auto"
         >
-          <div className="relative bg-black rounded-[60px] lg:rounded-[40px] overflow-hidden aspect-[4/5] md:aspect-[2/1]">
-            {/* Background Image */}
+          <div className="relative bg-black rounded-[60px] lg:rounded-[40px] overflow-hidden min-h-[600px] md:min-h-[500px] flex items-center justify-center">
             {/* Background Image */}
             <Image
               src="https://cdn.shopify.com/s/files/1/0703/4562/1751/files/Movement.webp?v=1766375294"
@@ -746,9 +745,9 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
 
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 md:p-12 text-center">
+            <div className="relative z-10 flex flex-col items-center justify-center p-8 md:p-12 text-center w-full">
               {/* Logo */}
-              <div className="relative w-32 h-12 md:w-40 md:h-16 mb-4 opacity-90">
+              <div className="relative w-32 h-12 md:w-40 md:h-16 mb-4 opacity-90 block shrink-0">
                 <Image
                   src="/logo.png"
                   alt="Shaded Logo"
@@ -758,11 +757,11 @@ export default function HomeClient({ latestCollection, trendingProducts }: HomeC
               </div>
 
               <span className="text-white/80 uppercase tracking-[0.2em] text-xs md:text-sm font-medium mb-6">
-                is more than just an Athleisure Brand
+                {t('home.movementSubtitle')}
               </span>
 
               <h2 className="text-5xl md:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 tracking-tighter mb-8" style={{ fontFamily: 'var(--font-heading)' }}>
-                IT'S A MOVEMENT
+                {t('home.movementMainTitle')}
               </h2>
 
               <div className="max-w-xl mx-auto relative">
