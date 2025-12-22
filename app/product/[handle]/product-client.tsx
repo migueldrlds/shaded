@@ -798,19 +798,22 @@ export default function ProductClient({ producto, recommendedProducts = [], othe
 
   return (
     <div
-      className="min-h-screen relative bg-white md:bg-transparent"
+      className="min-h-screen relative"
     >
-      {/* Video de fondo para escritorio - SOLO DESKTOP */}
+      {/* 1. Fondo Móvil: Blanco sólido */}
+      <div className="fixed inset-0 bg-white -z-20 md:hidden" />
+
+      {/* 2. Fondo Escritorio: Video Loop */}
       <video
         className="fixed inset-0 w-full h-full object-cover -z-20 hidden md:block"
-        src="/Videoloop.mp4"
+        src="/Videoloop.mp4?v=2"
         autoPlay
         muted
         loop
         playsInline
       />
 
-      {/* Overlay - SOLO DESKTOP */}
+      {/* 3. Overlay Escritorio */}
       <div className="fixed inset-0 bg-black/20 -z-10 hidden md:block"></div>
 
       {/* LAYOUT MÓVIL (Scrollable) */}
