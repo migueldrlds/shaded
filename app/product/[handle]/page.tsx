@@ -12,13 +12,15 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   if (!product) return { title: 'Product Not Found' };
 
+  const imageUrl = product.featuredImage?.url || product.images?.[0]?.url || product.variants?.[0]?.image?.url || '';
+
   return {
     title: product.seo?.title || product.title,
     description: product.seo?.description || product.description,
     openGraph: {
       images: [
         {
-          url: product.featuredImage?.url || product.images?.[0]?.url || '',
+          url: imageUrl,
           width: 800,
           height: 600,
           alt: product.title,
@@ -29,7 +31,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       card: 'summary_large_image',
       title: product.seo?.title || product.title,
       description: product.seo?.description || product.description,
-      images: [product.featuredImage?.url || product.images?.[0]?.url || ''],
+      images: [imageUrl],
       creator: '@shaded'
     },
   };
